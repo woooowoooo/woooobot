@@ -15,7 +15,9 @@ client.on("message", msg => {
 		console.log(`${msg.author.tag} said:\n${msg}`);
 	}
 	if (msg.content.substring(0, prefix.length) === prefix) {
-		msg.channel.send(`Your message: **${msg.content.substring(prefix.length)}**.`);
+		const reply = `Your message: **${msg.content.substring(prefix.length)}**.`;
+		console.log(`${client.user.tag}'s reply:\n${reply}`);
+		msg.channel.send(reply);
 	}
 });
 client.login(token);
