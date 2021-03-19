@@ -5,12 +5,23 @@ const me = client.users.fetch(myID).then(user => {
 	console.log(user);
 	return user;
 });
-function log(message) { // Log into console all woooobot messages
+function logMessage(message) { // Log into console all woooobot messages
 	if (message.channel.type === "dm") {
-		console.log(`(DM) To ${message.channel.recipient.tag}\n	${message}`);
+		console.log(`[S] ${message.channel.recipient.tag}\n	${message}`);
 	}
 	else { // If it's not a DM it's probably a text channel.
-		console.log(`${message.channel.guild.name}, ${message.channel.name}:\n	${message}`);
+		console.log(`[S] ${message.channel.guild.name}, ${message.channel.name}:\n	${message}`);
+	}
+}
+function logDM(message) {
+	if (message.guild === null && message.author.id != botID) {
+		const log = `[R] ${message.author.tag}:\n	${message}`;
+		if (message.author.id === myID) { // I know what I sent
+			console.log(log);
+		}
+		else {
+			me.then(user => user.send(log)).then(logMessage);
+		}
 	}
 }
 client.once("ready", () => {
@@ -18,17 +29,10 @@ client.once("ready", () => {
 });
 client.on("message", msg => {
 	// Act on bot DMs
-	if (msg.guild === null && msg.author.id != botID) {
-		if (msg.author.id === myID) { // I know what I sent
-			console.log(`${msg.author.tag}:\n	${msg}`);
-		}
-		else {
-			me.then(user => user.send(`${msg.author.tag}: ${msg}`)).then(log);
-		}
-	}
+	logDM(msg);
 	// Act on server messages with the bot prefix
 	if (msg.content.substring(0, prefix.length) === prefix) {
-		msg.channel.send(`Your message: **${msg.content.substring(prefix.length)}**.`).then(log);
+		msg.channel.send(`Your message: **${msg.content.substring(prefix.length)}**.`).then(logMessage);
 	}
 });
 client.login(token);
