@@ -3,45 +3,42 @@ const morshu = ["lamp", "oil", "rope", "bombs", "you", "want", "it", "it's", "yo
 const punct = [", ", "; ", ": ", "—"];
 const punctFinal = [". ", "… ", "! ", "? ", "‽ "];
 const punctStart = ["'", "\"", "(", ""];
-const punctEnd = ["'", "\"", ")", "-" + randArray(morshu)];
+const punctEnd = ["'", "\"", ")", "-" + rand(morshu)];
 const punctChance = 0.3; // Chance of punctuation instead of space
 const punctFinalChance = 0.5; // Chance of a final instead of a non-final punctuation mark
-const punctWrapChance = 0.2; // Chance of wrapping punctuation
-function randArray(array) {
+const punctWrapChance = 0.15; // Chance of wrapping punctuation
+function rand(array) {
 	return array[Math.floor(Math.random() * array.length)];
 }
-function randArrayFunc(array, conditional) {
+function randFunc(array, conditional) {
 	let index = Math.floor(Math.random() * array.length);
 	conditional(index);
 	return array[index];
 }
-function generateMorshu(wordCount) {
-	let string = randArray(morshuCaps);
+exports.generate = function (wordCount) {
+	let string = rand(morshuCaps);
 	let caps = false;
 	for (let i = 0; i < wordCount - 1; i++) {
 		if (Math.random() < punctChance) {
 			if (Math.random() < punctFinalChance) {
-				string += randArray(punctFinal);
+				string += rand(punctFinal);
 				caps = true;
+			} else {
+				string += rand(punct);
 			}
-			else {
-				string += randArray(punct);
-			}
-		}
-		else {
+		} else {
 			string += " ";
 		}
 		if (Math.random() < punctWrapChance) {
 			let punctWrapIndex = 0;
-			string += randArrayFunc(punctStart, index => punctWrapIndex = index);
-			string += randArray(caps ? morshuCaps : morshu);
+			string += randFunc(punctStart, index => punctWrapIndex = index);
+			string += rand(caps ? morshuCaps : morshu);
 			string += punctEnd[punctWrapIndex];
-		}
-		else {
-			string += randArray(caps ? morshuCaps : morshu);
+		} else {
+			string += rand(caps ? morshuCaps : morshu);
 		}
 		caps = false;
 	}
-	string += randArray(punctFinal);
+	string += rand(punctFinal);
 	return string;
 }
