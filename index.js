@@ -6,20 +6,27 @@ const me = client.users.fetch(myID).then(user => {
 	console.log(user);
 	return user;
 });
-function logMessage(message) { // Log into console all woooobot messages
-	if (message.channel.type === "dm") {
-		console.log(`[S] ${message.channel.recipient.tag}:\n	${message}`);
-	} else { // If it's not a DM it's probably a text channel.
-		console.log(`[S] ${message.channel.guild.name}, ${message.channel.name}:\n	${message}`);
+function sendMessage(destination, message) { // Log into console all woooobot messages
+	if (message.length > 2000) {
+		console.log("Message is too long!");
+		return;
+	}
+	destination.send(message);
+	if (destination.type === "dm") {
+		console.log(`[S] ${destination.recipient.tag}:\n	${message}`);
+	} else { // If it's not a User or DM channel it's probably a text channel.
+		console.log(`[S] ${destination.guild.name}, ${destination.name}:\n	${message}`);
 	}
 }
 function logDM(message) {
 	if (message.guild === null && message.author.id != botID) {
-		const log = `[R] ${message.author.tag}:\n	${message}`;
+		const log = `${message.author.tag}:\n	${message}`;
 		if (message.author.id === myID) { // I know what I sent
-			console.log(log);
+			console.log(`[R] ${log}`);
 		} else {
-			me.then(user => user.send(log)).then(logMessage);
+			me.then(user => {
+				sendMessage(user.dmChannel, message);
+			});
 		}
 	}
 }
@@ -29,7 +36,7 @@ client.once("ready", () => {
 client.on("message", msg => {
 	// Act on bot DMs
 	logDM(msg);
-	// Act on server messages with the bot prefix
+	// Act on messages with the bot prefix
 	if (msg.content.substring(0, prefix.length) === prefix) {
 		let content = msg.content.substring(prefix.length);
 		let command = content.split(" ", 1)[0];
@@ -65,7 +72,7 @@ morshu <wordCount>: Generates <wordCount> amount of morshu words. Default amount
 				reply = `Error: There isn't a command named ${command}.`;
 				break;
 		}
-		msg.channel.send(reply).then(logMessage);
+			sendMessage(msg.channel, reply);
 	}
 });
 client.login(token);
