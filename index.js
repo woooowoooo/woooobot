@@ -53,6 +53,20 @@ morshu <wordCount>: Generates <wordCount> amount of morshu words. Default amount
 \`\`\`
 				`;
 				break;
+			case "eval":
+				if (msg.author.id === myID) {
+					try {
+						if (args.substring(0, 3) === "```") {
+							args = args.substring(3, args.length - 3);
+						}
+						eval(args);
+					} catch (e) {
+						console.log(`Error parsing input command(s): "${args}"\n	${e}`);
+					}
+				} else {
+					reply = "Your permissions aren't high enough for this command!";
+				}
+				break;
 			case "ping":
 				reply = `<@${msg.author.id}>`;
 				break;
@@ -68,11 +82,13 @@ morshu <wordCount>: Generates <wordCount> amount of morshu words. Default amount
 					reply = `I couldn't parse "${args}", so here's 10 words:\n${morshu.generate(10)}`;
 				}
 				break;
-			case "default":
+			default:
 				reply = `Error: There isn't a command named ${command}.`;
 				break;
 		}
+		if (reply) {
 			sendMessage(msg.channel, reply);
+		}
 	}
 });
 client.login(token);
