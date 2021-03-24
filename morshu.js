@@ -31,7 +31,9 @@ exports.generate = function (wordCount) {
 		}
 		if (Math.random() < punctWrapChance) {
 			let punctWrapIndex = 0;
-			string += randFunc(punctStart, index => punctWrapIndex = index);
+			string += randFunc(punctStart, index => {
+				punctWrapIndex = index;
+			});
 			string += rand(caps ? morshuCaps : morshu);
 			string += punctEnd[punctWrapIndex];
 		} else {
