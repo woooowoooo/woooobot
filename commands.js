@@ -51,7 +51,13 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 		takesArgs: true,
 		permLevel: "normal",
 		function: function (args) {
-			let id = args.text ? args.text : args.user.id;
+			let id = args.user.id;
+			if (args.text) {
+				if (args.text.substring(0,2) === "<@") { // User sends in a ping
+					return args.text;
+				}
+				id = args.text;
+			}
 			return `<@${id}>`;
 		},
 	},
@@ -59,6 +65,9 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 		takesArgs: true,
 		permLevel: "normal",
 		function: function (args) {
+			if (args.text == "") {
+				return "Error: \"message\" is missing!";
+			}
 			return args.text;
 		}
 	},
@@ -68,7 +77,7 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 		permLevel: "normal",
 		function: function (args) {
 			let words = Number(args.text);
-			if (words <= 0) {
+			if (isNaN(words) || words <= 0) {
 				return `"Error: ${args.text}" is not a positive integer!`;
 			}
 			return morshu.generate(words);
