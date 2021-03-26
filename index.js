@@ -1,37 +1,52 @@
-const {prefix, token, myID, serverID, botID} = require("./config.json");
+const {prefix, token, myID, serverID, botID, logging} = require("./config.json");
 const commands = require("./commands.js");
 const Discord = require("discord.js");
+const fs = require("fs");
 const client = new Discord.Client();
-const twow = client.guilds.fetch(serverID);
-const me = client.users.fetch(myID);
-function sendMessage(destination, message) { // Log into console all woooobot messages
+let twow;
+let me;
+function logMessage(message, error) {
+	if (error) {
+		console.error(`Error: ${message}`);
+	} else {
+		console.log(message);
+	}
+	if (logging) {
+		fs.appendFile("./log.txt", `${message}\n`, e => {
+			if (e) {
+				console.error(`Error: ${e}`);
+			}
+		});
+	}
+}
+function sendMessage(destination, message) {
 	if (message.length > 2000) {
-		console.log("Message is too long!");
+		logMessage("Message is too long!", true);
 		return;
 	}
 	destination.send(message);
 	if (destination.type === "dm") {
-		console.log(`[S] ${destination.recipient.tag}:\n	${message}`);
-	} else { // If it's not a User or DM channel it's probably a text channel.
-		console.log(`[S] ${destination.guild.name}, ${destination.name}:\n	${message}`);
+		logMessage(`[S] ${destination.recipient.tag}:\n	${message}`, false);
+	} else { // If it's not a DM it's probably a text channel.
+		logMessage(`[S] ${destination.guild.name}, ${destination.name}:\n	${message}`, false);
 	}
 }
 function logDM(message) {
 	if (message.guild === null && message.author.id != botID) {
 		const log = `${message.author.tag}:\n	${message}`;
 		if (message.author.id === myID) { // I know what I sent
-			console.log(`[R] ${log}`);
+			logMessage(`[R] ${log}`, false);
 		} else {
-			me.then(user => {
-				sendMessage(user.dmChannel, message);
-			});
+			sendMessage(me.dmChannel, log);
 		}
 	}
 }
-client.once("ready", () => {
-	console.log(`\n${'='.repeat(14 + client.user.tag.length)}\nLogged in as ${client.user.tag}.\n`);
+client.once("ready", async function () {
+	logMessage(`\n${'='.repeat(14 + client.user.tag.length)}\nLogged in as ${client.user.tag}.\n`, false);
+	me = await client.users.fetch(myID);
+	twow = await client.guilds.fetch(serverID);
 });
-client.on("message", msg => {
+client.on("message", function (msg) {
 	// Act on bot DMs
 	logDM(msg);
 	// Act on messages with the bot prefix
@@ -39,11 +54,15 @@ client.on("message", msg => {
 		let content = msg.content.substring(prefix.length);
 		let command = content.split(" ", 1)[0];
 		let args = content.substring(command.length + 1); // Keep the separating space out as well
-		twow.then(server => {
-			let reply = commands.execute(server, msg.author, command, args);
+		commands.execute(twow, msg.author, command, args).then(reply => {
 			if (reply) {
 				sendMessage(msg.channel, reply);
 			}
+		}).catch(error => {
+			// if (msg.author.id !== myID) { // I have access to the logs
+				sendMessage(msg.channel, error);
+			// }
+			logMessage(error, true);
 		});
 	}
 });

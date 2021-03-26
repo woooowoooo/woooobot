@@ -8,17 +8,14 @@ let hasPerms = function (server, user, permLevel) {
 		return user.id === myID;
 	}
 	// I'll use "switch" if I add another case.
-	server.members.fetch(user.id).then(member => {
-		return member.roles.has(roles[permLevel]);
-	}).catch(() => {
-		return false;
-	});
+	server.members.fetch(user.id)
+		.then(member => member.roles.has(roles[permLevel]))
+		.catch(() => false);
 };
 let commands = {
 	help: {
-		takesArgs: false,
 		permLevel: "normal",
-		function: function () {
+		function: function (args) {
 			return `\`\`\`ldif
 # Welcome to woooobot.
 
@@ -26,14 +23,14 @@ let commands = {
 command requiredArg [optionalArg]: Description <argument>.
 
 # Here are the current available commands:
+help: Show this menu.
 ping [userId]: Ping <userId> if provided. Pings yourself otherwise.
 echo message: Repeats <message>.
 morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount is 10 words.
-			\`\`\``;
+\`\`\``;
 		}
 	},
 	eval: {
-		takesArgs: true,
 		permLevel: "developer",
 		function: function (args) {
 			let command = args.text;
@@ -43,12 +40,11 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 				}
 				eval(command);
 			} catch (e) {
-				console.log(`Error parsing input command(s): "${command}"\n	${e}`);
+				throw `Error: Can't parse input command(s): "${command}"\n	${e}`;
 			}
 		},
 	},
 	ping: {
-		takesArgs: true,
 		permLevel: "normal",
 		function: function (args) {
 			let id = args.user.id;
@@ -62,46 +58,45 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 		},
 	},
 	echo: {
-		takesArgs: true,
 		permLevel: "normal",
 		function: function (args) {
 			if (args.text == "") {
-				return "Error: \"message\" is missing!";
+				throw "\"message\" is missing!";
 			}
 			return args.text;
 		}
 	},
 	morshu: {
-		takesArgs: true,
 		defaultArgs: "10",
 		permLevel: "normal",
 		function: function (args) {
 			let words = Number(args.text);
 			if (isNaN(words) || words <= 0) {
-				return `"Error: ${args.text}" is not a positive integer!`;
+				throw `"${args.text}" is not a positive integer!`;
 			}
 			return morshu.generate(words);
 		}
 	}
 }
-exports.execute = function (server, user, commandName, args) {
+exports.execute = async function (server, user, commandName, args) {
 	if (!(commandName in commands)) {
-		return `Error: There isn't a command named ${commandName}!`;
+		throw `There isn't a command named "${commandName}"!`;
 	}
 	let command = commands[commandName];
 	if (!hasPerms(server, user, command.permLevel)) {
-		return "Error: Your permissions aren't high enough for this command!";
+		throw "Your permissions aren't high enough for this command!";
 	}
 	let argsObj = {
 		text: args,
 		user: user,
 		server: server
 	}
-	if (command.takesArgs) {
-		if (args == "" && "defaultArgs" in command) {
-			argsObj.text = defaultArgs;
-		}
-		return command.function(argsObj);
+	if (args == "" && "defaultArgs" in command) {
+		argsObj.text = command.defaultArgs;
 	}
-	return command.function();
+	try {
+		return command.function(argsObj);
+	} catch (e) {
+		throw e;
+	}
 }

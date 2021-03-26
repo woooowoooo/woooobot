@@ -1,5 +1,6 @@
 config.json
 init.txt
+log.txt
 
 # For node.js
 node_modules/
