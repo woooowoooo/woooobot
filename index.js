@@ -6,15 +6,17 @@ const client = new Discord.Client();
 let twow;
 let me;
 function logMessage(message, error) {
+	let time = new Date();
+	let timeString = `${time.getFullYear()}-${time.getMonth() + 1}-${time.getDate()} ${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}`;
 	if (error) {
-		console.error(`Error: ${message}`);
+		console.error(`${timeString} Error: ${message}`);
 	} else {
-		console.log(message);
+		console.log(`${timeString} ${message}`);
 	}
 	if (logging) {
-		fs.appendFile("./log.txt", `${message}\n`, e => {
+		fs.appendFile("./log.txt", `${timeString} ${message}\n`, e => {
 			if (e) {
-				console.error(`Error: ${e}`);
+				console.error(`${timeString} Error: ${e}`);
 			}
 		});
 	}
@@ -42,7 +44,18 @@ function logDM(message) {
 	}
 }
 client.once("ready", async function () {
-	logMessage(`\n${'='.repeat(14 + client.user.tag.length)}\nLogged in as ${client.user.tag}.\n`, false);
+	let time = new Date();
+	let timeString = `${time.getFullYear()}-${time.getMonth() + 1}-${time.getDate()} ${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}`;
+	let log = `${timeString} Logged in as ${client.user.tag}.`;
+	let logFull = `\n${'='.repeat(log.length)}\n${log}\n`;
+	console.log(logFull);
+	if (logging) {
+		fs.appendFile("./log.txt", `${logFull}\n`, e => {
+			if (e) {
+				console.error(`${timeString} Error: ${e}`);
+			}
+		});
+	}
 	me = await client.users.fetch(myID);
 	twow = await client.guilds.fetch(serverID);
 });
@@ -60,7 +73,7 @@ client.on("message", function (msg) {
 			}
 		}).catch(error => {
 			// if (msg.author.id !== myID) { // I have access to the logs
-				sendMessage(msg.channel, error);
+				sendMessage(msg.channel, `Error: ${error}`);
 			// }
 			logMessage(error, true);
 		});
