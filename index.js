@@ -1,24 +1,27 @@
+// Modules
 const {prefix, token, myID, serverID, botID, logging} = require("./config.json");
 const commands = require("./commands.js");
 const Discord = require("discord.js");
 const fs = require("fs");
+// Other variables
 const client = new Discord.Client();
+let time = new Date();
+const logStream = fs.createWriteStream(`./logs/${time.toISOString().substring(0, 10)}-${time.toISOString().substring(11, 19)}.log`, {
+	"flags": "ax"
+});
 let twow;
 let me;
-function logMessage(message, error) {
-	let time = new Date();
-	let timeString = `${time.getFullYear()}-${time.getMonth() + 1}-${time.getDate()} ${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}`;
+// Helper functions
+function logMessage(message, error = false) {
+	time = new Date();
+	let timeString = `${time.toISOString().substring(0, 10)} ${time.toISOString().substring(11, 19)}`;
 	if (error) {
-		console.error(`${timeString} Error: ${message}`);
+		console.error(`${timeString} [E] ${message}`);
 	} else {
 		console.log(`${timeString} ${message}`);
 	}
 	if (logging) {
-		fs.appendFile("./log.txt", `${timeString} ${message}\n`, e => {
-			if (e) {
-				console.error(`${timeString} Error: ${e}`);
-			}
-		});
+		logStream.write(`${timeString} ${message}\n`);
 	}
 }
 function sendMessage(destination, message) {
@@ -28,34 +31,30 @@ function sendMessage(destination, message) {
 	}
 	destination.send(message);
 	if (destination.type === "dm") {
-		logMessage(`[S] ${destination.recipient.tag}:\n	${message}`, false);
+		logMessage(`[S] ${destination.recipient.tag}:\n	${message}`);
 	} else { // If it's not a DM it's probably a text channel.
-		logMessage(`[S] ${destination.guild.name}, ${destination.name}:\n	${message}`, false);
+		logMessage(`[S] ${destination.guild.name}, ${destination.name}:\n	${message}`);
 	}
 }
 function logDM(message) {
 	if (message.guild === null && message.author.id != botID) {
 		const log = `${message.author.tag}:\n	${message}`;
 		if (message.author.id === myID) { // I know what I sent
-			logMessage(`[R] ${log}`, false);
+			logMessage(`[R] ${log}`);
 		} else {
 			sendMessage(me.dmChannel, log);
 		}
 	}
 }
+// Event handling
+process.on("uncaughtException", e => {
+	console.log(`[E] ${e}`);
+	// logMessage(e, true);
+});
 client.once("ready", async function () {
-	let time = new Date();
-	let timeString = `${time.getFullYear()}-${time.getMonth() + 1}-${time.getDate()} ${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}`;
-	let log = `${timeString} Logged in as ${client.user.tag}.`;
-	let logFull = `\n${'='.repeat(log.length)}\n${log}\n`;
-	console.log(logFull);
-	if (logging) {
-		fs.appendFile("./log.txt", `${logFull}\n`, e => {
-			if (e) {
-				console.error(`${timeString} Error: ${e}`);
-			}
-		});
-	}
+	let log = `Logged in as ${client.user.tag}.\n`;
+	logMessage('='.repeat(log.length - 1));
+	logMessage(log);
 	me = await client.users.fetch(myID);
 	twow = await client.guilds.fetch(serverID);
 });
