@@ -16,14 +16,24 @@ let commands = {
 	help: {
 		permLevel: "normal",
 		function: function (args) {
+			return `Welcome to woooobot.
+Woooobot was made to automate twoooowoooo.
+Since I don't want to have this but running 24/7, **it will be offline most of the time.**
+However, the bot should be online during results.
+Use \`list\` to list all available commands.`;
+		}
+	},
+	list: {
+		permLevel: "normal",
+		function: function (args) {
 			return `\`\`\`ldif
-# Welcome to woooobot.
+# Here are the current available commands:
 
-# Here is an example entry:
+# Example list entry:
 command requiredArg [optionalArg]: Description <argument>.
 
-# Here are the current available commands:
-help: Show this menu.
+help: Show a welcome message.
+list: Show this command list.
 ping [userId]: Ping <userId> if provided. Pings yourself otherwise.
 echo message: Repeats <message>.
 morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount is 10 words.
