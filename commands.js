@@ -8,14 +8,14 @@ let hasPerms = function (server, user, permLevel) {
 		return user.id === myID;
 	}
 	// I'll use "switch" if I add another case.
-	server.members.fetch(user.id)
+	return server.members.fetch(user.id)
 		.then(member => member.roles.has(roles[permLevel]))
 		.catch(() => false);
 };
 let commands = {
 	help: {
 		permLevel: "normal",
-		function: function (args) {
+		function: function () {
 			return `Welcome to woooobot.
 Woooobot was made to automate twoooowoooo.
 Since I don't want to have this but running 24/7, **it will be offline most of the time.**
@@ -25,7 +25,7 @@ Use \`list\` to list all available commands.`;
 	},
 	list: {
 		permLevel: "normal",
-		function: function (args) {
+		function: function () {
 			return `\`\`\`ldif
 # Here are the current available commands:
 
@@ -70,7 +70,7 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 	echo: {
 		permLevel: "normal",
 		function: function (args) {
-			if (args.text == "") {
+			if (args.text === "") {
 				throw "\"message\" is missing!";
 			}
 			return args.text;
@@ -87,7 +87,7 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 			return morshu.generate(words);
 		}
 	}
-}
+};
 exports.execute = async function (server, user, commandName, args) {
 	if (!(commandName in commands)) {
 		throw `There isn't a command named "${commandName}"!`;
@@ -100,8 +100,8 @@ exports.execute = async function (server, user, commandName, args) {
 		text: args,
 		user: user,
 		server: server
-	}
-	if (args == "" && "defaultArgs" in command) {
+	};
+	if (args === "" && "defaultArgs" in command) {
 		argsObj.text = command.defaultArgs;
 	}
 	try {
@@ -109,4 +109,4 @@ exports.execute = async function (server, user, commandName, args) {
 	} catch (e) {
 		throw e;
 	}
-}
+};

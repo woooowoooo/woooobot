@@ -43,4 +43,4 @@ exports.generate = function (wordCount) {
 	}
 	string += rand(punctFinal);
 	return string;
-}
+};
