@@ -1,20 +1,24 @@
 // Modules
-const {logging, prefix, token, adminID, botID, serverID} = require("./config.json");
-const commands = require("./commands.js");
+const {logging, prefix, token, devID, botID, serverID} = require("./config.json");
+const {execute} = require("./commands.js");
 const Discord = require("discord.js");
 const fs = require("fs");
 // Other variables
 const client = new Discord.Client();
-const logStream = fs.createWriteStream(`./logs/${getTime(true)}.log`, {
-	"flags": "ax"
-});
-let twow;
+let logStream;
+if (logging) {
+	logStream = fs.createWriteStream(`./logs/${getTime(true)}.log`, {
+		"flags": "ax"
+	});
+}
+let server;
 let me;
 // Helper functions
 function getTime(oneWord = false) {
 	let date = new Date();
-	return `${date.toISOString().substring(0, 10)}${oneWord ? '-' : ' '}${date.toISOString().substring(11, 19)}`;
+	return date.toISOString().substring(0, 10) + (oneWord ? '-' : ' ') + date.toISOString().substring(11, 19);
 }
+exports.getTime = getTime;
 function logMessage(message, error = false) {
 	let time = getTime();
 	if (error) {
@@ -26,6 +30,7 @@ function logMessage(message, error = false) {
 		logStream.write(`${time} ${message}\n`);
 	}
 }
+exports.logMessage = logMessage;
 function sendMessage(destination, message) {
 	if (message.length > 2000) {
 		logMessage("Message is too long!", true);
@@ -38,14 +43,13 @@ function sendMessage(destination, message) {
 		logMessage(`[S] ${destination.guild.name}, ${destination.name}:\n	${message}`);
 	}
 }
+exports.sendMessage = sendMessage;
 function logDM(message) {
-	if (message.guild === null && message.author.id !== botID) {
-		const log = `${message.author.tag}:\n	${message}`;
-		if (message.author.id === adminID) { // I know what I sent
-			logMessage(`[R] ${log}`);
-		} else {
-			sendMessage(me.dmChannel, log);
-		}
+	const log = `${message.author.tag}:\n	${message}`;
+	if (message.author.id === devID) { // I know what I sent
+		logMessage(`[R] ${log}`);
+	} else {
+		sendMessage(me.dmChannel, log);
 	}
 }
 // Event handling
@@ -54,21 +58,23 @@ process.on("uncaughtException", e => {
 	// logMessage(e, true);
 });
 client.once("ready", async function () {
-	let log = `Logged in as ${client.user.tag}.\n`;
-	logMessage('='.repeat(log.length - 1));
-	logMessage(log);
-	me = await client.users.fetch(adminID);
-	twow = await client.guilds.fetch(serverID);
+	let initLog = `Logged in as ${client.user.tag}.\n`;
+	logMessage('='.repeat(initLog.length - 1));
+	logMessage(initLog);
+	me = await client.users.fetch(devID);
+	server = await client.guilds.fetch(serverID);
 });
 client.on("message", function (msg) {
 	// Act on bot DMs
-	logDM(msg);
+	if (message.guild === null && message.author.id !== botID) {
+		logDM(msg);
+	}
 	// Act on messages with the bot prefix
 	if (msg.content.substring(0, prefix.length) === prefix) {
 		let content = msg.content.substring(prefix.length);
 		let command = content.split(" ", 1)[0];
 		let args = content.substring(command.length + 1); // Keep the separating space out as well
-		commands.execute(twow, msg.author, command, args).then(reply => {
+		execute(server, msg.author, command, args).then(reply => {
 			if (reply) {
 				sendMessage(msg.channel, reply);
 			}
