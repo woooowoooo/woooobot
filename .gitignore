@@ -1,5 +1,7 @@
 logs/
+Sample Season/
 config.json
+rulecheck.js
 
 # For node.js
 node_modules/
