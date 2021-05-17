@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "discord.js": "^12.5.3",
+  },
+  "name": "woooobot",
+  "description": "Made to automate twoooowoooo.",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/woooowoooo/woooobot.git"
+  },
+  "author": "woooowoooo",
+  "homepage": "https://github.com/woooowoooo/woooobot#readme"
+}
