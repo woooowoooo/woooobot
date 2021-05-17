@@ -1,8 +1,13 @@
 // Modules
-const {logging, prefix, token, devID, botID, serverID} = require("./config.json");
-const {execute} = require("./commands.js");
 const Discord = require("discord.js");
 const fs = require("fs");
+const {
+	logging,
+	prefix,
+	codes: {token},
+	ids: {devID, botID, serverID}
+} = require("./config.json");
+const {execute} = require("./commands.js");
 // Other variables
 const client = new Discord.Client();
 let logStream;
@@ -64,23 +69,23 @@ client.once("ready", async function () {
 	me = await client.users.fetch(devID);
 	server = await client.guilds.fetch(serverID);
 });
-client.on("message", function (msg) {
+client.on("message", function (message) {
 	// Act on bot DMs
 	if (message.guild === null && message.author.id !== botID) {
-		logDM(msg);
+		logDM(message);
 	}
 	// Act on messages with the bot prefix
-	if (msg.content.substring(0, prefix.length) === prefix) {
-		let content = msg.content.substring(prefix.length);
+	if (message.content.substring(0, prefix.length) === prefix) {
+		let content = message.content.substring(prefix.length);
 		let command = content.split(" ", 1)[0];
 		let args = content.substring(command.length + 1); // Keep the separating space out as well
-		execute(server, msg.author, command, args).then(reply => {
+		execute(server, message.author, command, args).then(reply => {
 			if (reply) {
-				sendMessage(msg.channel, reply);
+				sendMessage(message.channel, reply);
 			}
 		}).catch(error => {
-			if (msg.author.id !== adminID) { // I have access to the logs
-				sendMessage(msg.channel, `Error: ${error}`);
+			if (message.author.id !== devID) { // I have access to the logs
+				sendMessage(message.channel, `Error: ${error}`);
 			}
 			logMessage(error, true);
 		});

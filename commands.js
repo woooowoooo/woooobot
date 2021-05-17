@@ -1,11 +1,11 @@
-const {myID, roles} = require("./config.json");
+const {devID, roles} = require("./config.json").ids;
 const morshu = require("./morshu.js");
 let hasPerms = function (server, user, permLevel) {
 	if (permLevel === "normal") {
 		return true;
 	}
 	if (permLevel === "developer") {
-		return user.id === myID;
+		return user.id === devID;
 	}
 	// I'll use "switch" if I add another case.
 	return server.members.fetch(user.id)
