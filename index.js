@@ -8,22 +8,19 @@ const {
 	ids: {devID, botID, serverID}
 } = require("./config.json");
 const {execute} = require("./commands.js");
+const {getTime} = require("./helpers.js");
+const {recordResponse} = require("./responding.js");
 // Other variables
 const client = new Discord.Client();
 let logStream;
 if (logging) {
-	logStream = fs.createWriteStream(`./logs/${getTime(true)}.log`, {
+	logStream = fs.createWriteStream(`./logs/${getTime().replace(/\s/g, "-")}.log`, {
 		"flags": "ax"
 	});
 }
 let server;
 let me;
 // Helper functions
-function getTime(oneWord = false) {
-	let date = new Date();
-	return date.toISOString().substring(0, 10) + (oneWord ? '-' : ' ') + date.toISOString().substring(11, 19);
-}
-exports.getTime = getTime;
 function logMessage(message, error = false) {
 	let time = getTime();
 	if (error) {
@@ -35,7 +32,6 @@ function logMessage(message, error = false) {
 		logStream.write(`${time} ${message}\n`);
 	}
 }
-exports.logMessage = logMessage;
 function sendMessage(destination, message) {
 	if (message.length > 2000) {
 		logMessage("Message is too long!", true);
@@ -73,6 +69,7 @@ client.on("message", function (message) {
 	// Act on bot DMs
 	if (message.guild === null && message.author.id !== botID) {
 		logDM(message);
+		recordResponse(message.author, message);
 	}
 	// Act on messages with the bot prefix
 	if (message.content.substring(0, prefix.length) === prefix) {
