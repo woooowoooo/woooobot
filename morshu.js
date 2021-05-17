@@ -10,11 +10,6 @@ const punctWrapChance = 0.15; // Chance of wrapping punctuation
 function rand(array) {
 	return array[Math.floor(Math.random() * array.length)];
 }
-function randFunc(array, conditional) {
-	let index = Math.floor(Math.random() * array.length);
-	conditional(index);
-	return array[index];
-}
 exports.generate = function (wordCount) {
 	let string = rand(morshuCaps);
 	let caps = false;
@@ -30,10 +25,8 @@ exports.generate = function (wordCount) {
 			string += " ";
 		}
 		if (Math.random() < punctWrapChance) {
-			let punctWrapIndex = 0;
-			string += randFunc(punctStart, index => {
-				punctWrapIndex = index;
-			});
+			let punctWrapIndex = Math.floor(Math.random() * punctStart.length);
+			string += punctStart[punctWrapIndex];
 			string += rand(caps ? morshuCaps : morshu);
 			string += punctEnd[punctWrapIndex];
 		} else {

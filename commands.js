@@ -15,7 +15,7 @@ let hasPerms = function (server, user, permLevel) {
 let commands = {
 	help: {
 		permLevel: "normal",
-		function: function () {
+		execute: function () {
 			return `Welcome to woooobot.
 Woooobot was made to automate twoooowoooo.
 Since I don't want to have this but running 24/7, **it will be offline most of the time.**
@@ -25,7 +25,7 @@ Use \`list\` to list all available commands.`;
 	},
 	list: {
 		permLevel: "normal",
-		function: function () {
+		execute: function () {
 			return `\`\`\`ldif
 # Here are the current available commands:
 
@@ -42,7 +42,7 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 	},
 	eval: {
 		permLevel: "developer",
-		function: function (args) {
+		execute: function (args) {
 			let command = args.text;
 			try {
 				if (command.substring(0, 3) === "```") { // Discord code blocks
@@ -56,7 +56,7 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 	},
 	ping: {
 		permLevel: "normal",
-		function: function (args) {
+		execute: function (args) {
 			let id = args.user.id;
 			if (args.text) {
 				if (args.text.substring(0,2) === "<@") { // User sends in a ping
@@ -69,7 +69,7 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 	},
 	echo: {
 		permLevel: "normal",
-		function: function (args) {
+		execute: function (args) {
 			if (args.text === "") {
 				throw "\"message\" is missing!";
 			}
@@ -79,7 +79,7 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 	morshu: {
 		defaultArgs: "10",
 		permLevel: "normal",
-		function: function (args) {
+		execute: function (args) {
 			let words = Number(args.text);
 			if (isNaN(words) || words <= 0) {
 				throw `"${args.text}" is not a positive integer!`;
@@ -105,7 +105,7 @@ exports.execute = async function (server, user, commandName, args) {
 		argsObj.text = command.defaultArgs;
 	}
 	try {
-		return command.function(argsObj);
+		return command.execute(argsObj);
 	} catch (e) {
 		throw e;
 	}
