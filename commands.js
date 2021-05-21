@@ -42,8 +42,7 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 	},
 	eval: {
 		permLevel: "developer",
-		execute: function (args) {
-			let command = args.text;
+		execute: function ({text: command}) {
 			try {
 				if (command.substring(0, 3) === "```") { // Discord code blocks
 					command = command.substring(3, command.length - 3);
@@ -56,35 +55,32 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 	},
 	ping: {
 		permLevel: "normal",
-		execute: function (args) {
-			let id = args.user.id;
-			if (args.text) {
-				if (args.text.substring(0,2) === "<@") { // User sends in a ping
-					return args.text;
+		execute: function ({text, user: {id}}) {
+			if (text) {
+				if (text.substring(0,2) === "<@") { // User sends in a ping
+					return text;
 				}
-				id = args.text;
+				id = text;
 			}
 			return `<@${id}>`;
 		},
 	},
 	echo: {
 		permLevel: "normal",
-		execute: function (args) {
-			if (args.text === "") {
+		execute: function ({text}) {
+			if (text === "") {
 				throw "\"message\" is missing!";
 			}
-			return args.text;
+			return text;
 		}
 	},
 	morshu: {
-		defaultArgs: "10",
 		permLevel: "normal",
-		execute: function (args) {
-			let words = Number(args.text);
-			if (isNaN(words) || words <= 0) {
-				throw `"${args.text}" is not a positive integer!`;
+		execute: function ({text: sentences = 1}) {
+			if (isNaN(parseInt(sentences)) || sentences <= 0) {
+				throw `"${sentences}" is not a positive integer!`;
 			}
-			return morshu.generate(words);
+			return morshu.generate(sentences);
 		}
 	}
 };
@@ -101,9 +97,6 @@ exports.execute = async function (server, user, commandName, args) {
 		user: user,
 		server: server
 	};
-	if (args === "" && "defaultArgs" in command) {
-		argsObj.text = command.defaultArgs;
-	}
 	try {
 		return command.execute(argsObj);
 	} catch (e) {
