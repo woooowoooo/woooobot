@@ -1,39 +1,70 @@
-const morshuCaps = ["Lamp", "Oil", "Rope", "Bombs", "You", "Want", "It", "It's", "Yours", "My", "Friend", "As", "Long", "Have", "Enough", "Rubies", "Sorry", "Link", "I", "Can't", "Give", "Credit", "Come", "Back", "When", "You're", "A", "Little", "Mmm", "Richer"];
-const morshu = ["lamp", "oil", "rope", "bombs", "you", "want", "it", "it's", "yours", "my", "friend", "as", "long", "have", "enough", "rubies", "sorry", "Link", "link", "I", "can't", "give", "credit", "come", "back", "when", "you're", "a", "little", "mmm", "richer"];
-const punct = [", ", "; ", ": ", "—"];
-const punctFinal = [". ", "… ", "! ", "? ", "‽ "];
-const punctStart = ["'", "\"", "(", ""];
-const punctEnd = ["'", "\"", ")", "-" + rand(morshu)];
+// Word lists
+const words = ["lamp", "oil", "rope", "bombs", "you", "want", "it", "it's", "yours", "my", "friend", "as", "long", "have", "enough", "rubies", "sorry", "Link", "link", "I", "can't", "give", "credit", "come", "back", "when", "you're", "a", "little", "mmm", "richer"];
+const punct = [", ", "; ", ": ", " — "];
+const punctFinal = ["… ", "! ", "? ", "‽ "];
+const punctWrap = {
+	"'": "'",
+	"\"": "\"",
+	"(": ")"
+};
+// Chance variables
 const punctChance = 0.3; // Chance of punctuation instead of space
 const punctFinalChance = 0.5; // Chance of a final instead of a non-final punctuation mark
-const punctWrapChance = 0.15; // Chance of wrapping punctuation
-function rand(array) {
+const punctSpecialChance = 0.5; // Chance of a special final punctuation instead of a period.
+const punctWrapChance = 0.1; // Chance of wrapping punctuation
+const hyphenChance = 0.05; // Chance of a hyphenated word
+// Other variables
+let final = false;
+let caps = true;
+// Functions
+function choose(array) {
 	return array[Math.floor(Math.random() * array.length)];
 }
-exports.generate = function (wordCount) {
-	let string = rand(morshuCaps);
-	let caps = false;
-	for (let i = 0; i < wordCount - 1; i++) {
-		if (Math.random() < punctChance) {
-			if (Math.random() < punctFinalChance) {
-				string += rand(punctFinal);
-				caps = true;
-			} else {
-				string += rand(punct);
-			}
-		} else {
-			string += " ";
-		}
-		if (Math.random() < punctWrapChance) {
-			let punctWrapIndex = Math.floor(Math.random() * punctStart.length);
-			string += punctStart[punctWrapIndex];
-			string += rand(caps ? morshuCaps : morshu);
-			string += punctEnd[punctWrapIndex];
-		} else {
-			string += rand(caps ? morshuCaps : morshu);
-		}
+function roll(chance) {
+	return Math.random() < chance;
+}
+function capitalize(word) {
+	if (caps) {
+		word = word.charAt(0).toUpperCase() + word.substring(1);
 		caps = false;
 	}
-	string += rand(punctFinal);
-	return string;
+	return word;
+}
+function addPunctuation() {
+	let punctuation = "";
+	if (roll(punctChance)) {
+		if (roll(punctFinalChance)) {
+			if (roll(punctSpecialChance)) {
+				punctuation = choose(punctFinal);
+			} else {
+				punctuation += ".";
+			}
+			final = true;
+			caps = true;
+		} else {
+			punctuation += choose(punct);
+		}
+	} else {
+		punctuation += " ";
+	}
+	return punctuation;
+}
+exports.generate = function (sentenceAmount) {
+	let sentences = [];
+	while (sentenceAmount > 0) {
+		final = false;
+		let sentence = "";
+		while (!final) {
+			const punct = roll(punctWrapChance) ? choose(Object.keys(punctWrap)) : "";
+			sentence += punct ?? "";
+			sentence += capitalize(choose(words));
+			sentence += roll(hyphenChance) ? "-" + capitalize(choose(words)) : "";
+			sentence += punctWrap[punct] ?? "";
+			sentence += addPunctuation();
+		}
+		sentences.push(sentence);
+		sentenceAmount--;
+	}
+	return sentences.join("\n");
 };
+console.log(exports.generate(5));
