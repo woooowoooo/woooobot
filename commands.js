@@ -12,7 +12,7 @@ const hasPerms = function (server, roles, user, permLevel) {
 		.then(member => member.roles.has(roles[permLevel]))
 		.catch(() => false);
 };
-let commands = {
+const commands = {
 	help: {
 		permLevel: "normal",
 		execute: function () {
@@ -88,11 +88,11 @@ module.exports = async function (server, roles, user, commandName, args) {
 	if (!(commandName in commands)) {
 		throw `There isn't a command named "${commandName}"!`;
 	}
-	let command = commands[commandName];
+	const command = commands[commandName];
 	if (!hasPerms(server, roles, user, command.permLevel)) {
 		throw "Your permissions aren't high enough for this command!";
 	}
-	let argsObj = {
+	const argsObj = {
 		text: args,
 		user: user,
 		server: server
