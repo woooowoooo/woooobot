@@ -1,6 +1,6 @@
-const {devID, roles} = require("./config.json").ids;
 const morshu = require("./morshu.js");
-let hasPerms = function (server, user, permLevel) {
+const {devID} = require("./config.json");
+const hasPerms = function (server, roles, user, permLevel) {
 	if (permLevel === "normal") {
 		return true;
 	}
@@ -84,12 +84,12 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 		}
 	}
 };
-exports.execute = async function (server, user, commandName, args) {
+module.exports = async function (server, roles, user, commandName, args) {
 	if (!(commandName in commands)) {
 		throw `There isn't a command named "${commandName}"!`;
 	}
 	let command = commands[commandName];
-	if (!hasPerms(server, user, command.permLevel)) {
+	if (!hasPerms(server, roles, user, command.permLevel)) {
 		throw "Your permissions aren't high enough for this command!";
 	}
 	let argsObj = {
