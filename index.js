@@ -20,7 +20,7 @@ if (logging != null) {
 function logMessage(message, error = false) {
 	const time = getTime();
 	if (error) {
-		console.error(`${time} [E] ${message}`);
+		console.error(`${time} ${message}`);
 	} else {
 		console.log(`${time} ${message}`);
 	}
@@ -30,8 +30,7 @@ function logMessage(message, error = false) {
 }
 function sendMessage(destination, message) {
 	if (message.length > 2000) {
-		logMessage("Message is too long!", true);
-		return;
+		throw new Error("Message is too long!");
 	}
 	destination.send(message);
 	if (destination.type === "dm") {
@@ -42,7 +41,7 @@ function sendMessage(destination, message) {
 }
 // Event handling
 process.on("uncaughtException", e => {
-	logMessage(e, true);
+	logMessage(`[E] ${e}`, true);
 });
 client.once("ready", async function () {
 	const initLog = `Logged in as ${client.user.tag}.\n`;
@@ -73,9 +72,9 @@ client.on("message", function (message) {
 				sendMessage(message.channel, reply);
 			}
 		}).catch(e => {
-			logMessage(e, true);
+			logMessage(`[E] ${e}`, true);
 			if (message.author.id !== devID) { // I have access to the logs
-				sendMessage(message.channel, `Error: ${e}`);
+				sendMessage(message.channel, e);
 			}
 		});
 	}

@@ -42,14 +42,14 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 	},
 	eval: {
 		permLevel: "developer",
-		execute: function ({text: command}) {
+		execute: function ({text: code}) {
 			try {
-				if (command.substring(0, 3) === "```") { // Discord code blocks
-					command = command.substring(3, command.length - 3);
-				}
-				eval(command);
+				const singleLine = code.match(/^(`+)(?<code>.*)\1$/s)?.groups.code;
+				const multiLine = code.match(/^(`{3,})(?:js|javascript)?\n(?<code>.*)\n\1$/s)?.groups.code;
+				code = multiLine ?? singleLine ?? code;
+				eval(code);
 			} catch (e) {
-				throw `Error: Can't parse input command(s): "${command}"\n	${e}`;
+				throw new EvalError(`Invalid input command(s):\n	${code}\n	${e}`);
 			}
 		},
 	},
@@ -69,7 +69,7 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 		permLevel: "normal",
 		execute: function ({text}) {
 			if (text === "") {
-				throw "\"message\" is missing!";
+				throw new Error("\"message\" is missing!");
 			}
 			return text;
 		}
@@ -78,7 +78,7 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 		permLevel: "normal",
 		execute: function ({text: sentences = 1}) {
 			if (isNaN(parseInt(sentences)) || sentences <= 0) {
-				throw `"${sentences}" is not a positive integer!`;
+				throw new Error(`"${sentences}" is not a positive integer!`);
 			}
 			return morshu.generate(sentences);
 		}
@@ -86,20 +86,16 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 };
 module.exports = async function (server, roles, user, commandName, args) {
 	if (!(commandName in commands)) {
-		throw `There isn't a command named "${commandName}"!`;
+		throw new Error(`There isn't a command named "${commandName}"!`);
 	}
 	const command = commands[commandName];
 	if (!hasPerms(server, roles, user, command.permLevel)) {
-		throw "Your permissions aren't high enough for this command!";
+		throw new Error("You aren't allowed to use this command!");
 	}
 	const argsObj = {
 		text: args,
 		user: user,
 		server: server
 	};
-	try {
-		return command.execute(argsObj);
-	} catch (e) {
-		throw e;
-	}
+	return command.execute(argsObj);
 };
