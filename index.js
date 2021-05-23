@@ -50,30 +50,35 @@ client.once("ready", async function () {
 	me = await client.users.fetch(devID);
 });
 client.on("message", function (message) {
-	const isDM = message.guild == null && message.author.id !== botID;
+	const author = message.author;
 	const server = message.guild;
 	const {roles, channels: {botChannels}} = require(`${twows["Sample TWOW"]}/twowConfig.json`);
-	// Act on bot DMs
-	if (isDM) {
-		const log = `${message.author.tag}:\n	${message}`;
-		logMessage(`[R] ${log}`);
-		if (message.author.id !== devID) { // I know what I sent
-			sendMessage(me.dmChannel, log);
+	if (author.id === botID || server != null && !botChannels.includes(message.channel.id)) {
+		return;
+	}
+	// Act on direct messages
+	if (server == null) {
+		logMessage(`[R] ${author.tag}:\n	${message}`);
+		if (author.id !== devID) { // I know what I sent
+			sendMessage(me.dmChannel, `${author.tag}:\n${message}`);
 		}
-		recordResponse(message.author, message);
+		recordResponse(author, message);
 	}
 	// Act on messages with the bot prefix
-	if (message.content.substring(0, prefix.length) === prefix && (isDM || botChannels.includes(message.channel.id))) {
+	if (message.content.substring(0, prefix.length) === prefix) {
+		if (server != null) {
+			logMessage(`[R] ${author.tag} in ${server.name}, ${message.channel.name}:\n	${message}`);
+		}
 		const content = message.content.substring(prefix.length);
 		const command = content.split(" ", 1)[0];
 		const args = content.substring(command.length + 1); // Keep the separating space out as well
-		commands(server, roles, message.author, command, args).then(reply => {
+		commands(server, roles, author, command, args).then(reply => {
 			if (reply != null) {
 				sendMessage(message.channel, reply);
 			}
 		}).catch(e => {
 			logMessage(`[E] ${e}`, true);
-			if (message.author.id !== devID) { // I have access to the logs
+			if (author.id !== devID) { // I have access to the logs
 				sendMessage(message.channel, e);
 			}
 		});

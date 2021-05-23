@@ -67,4 +67,3 @@ exports.generate = function (sentenceAmount) {
 	}
 	return sentences.join("\n");
 };
-console.log(exports.generate(5));
