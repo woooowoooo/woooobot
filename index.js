@@ -20,6 +20,23 @@ function sendMessage(destination, message) {
 	}
 }
 client.sendMessage = sendMessage;
+function parseCommands(message, author, server, channel, roles) {
+	const content = message.substring(prefix.length);
+	const command = content.split(" ", 1)[0];
+	// Default parameters only act on "undefined" and not an empty string.
+	const args = content.substring(command.length + 1) || undefined;
+	// Execute other commands
+	commands(command, args, author, server, roles).then(reply => {
+		if (reply != null) {
+			sendMessage(channel, reply);
+		}
+	}).catch(e => {
+		logMessage(`[E] ${e}`, true);
+		if (author.id !== devID) { // I have access to the logs
+			sendMessage(channel, e);
+		}
+	});
+}
 // Event handling
 process.on("uncaughtException", e => {
 	logMessage(`[E] ${e}`, true);
@@ -29,6 +46,7 @@ client.once("ready", async function () {
 	logMessage('='.repeat(initLog.length - 1));
 	logMessage(initLog);
 	me = await client.users.fetch(devID);
+	me.createDM(); // To allow for console input to work
 });
 client.on("message", function (message) {
 	const author = message.author;
@@ -50,19 +68,14 @@ client.on("message", function (message) {
 		if (server != null) { // DMs already get logged
 			logMessage(`[R] ${author.tag} in ${server.name}, ${message.channel.name}:\n	${message}`);
 		}
-		const content = message.content.substring(prefix.length);
-		const command = content.split(" ", 1)[0];
-		const args = content.substring(command.length + 1); // Keep the separating space out as well
-		commands(server, roles, author, command, args).then(reply => {
-			if (reply != null) {
-				sendMessage(message.channel, reply);
-			}
-		}).catch(e => {
-			logMessage(`[E] ${e}`, true);
-			if (author.id !== devID) { // I have access to the logs
-				sendMessage(message.channel, e);
-			}
-		});
+		parseCommands(message.content, author, server, message.channel, roles);
 	}
 });
 client.login(token);
+// Respond to console input
+let stdin = process.openStdin();
+stdin.addListener("data", function (message) {
+	message = message.toString().trim();
+	logMessage(`[R] console input: ${message}`);
+	parseCommands(message, me, null, me.dmChannel, require(`${twows["Sample TWOW"]}/twowConfig.json`).roles);
+});

@@ -1,6 +1,6 @@
 const {devID} = require("./config.json");
-const hasPerms = function (server, roles, user, permLevel) {
 const morshu = require("./morshu.js");
+const hasPerms = function (user, server, roles, permLevel) {
 	if (permLevel === "normal") {
 		return true;
 	}
@@ -56,7 +56,7 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 	ping: {
 		permLevel: "normal",
 		execute: function ({text, user: {id}}) {
-			if (text) {
+			if (text != null) {
 				if (text.substring(0,2) === "<@") { // User sends in a ping
 					return text;
 				}
@@ -68,7 +68,7 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 	echo: {
 		permLevel: "normal",
 		execute: function ({text}) {
-			if (text === "") {
+			if (text == null) {
 				throw new Error("\"message\" is missing!");
 			}
 			return text;
@@ -84,12 +84,12 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 		}
 	}
 };
-module.exports = async function (server, roles, user, commandName, args) {
+module.exports = async function (commandName, args, user, server, roles) {
 	if (!(commandName in commands)) {
 		throw new Error(`There isn't a command named "${commandName}"!`);
 	}
 	const command = commands[commandName];
-	if (!hasPerms(server, roles, user, command.permLevel)) {
+	if (!hasPerms(user, server, roles, command.permLevel)) {
 		throw new Error("You aren't allowed to use this command!");
 	}
 	const argsObj = {
