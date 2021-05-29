@@ -1,6 +1,6 @@
-const morshu = require("./morshu.js");
 const {devID} = require("./config.json");
 const hasPerms = function (server, roles, user, permLevel) {
+const morshu = require("./morshu.js");
 	if (permLevel === "normal") {
 		return true;
 	}

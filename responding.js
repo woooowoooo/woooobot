@@ -1,7 +1,7 @@
 // Modules
 const fs = require("fs").promises;
 const {twows} = require("./config.json");
-const {getTime} = require("./helpers.js");
+const {getTime, logMessage} = require("./helpers.js");
 const technicals = require("./technicals.js");
 const twists = require("./twists.js");
 // Other variables
