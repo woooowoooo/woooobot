@@ -1,6 +1,6 @@
-module.exports = {
+const technicals = {
 	tenWord: {
-		title: "TWOW",
+		title: "Ten Words of Wisdom",
 		description: "Responses must contain at most ten words, where a word is anything delimited by a whitespace character.",
 		check: function (response) {
 			let wordCount = response.split(" ").length;
@@ -8,22 +8,22 @@ module.exports = {
 		}
 	},
 	concise: {
-		title: "Conciseness is key",
+		title: "Conciseness Is Key",
 		description: "Responses must be at most 80 characters long.",
-		check: function (response) {
-			return response.length <= 80;
+		check: function (response, max = 80) {
+			return response.length <= max;
 		}
 	},
 	rng: {
-		title: "Flip a coin",
-		description: "Response acceptance depends on the whims of `Math.random()`.",
+		title: "Flip a Coin",
+		description: "Everything depends on the whims of `Math.random()`.",
 		check: function () {
 			return Math.random() >= 0.5;
 		}
 	},
 	rule2: {
-		title: "Rule 2",
-		description: "Rule 2 of CarnivalTWOW R12.",
+		title: "Anti-meme",
+		description: "Responses must have over seven words.",
 		check: function (response) {
 			let wordCount = response.split(" ").length;
 			return wordCount >= 7;
@@ -37,11 +37,16 @@ module.exports = {
 		}
 	},
 	rule4: {
-		title: "Rule 4",
-		description: "Rule 4 of CarnivalTWOW R12.",
-		check: function (response) {
+		title: "Lipogram",
+		description: "Responses must not have certain letters.",
+		check: function (response, letters = ["b"]) {
 			response = response.toLowerCase();
-			return !response.includes("b");
+			for (const letter in letters) {
+				if (response.includes(letter)) {
+					return false;
+				}
+			}
+			return true;
 		}
 	},
 	rule5: {
@@ -54,19 +59,19 @@ module.exports = {
 	rule6: {
 		title: "Rule 6",
 		description: "Rule 6 of CarnivalTWOW R12.",
-		check: function (response) {
+		check: function (response, min = 3) {
 			response = response.toLowerCase();
 			let firsts = response.split(" ").map(word => word[0]);
 			let freqs = firsts.reduce((freqs, letter) => {
 				freqs[letter] = (freqs[letter] ?? 0) + 1;
 				return freqs;
 			}, {});
-			return Object.values(freqs).sort((a, b) => b - a)[0] >= 3;
+			return Object.values(freqs).sort((a, b) => b - a)[0] >= min;
 		}
 	},
 	rule7: {
-		title: "Rule 7",
-		description: "Rule 7 of CarnivalTWOW R12.",
+		title: "Diverse Word Lengths",
+		description: "All word lengths are equal, but some word lengths are more equal than others.",
 		check: function (response) {
 			let lengths = response.split(" ").map(word => word.replace(/[^\w\s]/g, "").length);
 			for (let i = 1; i < lengths.length; i++) {
@@ -80,14 +85,15 @@ module.exports = {
 	rule8: {
 		title: "Rule 8",
 		description: "Rule 8 of CarnivalTWOW R12.",
-		check: function (response) {
+		check: function (response, max = 8) {
 			response = response.toLowerCase();
 			let letters = response.match(/[a-z]/g) ?? [];
 			let freqs = letters.reduce((freqs, letter) => {
 				freqs[letter] = (freqs[letter] ?? 0) + 1;
 				return freqs;
 			}, {});
-			return Object.values(freqs).sort((a, b) => b - a)[0] < 8;
+			return Object.values(freqs).sort((a, b) => b - a)[0] < max;
 		}
 	}
 };
+module.exports = technicals;
