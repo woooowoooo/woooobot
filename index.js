@@ -1,9 +1,9 @@
 // Modules
 const Discord = require("discord.js");
-const commands = require("./commands.js");
 const recordResponse = require("./responding.js");
 const {prefix, token, devID, botID, twows} = require("./config.json");
 const {logMessage} = require("./helpers.js");
+let commands = require("./commands.js");
 // Other variables
 const client = new Discord.Client();
 let me;
@@ -25,6 +25,13 @@ function parseCommands(message, author, server, channel, roles) {
 	const command = content.split(" ", 1)[0];
 	// Default parameters only act on "undefined" and not an empty string.
 	const args = content.substring(command.length + 1) || undefined;
+	// Reload commands
+	if (command === "reload" && author.id === devID) {
+		delete require.cache[require.resolve("./commands.js")];
+		commands = require("./commands.js");
+		logMessage("Commands reloaded.");
+		return;
+	}
 	// Execute other commands
 	commands(command, args, author, server, roles).then(reply => {
 		if (reply != null) {
