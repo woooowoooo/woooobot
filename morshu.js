@@ -1,22 +1,21 @@
 // Word lists
-const words = ["lamp", "oil", "rope", "bombs", "you", "want", "it", "it's", "yours", "my", "friend", "as", "long", "have", "enough", "rubies", "sorry", "Link", "link", "I", "can't", "give", "credit", "come", "back", "when", "you're", "a", "little", "mmm", "richer"];
+const adjectives = ["long", "sorry", "little", "richer"];
+const adverbs = ["enough", "can", "not", "back", "when"];
+const determiners = ["yours", "enough", "my", "a"];
+const interjections = ["mmm"];
+const nouns = ["lamp", "oil", "rope", "bombs", "friend", "rubies", "rupees", "link", "credit", "back"];
+const properNouns = ["you", "it", "enough", "Link", "I"]; // Also includes pronouns
+const prepositions = ["as", "when"];
+const verbs = ["want", "is", "have", "give", "come", "are"];
+// Punctuation
 const punct = [", ", "; ", ": ", " — "];
 const punctFinal = ["… ", "! ", "? ", "‽ "];
-const punctWrap = {
-	"'": "'",
-	"\"": "\"",
-	"(": ")"
-};
 // Chance variables
-const punctChance = 0.3; // Chance of punctuation instead of space
-const punctFinalChance = 0.5; // Chance of a final instead of a non-final punctuation mark
-const punctSpecialChance = 0.5; // Chance of a special final punctuation instead of a period.
-const punctWrapChance = 0.1; // Chance of wrapping punctuation
-const hyphenChance = 0.05; // Chance of a hyphenated word
-// Other variables
-let final = false;
-let caps = true;
-// Functions
+const properChance = 0.5; // Chance of getting a proper noun or pronoun
+const adjectiveChance = 0.4; // Chance of an extra adjective or adverb
+const punctSpecialChance = 0.5; // Chance of a special punctuation instead of a period
+const multiClauseChance = 0.2; // Chance of a complex sentence (multiple clauses)
+// Helper functions
 function choose(array) {
 	return array[Math.floor(Math.random() * array.length)];
 }
@@ -24,44 +23,47 @@ function roll(chance) {
 	return Math.random() < chance;
 }
 function capitalize(word) {
-	if (caps) {
-		word = word.charAt(0).toUpperCase() + word.substring(1);
-		caps = false;
-	}
-	return word;
+	return word.charAt(0).toUpperCase() + word.substring(1);
 }
-function addPunctuation() {
-	let punctuation = "";
-	if (roll(punctChance)) {
-		if (roll(punctFinalChance)) {
-			if (roll(punctSpecialChance)) {
-				punctuation = choose(punctFinal);
-			} else {
-				punctuation += ".";
-			}
-			final = true;
-			caps = true;
-		} else {
-			punctuation += choose(punct);
-		}
-	} else {
-		punctuation += " ";
+// Generation
+function genNounPhrase() {
+	if (roll(properChance)) {
+		return choose(properNouns);
 	}
-	return punctuation;
+	let nounPhrase = choose(determiners) + " ";
+	if (roll(adjectiveChance)) {
+		nounPhrase += choose(adjectives) + " ";
+	}
+	nounPhrase += choose(nouns);
+	return nounPhrase;
+}
+function genVerbPhrase() {
+	if (roll(adjectiveChance)) {
+		return choose(adverbs) + " " + genVerbPhrase();
+	}
+	return choose(verbs) + " " + genNounPhrase();
+}
+function genClause() {
+	return genNounPhrase() + " " + genVerbPhrase();
+}
+function genSentence() {
+	let sentence = genClause();
+	if (roll(multiClauseChance)) {
+		sentence += choose(punct);
+		sentence += genClause();
+	}
+	if (roll(punctSpecialChance)) {
+		sentence += choose(punctFinal);
+	} else {
+		sentence += ".";
+	}
+	return sentence;
 }
 exports.generate = function (sentenceAmount) {
 	let sentences = [];
 	while (sentenceAmount > 0) {
-		final = false;
-		let sentence = "";
-		while (!final) {
-			const punct = roll(punctWrapChance) ? choose(Object.keys(punctWrap)) : "";
-			sentence += punct ?? "";
-			sentence += capitalize(choose(words));
-			sentence += roll(hyphenChance) ? "-" + capitalize(choose(words)) : "";
-			sentence += punctWrap[punct] ?? "";
-			sentence += addPunctuation();
-		}
+		let sentence = genSentence();
+		sentence = capitalize(sentence);
 		sentences.push(sentence);
 		sentenceAmount--;
 	}
