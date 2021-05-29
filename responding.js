@@ -7,15 +7,17 @@ const twists = require("./twists.js");
 // Other variables
 const twowPath = twows["Sample TWOW"]; // Only works for a single TWOW.
 const status = require(`${twowPath}/status.json`);
-let twowSettings = require(`${twowPath}/twowConfig.json`);
-const seasonPath = `${twowPath}/${twowSettings.seasons[status.currentSeason]}`;
-let seasonSettings = require(`${seasonPath}/seasonConfig.json`);
-const roundPath = `${seasonPath}/${seasonSettings.rounds[status.currentRound]}`;
+let {seasons, channels: {prompts}} = require(`${twowPath}/twowConfig.json`);
+const seasonPath = `${twowPath}/${seasons[status.currentSeason]}`;
+let {rounds} = require(`${seasonPath}/seasonConfig.json`);
+const roundPath = `${seasonPath}/${rounds[status.currentRound]}`;
 let roundData = require(`${roundPath}/data.json`);
 let responses = require(`${roundPath}/responses.json`);
-// Release prompt
-// Record responses
-module.exports = function (user, message) {
+// Functions
+exports.initResponding = function () {
+	logMessage("Start responding period here.");
+};
+exports.logResponse = function (message, user) {
 	let messageData = {
 		time: getTime(message.createdAt),
 		text: message.content
@@ -28,4 +30,5 @@ module.exports = function (user, message) {
 	}, message.content);
 	responses[user.id] = messageData;
 	fs.writeFile(`${roundPath}/responses.json`, JSON.stringify(responses, null, '\t'));
+	user.client.sendMessage(user.dmChannel, `Your response (\`${message}\`) has been recorded.`);
 };

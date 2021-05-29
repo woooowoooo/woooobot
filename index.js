@@ -1,8 +1,8 @@
 // Modules
 const Discord = require("discord.js");
-const recordResponse = require("./responding.js");
 const {prefix, token, devID, botID, twows} = require("./config.json");
 const {logMessage} = require("./helpers.js");
+const {initResponding, logResponse} = require("./responding.js");
 let commands = require("./commands.js");
 // Other variables
 const client = new Discord.Client();
@@ -58,8 +58,9 @@ client.once("ready", async function () {
 client.on("message", function (message) {
 	const author = message.author;
 	const server = message.guild;
-	const {roles, channels: {botChannels}} = require(`${twows["Sample TWOW"]}/twowConfig.json`);
-	if (author.id === botID || server != null && !botChannels.includes(message.channel.id)) {
+	const {roles, channels: {bots}} = require(`${twows["Sample TWOW"]}/twowConfig.json`);
+	const {status} = require(`${twows["Sample TWOW"]}/status.json`);
+	if (author.id === botID || server != null && !bots.includes(message.channel.id)) {
 		return;
 	}
 	// Act on direct messages
@@ -68,7 +69,11 @@ client.on("message", function (message) {
 		if (author.id !== devID) { // I know what I sent
 			sendMessage(me.dmChannel, `${author.tag}:\n${message}`);
 		}
-		recordResponse(author, message);
+		if (status === "responding") {
+			logResponse(message, author);
+		} else if (status === "voting") {
+			// logVote(message, author);
+		}
 	}
 	// Act on messages with the bot prefix
 	if (message.content.substring(0, prefix.length) === prefix) {
