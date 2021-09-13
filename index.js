@@ -1,30 +1,18 @@
 // Modules
 const Discord = require("discord.js");
+const client = new Discord.Client(); // Client is down here so helpers.js can use it
+exports.client = client;
 const {prefix, token, devID, botID, twows} = require("./config.json");
-const {logMessage} = require("./helpers.js");
-const {initResponding, logResponse} = require("./responding.js");
+const {logMessage, sendMessage} = require("./helpers.js");
+const {logResponse} = require("./responding.js");
 let commands = require("./commands.js");
 // Other variables
-const client = new Discord.Client();
 let me;
-// Helper functions
-function sendMessage(destination, message) {
-	if (message.length > 2000) {
-		throw new Error("Message is too long!");
-	}
-	destination.send(message);
-	if (destination.type === "dm") {
-		logMessage(`[S] ${destination.recipient.tag}:\n	${message}`);
-	} else { // If it's not a DM it's probably a text channel.
-		logMessage(`[S] ${destination.guild.name}, ${destination.name}:\n	${message}`);
-	}
-}
-client.sendMessage = sendMessage;
+// Command parsing function
 function parseCommands(message, author, server, channel, roles) {
-	const content = message.substring(prefix.length);
-	const command = content.split(" ", 1)[0];
+	const command = message.split(" ", 1)[0];
 	// Default parameters only act on "undefined" and not an empty string.
-	const args = content.substring(command.length + 1) || undefined;
+	const args = message.substring(command.length + 1) || undefined;
 	// Reload commands
 	if (command === "reload" && author.id === devID) {
 		delete require.cache[require.resolve("./commands.js")];
@@ -46,7 +34,7 @@ function parseCommands(message, author, server, channel, roles) {
 }
 // Event handling
 process.on("uncaughtException", e => {
-	logMessage(`[E] ${e}`, true);
+	logMessage(`[E] ${e}\nStack trace is below:\n${e.stack}`, true);
 });
 client.once("ready", async function () {
 	const initLog = `Logged in as ${client.user.tag}.\n`;
@@ -57,10 +45,11 @@ client.once("ready", async function () {
 });
 client.on("message", function (message) {
 	const author = message.author;
+	const channel = message.channel;
 	const server = message.guild;
 	const {roles, channels: {bots}} = require(`${twows["Sample TWOW"]}/twowConfig.json`);
 	const {status} = require(`${twows["Sample TWOW"]}/status.json`);
-	if (author.id === botID || server != null && !bots.includes(message.channel.id)) {
+	if (author.id === botID || server != null && !bots.includes(channel.id)) {
 		return;
 	}
 	// Act on direct messages
@@ -78,9 +67,9 @@ client.on("message", function (message) {
 	// Act on messages with the bot prefix
 	if (message.content.substring(0, prefix.length) === prefix) {
 		if (server != null) { // DMs already get logged
-			logMessage(`[R] ${author.tag} in ${server.name}, ${message.channel.name}:\n	${message}`);
+			logMessage(`[R] ${author.tag} in ${server.name}, ${channel.name}:\n	${message}`);
 		}
-		parseCommands(message.content, author, server, message.channel, roles);
+		parseCommands(message.content.substring(prefix.length), author, server, channel, roles);
 	}
 });
 client.login(token);
@@ -88,6 +77,8 @@ client.login(token);
 let stdin = process.openStdin();
 stdin.addListener("data", function (message) {
 	message = message.toString().trim();
-	logMessage(`[R] console input: ${message}`);
-	parseCommands(message, me, null, me.dmChannel, require(`${twows["Sample TWOW"]}/twowConfig.json`).roles);
+	logMessage(`[R] Console input: ${message}`);
+	if (message.substring(0, 2) !== "//") {
+		parseCommands(message, me, null, me.dmChannel, require(`${twows["Sample TWOW"]}/twowConfig.json`).roles);
+	}
 });
