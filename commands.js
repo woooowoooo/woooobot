@@ -30,13 +30,20 @@ Use \`list\` to list all available commands.`;
 # Here are the current available commands:
 
 # Example list entry:
-command requiredArg [optionalArg]: Description <argument>.
+command <requiredArg> [optionalArg]: Description <argument>.
 
 help: Show a welcome message.
 list: Show this command list.
-ping [userId]: Ping <userId> if provided. Pings yourself otherwise.
-echo message: Repeats <message>.
+
+echo <message>: Repeats <message>.
 morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount is 10 words.
+ping [userId]: Ping <userId> if provided. Pings yourself otherwise.
+
+edit <path> <key> <value>: Changes the value of <key> in <path> to <value>.
+phase [newPhase]: Changes round status to <newPhase>. If no argument is provided, increments the phase.
+
+eval <command>: Runs <command>.
+reload: Reloads commands.js.
 \`\`\``;
 		}
 	},
@@ -51,19 +58,30 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 			} catch (e) {
 				throw new EvalError(`Invalid input command(s):\n	${code}\n	${e}`);
 			}
-		},
+		}
 	},
-	ping: {
-		permLevel: "normal",
-		execute: function ({text, user: {id}}) {
-			if (text != null) {
-				if (text.substring(0,2) === "<@") { // User sends in a ping
-					return text;
-				}
-				id = text;
+	edit: {
+		permLevel: "admin",
+		execute: function ({text}) {
+			let [path, key, value] = text.split(" ");
+			if (path.match(/..\//)) {
+				throw new Error("You can't edit above miniTWOW-level!");
 			}
-			return `<@${id}>`;
-		},
+			path = `./Sample TWOW/${path}`;
+			let file = require(path);
+			file[key] = value;
+			fs.writeFile(path, JSON.stringify(file, null, '\t'));
+		}
+	},
+	phase: {
+		permLevel: "admin",
+		execute: function ({text: phase}) {
+			if (phase === "responding") {
+				initResponding();
+			} else if (phase === "voting") {
+				initVoting();
+			}
+		}
 	},
 	echo: {
 		permLevel: "normal",
@@ -81,6 +99,18 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 				throw new Error(`"${sentences}" is not a positive integer!`);
 			}
 			return morshu.generate(sentences);
+		}
+	},
+	ping: {
+		permLevel: "normal",
+		execute: function ({text, user: {id}}) {
+			if (text != null) {
+				if (text.substring(0,2) === "<@") { // User sends in a ping
+					return text;
+				}
+				id = text;
+			}
+			return `<@${id}>`;
 		}
 	}
 };

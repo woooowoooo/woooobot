@@ -3,7 +3,9 @@ const technicals = {
 		title: "Ten Words of Wisdom",
 		description: "Responses must contain at most ten words, where a word is anything delimited by a whitespace character.",
 		check: function (response) {
-			let wordCount = response.split(" ").length;
+			let wordCount = response.split(/\s/).filter(word => {
+				word.match(/\w/); // Don't count punctuation-only "words"
+			}).length;
 			return wordCount <= 10;
 		}
 	},
