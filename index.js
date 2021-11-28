@@ -5,6 +5,7 @@ exports.client = client;
 const {prefix, token, devID, botID, twows} = require("./config.json");
 const {logMessage, sendMessage} = require("./helpers.js");
 const {logResponse} = require("./responding.js");
+const {logVote} = require("./voting.js");
 let commands = require("./commands.js");
 // Other variables
 let me;
@@ -48,7 +49,7 @@ client.on("message", function (message) {
 	const channel = message.channel;
 	const server = message.guild;
 	const {roles, channels: {bots}} = require(`${twows["Sample TWOW"]}/twowConfig.json`);
-	const {status} = require(`${twows["Sample TWOW"]}/status.json`);
+	const {phase} = require(`${twows["Sample TWOW"]}/status.json`);
 	if (author.id === botID || server != null && !bots.includes(channel.id)) {
 		return;
 	}
@@ -58,10 +59,10 @@ client.on("message", function (message) {
 		if (author.id !== devID) { // I know what I sent
 			sendMessage(me.dmChannel, `${author.tag}:\n${message}`);
 		}
-		if (status === "responding") {
+		if (phase === "responding") {
 			logResponse(message, author);
-		} else if (status === "voting") {
-			// logVote(message, author);
+		} else if (phase === "voting") {
+			logVote(message, author);
 		}
 	}
 	// Act on messages with the bot prefix

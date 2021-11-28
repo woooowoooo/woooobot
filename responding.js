@@ -4,21 +4,21 @@ const {twows} = require("./config.json");
 const {getTime, logMessage, sendMessage} = require("./helpers.js");
 const technicals = require("./technicals.js");
 const twists = require("./twists.js");
-// Other variables
+// Files
 const twowPath = twows["Sample TWOW"]; // Only works for a single TWOW.
 let status = require(`${twowPath}/status.json`);
-const {seasons, channels: {prompts}} = require(`${twowPath}/twowConfig.json`);
+const {seasons, roles: {alive, remind}, channels: {prompts}} = require(`${twowPath}/twowConfig.json`);
 const seasonPath = `${twowPath}/${seasons[status.currentSeason - 1]}`;
 const {rounds} = require(`${seasonPath}/seasonConfig.json`);
 const roundPath = `${seasonPath}/${rounds[status.currentRound - 1]}`;
-const {prompt, technicals: roundTechnicals, twists: roundTwists} = require(`${roundPath}/roundConfig.json`);
+const {prompt, deadline, technicals: roundTechnicals, twists: roundTwists} = require(`${roundPath}/roundConfig.json`);
 let responses = require(`${roundPath}/responses.json`);
 // Functions
 exports.initResponding = function () {
 	logMessage("Responding period started.");
 	status.phase = "responding";
 	fs.writeFile(`${twowPath}/status.json`, JSON.stringify(status, null, '\t'));
-	sendMessage(prompts, `Round ${status.currentRound} Prompt:\n${prompt}`, true);
+	sendMessage(prompts, `<@&${alive}> Round ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@814748906046226442> by <t:${deadline}> (<t:${deadline}:R>)`, true);
 };
 exports.logResponse = function (message, user) {
 	let messageData = {
@@ -32,9 +32,9 @@ exports.logResponse = function (message, user) {
 		}, message.content)
 	};
 	if (messageData.technical === false) {
-		sendMessage(user.dmChannel, `Your response (\`${message}\`) failed a technical.\nIt has not been recorded; please submit a better one.`);
+		sendMessage(user.dmChannel, `Your response (\`${message}\`) failed a technical.\nIt has not been recorded; please submit a response that follows all technicals.`);
 	}
 	responses[user.id] = messageData;
 	fs.writeFile(`${roundPath}/responses.json`, JSON.stringify(responses, null, '\t'));
-	sendMessage(user.dmChannel, `Your response (\`${message}\`) has been recorded.`);
+	sendMessage(user.dmChannel, `Your response (\`${message}\`) has been recorded. Your response is response #${responses.length}`);
 };

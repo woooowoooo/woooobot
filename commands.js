@@ -1,5 +1,7 @@
 const {devID} = require("./config.json");
 const morshu = require("./morshu.js");
+const {initResponding} = require("./responding.js");
+const {initVoting} = require("./voting.js");
 const hasPerms = function (user, server, roles, permLevel) {
 	if (permLevel === "normal") {
 		return true;
