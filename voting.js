@@ -38,9 +38,9 @@ exports.initVoting = function () {
 	// TODO: Create voting
 	createScreen(12);
 };
-exports.logVote = function (message, user) {
-	logMessage(`Recording Vote: ${message} by ${user}`);
-	votes[user].id = {
+exports.logVote = function (message) {
+	logMessage(`Recording Vote: ${message} by ${message.author}`);
+	votes[message.author.id].id = {
 		"time": getTime(message.createdAt), // Doesn't access message time property
 		"text": message.content
 	};

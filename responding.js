@@ -20,8 +20,9 @@ exports.initResponding = function () {
 	fs.writeFile(`${twowPath}/status.json`, JSON.stringify(status, null, '\t'));
 	sendMessage(prompts, `<@&${alive}> Round ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@814748906046226442> by <t:${deadline}> (<t:${deadline}:R>)`, true);
 };
-exports.logResponse = function (message, user) {
+exports.logResponse = function (message) {
 	let messageData = {
+		id: message.id,
 		time: getTime(message.createdAt),
 		text: message.content,
 		technical: roundTechnicals.reduce((passes, name) => {
@@ -32,9 +33,10 @@ exports.logResponse = function (message, user) {
 		}, message.content)
 	};
 	if (messageData.technical === false) {
-		sendMessage(user.dmChannel, `Your response (\`${message}\`) failed a technical.\nIt has not been recorded; please submit a response that follows all technicals.`);
+		sendMessage(message.author.dmChannel, `Your response (\`${message}\`) failed a technical.\nIt has not been recorded; please submit a response that follows all technicals.`);
+		return;
 	}
-	responses[user.id] = messageData;
+	responses[message.author.id] = messageData;
 	fs.writeFile(`${roundPath}/responses.json`, JSON.stringify(responses, null, '\t'));
-	sendMessage(user.dmChannel, `Your response (\`${message}\`) has been recorded. Your response is response #${responses.length}`);
+	sendMessage(message.author.dmChannel, `Your response (\`${message}\`) has been recorded. Your response is response #${responses.length}`);
 };
