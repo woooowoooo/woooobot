@@ -1,5 +1,5 @@
 const {client} = require("./index.js");
-const {devID} = require("./config.json");
+const {prefix, devID} = require("./config.json");
 const morshu = require("./morshu.js");
 const {initResponding} = require("./responding.js");
 const {initVoting} = require("./voting.js");
@@ -20,10 +20,10 @@ const commands = {
 		permLevel: "normal",
 		execute: function () {
 			return `Welcome to woooobot.
-Woooobot was made to automate twoooowoooo.
-Since I don't want to have this but running 24/7, **it will be offline most of the time.**
-However, the bot should be online during results.
-Use \`list\` to list all available commands.`;
+woooobot was made to automate twoooowoooo.
+I don't want to have this bot running 24/7, so **it will be offline most of the time.**
+However, the bot will be guaranteed online during results.
+Use \`${prefix} list\` to list all available commands.`;
 		}
 	},
 	list: {
@@ -38,16 +38,19 @@ command <requiredArg> [optionalArg]: Description <argument>.
 help: Show a welcome message.
 list: Show this command list.
 
+UNRESTRICTED:
 echo <message>: Repeats <message>.
 morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount is 10 words.
 ping [userId]: Ping <userId> if provided. Pings yourself otherwise.
 
+MODERATOR-ONLY:
 edit <path> <key> <value>: Changes the value of <key> in <path> to <value>.
 phase [newPhase]: Changes round status to <newPhase>. If no argument is provided, increments the phase.
 
+DEVELOPER-ONLY:
 eval <command>: Runs <command>.
-send <id> <text>: Sends <text> to <id>.
 reload: Reloads commands.js.
+send <id> <text>: Sends <text> to <id>.
 \`\`\``;
 		}
 	},

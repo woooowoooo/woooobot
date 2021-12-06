@@ -79,7 +79,7 @@ client.on("messageCreate", function (message) {
 	if (author.id === botID || message.guild != null && !bots.includes(channel.id)) {
 		return;
 	}
-	logMessage(`[R] ${author.tag + (message.guild != null && ` in ${message.guild.name}, ${channel.name}`)}:\n	${message}`);
+	logMessage(`[R] ${author.tag + (message.guild != null ? ` in ${message.guild.name}, #${channel.name}` : ``)}:\n	${message}`);
 	if (message.content.substring(0, prefix.length) === prefix) {
 		// Act on commands
 		parseCommands(message.content.substring(prefix.length), author, channel);
