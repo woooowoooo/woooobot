@@ -1,3 +1,4 @@
+const {client} = require("./index.js");
 const {devID} = require("./config.json");
 const morshu = require("./morshu.js");
 const {initResponding} = require("./responding.js");
@@ -45,6 +46,7 @@ edit <path> <key> <value>: Changes the value of <key> in <path> to <value>.
 phase [newPhase]: Changes round status to <newPhase>. If no argument is provided, increments the phase.
 
 eval <command>: Runs <command>.
+send <id> <text>: Sends <text> to <id>.
 reload: Reloads commands.js.
 \`\`\``;
 		}
@@ -60,6 +62,16 @@ reload: Reloads commands.js.
 			} catch (e) {
 				throw new EvalError(`Invalid input command(s):\n	${code}\n	${e}`);
 			}
+		}
+	},
+	send: {
+		permLevel: "developer",
+		execute: async function ({text}) {
+			let [channelId, ...message] = text.split(" ");
+			channelId = channelId.match(/^<#(?<id>\d+)>$/)?.groups.id ?? channelId;
+			const channel = await client.channels.fetch(channelId);
+			channel.send(message.join(" "));
+			// TODO: Add DM functionality
 		}
 	},
 	edit: {
