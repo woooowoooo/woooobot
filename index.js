@@ -15,7 +15,7 @@ exports.client = client; // Client is exported so helpers.js can use it
 const {prefix, token, devID, botID, twows} = require("./config.json");
 const {id: serverID, roles, channels: {bots}} = require(`${twows["Sample TWOW"]}/twowConfig.json`);
 // Function modules
-const {logMessage, sendMessage} = require("./helpers.js");
+const {getTime, logMessage, sendMessage} = require("./helpers.js");
 const morshu = require("./morshu.js");
 const {logResponse} = require("./responding.js");
 const {logVote} = require("./voting.js");
@@ -54,11 +54,22 @@ client.once("ready", async function () {
 	// Send startup messages to console
 	const initLog = `Logged in as ${client.user.tag}.\n\n`;
 	logMessage('='.repeat(initLog.length - 2));
-	logMessage(initLog + morshu.generate(10) + '\n');
+	logMessage(initLog + morshu.generate(5) + '\n');
 	// Initialize me
 	me = await client.users.fetch(devID);
 	me.createDM(); // To allow for console input to work
-	// TODO: Create DMs for every participant
+	// Act on recent DMs
+	const twoooowoooo = await client.guilds.fetch(serverID);
+	await twoooowoooo.members.fetch();
+	const checkRole = await twoooowoooo.roles.fetch(roles.checkDMs);
+	checkRole.members.forEach(async member => {
+		const dms = await member.createDM();
+		logMessage(`DM to ${member.user.tag} created.\n`);
+		const messages = await dms.messages.fetch();
+		messages.forEach(message => {
+			logMessage(`[R] ${message.author.tag} at ${getTime(message.createdAt)}:\n	${message}`);
+		});
+	});
 });
 client.on("messageCreate", function (message) {
 	const author = message.author;
