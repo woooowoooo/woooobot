@@ -36,7 +36,7 @@ exports.sendMessage = function (destination, message, id = false) {
 		throw new Error("Message is too long!");
 	}
 	destination.send(message);
-	if (destination.type === "dm") {
+	if (destination.type === "DM") {
 		exports.logMessage(`[S] ${destination.recipient.tag}:\n	${message}`);
 	} else { // If it's not a DM it's probably a text channel.
 		exports.logMessage(`[S] ${destination.guild.name}, ${destination.name}:\n	${message}`);

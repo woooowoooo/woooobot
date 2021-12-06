@@ -1,7 +1,16 @@
 // Discord
-const Discord = require("discord.js");
-const client = new Discord.Client(); // Client is down here so helpers.js can use it
-exports.client = client;
+const {Client, Intents} = require("discord.js");
+const client = new Client({
+	intents: [
+		Intents.FLAGS.GUILD_MEMBERS,
+		Intents.FLAGS.GUILD_MESSAGES,
+		Intents.FLAGS.DIRECT_MESSAGES
+	],
+	partials: [
+		"CHANNEL"
+	]
+});
+exports.client = client; // Client is exported so helpers.js can use it
 // Config modules
 const {prefix, token, devID, botID, twows} = require("./config.json");
 const {id: serverID, roles, channels: {bots}} = require(`${twows["Sample TWOW"]}/twowConfig.json`);
@@ -51,14 +60,14 @@ client.once("ready", async function () {
 	me.createDM(); // To allow for console input to work
 	// TODO: Create DMs for every participant
 });
-client.on("message", function (message) {
+client.on("messageCreate", function (message) {
 	const author = message.author;
 	const channel = message.channel;
 	const {phase} = require(`${twows["Sample TWOW"]}/status.json`);
 	if (author.id === botID || message.guild != null && !bots.includes(channel.id)) {
 		return;
 	}
-	logMessage(`[R] ${author.tag + (message.guild != null) && ` in ${message.guild.name}, ${channel.name}`}:\n	${message}`);
+	logMessage(`[R] ${author.tag + (message.guild != null && ` in ${message.guild.name}, ${channel.name}`)}:\n	${message}`);
 	if (message.content.substring(0, prefix.length) === prefix) {
 		// Act on commands
 		parseCommands(message.content.substring(prefix.length), author, channel);
