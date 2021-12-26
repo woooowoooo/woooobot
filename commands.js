@@ -84,7 +84,7 @@ send <id> <text>: Sends <text> to <id>.
 			if (path.match(/..\//)) {
 				throw new Error("You can't edit above miniTWOW-level!");
 			}
-			path = `./Sample TWOW/${path}`;
+			path = `./${path}`;
 			let file = require(path);
 			file[key] = value;
 			fs.writeFile(path, JSON.stringify(file, null, '\t'));

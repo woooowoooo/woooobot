@@ -1,9 +1,9 @@
 // Modules
-const {twows} = require("./config.json");
 const {getTime, logMessage, sendMessage} = require("./helpers.js");
 const {generate: morshu} = require("./morshu.js");
-// Files
-const twowPath = twows["Sample TWOW"]; // Only works for a single TWOW.
+// Data
+const {twows, currentTWOW} = require("./config.json");
+const twowPath = twows[currentTWOW]; // Only works for a single TWOW.
 const status = require(`${twowPath}/status.json`);
 const {seasons, channels: {results}} = require(`${twowPath}/twowConfig.json`);
 const seasonPath = `${twowPath}/${seasons[status.currentSeason - 1]}`;

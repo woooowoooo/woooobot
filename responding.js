@@ -1,11 +1,11 @@
 // Modules
 const fs = require("fs").promises;
-const {twows} = require("./config.json");
 const {getTime, logMessage, sendMessage} = require("./helpers.js");
 const technicals = require("./technicals.js");
 const twists = require("./twists.js");
-// Files
-const twowPath = twows["Sample TWOW"]; // Only works for a single TWOW.
+// Data
+const {twows, currentTWOW} = require("./config.json");
+const twowPath = twows[currentTWOW]; // TODO: Add support for multiple TWOWs
 let status = require(`${twowPath}/status.json`);
 const {seasons, roles: {alive, remind}, channels: {prompts}} = require(`${twowPath}/twowConfig.json`);
 const seasonPath = `${twowPath}/${seasons[status.currentSeason - 1]}`;
