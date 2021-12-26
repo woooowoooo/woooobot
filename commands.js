@@ -131,18 +131,18 @@ send <id> <text>: Sends <text> to <id>.
 		}
 	}
 };
-module.exports = async function (commandName, args, user, server, roles) {
+module.exports = async function (commandName, args, message, roles) {
 	if (!(commandName in commands)) {
 		throw new Error(`There isn't a command named "${commandName}"!`);
 	}
 	const command = commands[commandName];
-	if (!hasPerms(user, server, roles, command.permLevel)) {
+	if (!hasPerms(message.author, message.guild, roles, command.permLevel)) {
 		throw new Error("You aren't allowed to use this command!");
 	}
 	const argsObj = {
 		text: args,
-		user: user,
-		server: server
+		user: message.author,
+		server: message.guild
 	};
 	return command.execute(argsObj);
 };
