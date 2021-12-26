@@ -1,6 +1,5 @@
 // Modules
-const fs = require("fs").promises;
-const {getTime, logMessage, sendMessage} = require("./helpers.js");
+const {getTime, logMessage, sendMessage, save} = require("./helpers.js");
 const technicals = require("./technicals.js");
 const twists = require("./twists.js");
 // Data
@@ -17,10 +16,11 @@ let responses = require(`${roundPath}/responses.json`);
 exports.initResponding = function () {
 	logMessage("Responding period started.");
 	status.phase = "responding";
-	fs.writeFile(`${twowPath}/status.json`, JSON.stringify(status, null, '\t'));
+	save(`${twowPath}/status.json`, status);
 	sendMessage(prompts, `<@&${alive}> Round ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@814748906046226442> by <t:${deadline}> (<t:${deadline}:R>)`, true);
 };
 exports.logResponse = function (message) {
+	logMessage(`Recording response by ${message.author}:\n${message}`);
 	let messageData = {
 		id: message.id,
 		time: getTime(message.createdAt),
@@ -33,10 +33,9 @@ exports.logResponse = function (message) {
 		}, message.content)
 	};
 	if (messageData.technical === false) {
-		sendMessage(message.author.dmChannel, `Your response (\`${message}\`) failed a technical.\nIt has not been recorded; please submit a response that follows all technicals.`);
-		return;
+		return `Your response (\`${message}\`) failed a technical.\nIt has not been recorded; please submit a response that follows all technicals.`;
 	}
 	responses[message.author.id] = messageData;
-	fs.writeFile(`${roundPath}/responses.json`, JSON.stringify(responses, null, '\t'));
-	sendMessage(message.author.dmChannel, `Your response (\`${message}\`) has been recorded. Your response is response #${responses.length}`);
+	save(`${roundPath}/responses.json`, responses);
+	return `Your response (\`${message}\`) has been recorded. Your response is response #${responses.length}`;
 };

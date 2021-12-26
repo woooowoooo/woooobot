@@ -89,11 +89,8 @@ client.on("messageCreate", function (message) {
 	} else if (message.guild == null && author.id !== devID) {
 		// Act on non-command direct messages
 		sendMessage(me.dmChannel, `${author.tag}:\n${message}`);
-		if (phase === "responding") {
-			logResponse(message, author);
-		} else if (phase === "voting") {
-			logVote(message, author);
-		}
+		let result = (phase === "responding") ? logResponse(message, author) : logVote(message, author);
+		sendMessage(message.author.dmChannel, result);
 	}
 });
 client.login(token);

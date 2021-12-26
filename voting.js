@@ -1,5 +1,5 @@
 // Modules
-const {getTime, logMessage, sendMessage} = require("./helpers.js");
+const {getTime, logMessage, sendMessage, save} = require("./helpers.js");
 const {generate: morshu} = require("./morshu.js");
 // Data
 const {twows, currentTWOW} = require("./config.json");
@@ -27,22 +27,24 @@ function partitionResponses(responseAmount, min = 7, max = (2 * min - 1), ideal 
 function createScreen(responses) {
 	for (let i = 0; i < responses.length - 1; i++) { // Randomize response array
 		let j = Math.floor(Math.random() * i);
-		[array[i], array[j]] = [array[j], array[i]];
+		[responses[i], responses[j]] = [responses[j], responses[i]];
 	}
 	let screenSizes = partitionResponses(responses.length);
 	logMessage(prompt);
 	logMessage(screenSizes);
 }
 exports.initVoting = function () {
-	logMessage("Start voting period here.");
 	// TODO: Create voting
 	createScreen(12);
+	logMessage("Voting period started.");
+	status.phase = "voting";
+	save(`${twowPath}/status.json`, status);
 };
 exports.logVote = function (message) {
-	logMessage(`Recording Vote: ${message} by ${message.author}`);
 	votes[message.author.id].id = {
 		"time": getTime(message.createdAt), // Doesn't access message time property
 		"text": message.content
+	logMessage(`Recording vote by ${message.author}:\n${message}`);
 	};
 };
 exports.results = function () {

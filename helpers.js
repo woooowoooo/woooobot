@@ -42,3 +42,7 @@ exports.sendMessage = function (destination, message, id = false) {
 		exports.logMessage(`[S] ${destination.guild.name}, ${destination.name}:\n	${message}`);
 	}
 };
+// Miscellaneous
+exports.save = function (path, content) {
+	fs.promises.writeFile(path, JSON.stringify(content, null, '\t'));
+};

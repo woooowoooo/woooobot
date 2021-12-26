@@ -1,8 +1,8 @@
-const {client} = require("./index.js");
-const {prefix, devID} = require("./config.json");
+const {logMessage, sendMessage, save} = require("./helpers.js");
 const morshu = require("./morshu.js");
 const {initResponding} = require("./responding.js");
 const {initVoting} = require("./voting.js");
+const {prefix, devID} = require("./config.json");
 const hasPerms = function (user, server, roles, permLevel) {
 	if (permLevel === "normal") {
 		return true;
@@ -44,10 +44,10 @@ morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount
 ping [userId]: Ping <userId> if provided. Pings yourself otherwise.
 
 MODERATOR-ONLY:
-edit <path> <key> <value>: Changes the value of <key> in <path> to <value>.
 phase [newPhase]: Changes round status to <newPhase>. If no argument is provided, increments the phase.
 
 DEVELOPER-ONLY:
+edit <path> <key> <value>: Changes the value of <key> in <path> to <value>.
 eval <command>: Runs <command>.
 reload: Reloads commands.js.
 send <id> <text>: Sends <text> to <id>.
@@ -71,14 +71,12 @@ send <id> <text>: Sends <text> to <id>.
 		permLevel: "developer",
 		execute: async function ({text}) {
 			let [channelId, ...message] = text.split(" ");
-			channelId = channelId.match(/^<#(?<id>\d+)>$/)?.groups.id ?? channelId;
-			const channel = await client.channels.fetch(channelId);
-			channel.send(message.join(" "));
-			// TODO: Add DM functionality
+			channelId = channelId.match(/^<(#|@|@!)(?<id>\d+)>$/)?.groups.id ?? channelId;
+			sendMessage(channelId, message.join(" "), true);
 		}
 	},
 	edit: {
-		permLevel: "admin",
+		permLevel: "developer",
 		execute: function ({text}) {
 			let [path, key, value] = text.split(" ");
 			if (path.match(/..\//)) {
@@ -87,7 +85,8 @@ send <id> <text>: Sends <text> to <id>.
 			path = `./${path}`;
 			let file = require(path);
 			file[key] = value;
-			fs.writeFile(path, JSON.stringify(file, null, '\t'));
+			save(path, file);
+			logMessage(file);
 		}
 	},
 	phase: {
