@@ -26,20 +26,16 @@ exports.initResponding = function () {
 exports.logResponse = function (message) {
 	logMessage(`Recording response by ${message.author}:\n${message}`);
 	let messageData = {
-		id: message.id,
+		author: message.author.id,
 		time: getTime(message.createdAt),
-		text: message.content,
-		technical: roundTechnicals.reduce((passes, name) => {
-			return passes && technicals[name].check(message.content);
-		}, true),
-		twist: roundTwists.reduce((message, name) => {
-			return twists[name].execute(message);
-		}, message.content)
+		text: message.content
 	};
-	if (messageData.technical === false) {
-		return `Your response (\`${message}\`) failed a technical.\nIt has not been recorded; please submit a response that follows all technicals.`;
+	if (roundTwists != null) {
+		messageData.twist = roundTwists.reduce((message, name) => {
+			return twists[name].execute(message);
+		}, message.content);
 	}
-	responses[message.author.id] = messageData;
+	responses[message.id] = messageData;
 	save(`${roundPath}/responses.json`, responses);
-	return `Your response (\`${message}\`) has been recorded. Your response is response #${responses.length}`;
+	return `Your response (\`${message}\`) has been recorded. Your response is response #${Object.keys(responses).length - 1}`; // Subtract "version"
 };

@@ -46,10 +46,16 @@ exports.initVoting = function () {
 	save(`${twowPath}/status.json`, status);
 };
 exports.logVote = function (message) {
-	votes[message.author.id].id = {
-		"time": getTime(message.createdAt), // Doesn't access message time property
-		"text": message.content
 	logMessage(`Recording vote by ${message.author}:\n${message}`);
+	const voteFull = message.content.matchAll(/\[([^\s[\]]+) ([^\s[\]]+)\]/g);
+	votes[message.author.id] = {
+		"id": message.id,
+		"time": getTime(message.createdAt),
+		"text": message.content,
+		"section": section,
+		// "supervote": "TODO",
+		"screens": voteFull
+		// TODO: Add more stats
 	};
 };
 exports.results = function () {
