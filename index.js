@@ -20,6 +20,7 @@ const {id: serverID, roles, channels: {bots}} = require(twowPath + "twowConfig.j
 const {roundPath, phase} = require(twowPath + "status.json");
 const {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
 // Modules
+const readline = require("readline");
 const morshu = require("./morshu.js");
 const {logResponse} = require("./responding.js");
 const {logVote} = require("./voting.js");
@@ -66,18 +67,33 @@ client.once("ready", async function () {
 	const server = await client.guilds.fetch(serverID);
 	await server.members.fetch();
 	const checkRole = await server.roles.fetch(roles.checkDMs);
-	checkRole.members.forEach(async member => {
+	readline.emitKeypressEvents(process.stdin);
+	stdin.removeListener("data", consoleListener);
+	stdin.setRawMode(true);
+	for (const [_, member] of checkRole.members) {
 		const dms = await member.createDM();
 		logMessage(`DM to ${member.user.tag} created.\n`);
 		const messages = await dms.messages.fetch();
-		messages.forEach(message => {
+		for (const [_, message] of messages.filter((m, s) => m.author.id !== botID && BigInt(s) > BigInt(lastUnread))) {
 			logMessage(`[R] ${message.author.tag} at ${getTime(message.createdAt)}:\n	${message}`);
-			// TODO: Act on messages
-		});
-	});
 	// TODO: Update last checked time
+			// Act on message if I press "r"
+			await new Promise(resolve => {
+				function record(_, key) {
+					if (key.name === "r") {
+						readMessage(message);
+					}
+					stdin.removeListener("keypress", record);
+					resolve();
+				}
+				stdin.on("keypress", record);
+			});
+		}
+	};
+	stdin.setRawMode(false);
+	stdin.on("data", consoleListener);
 });
-client.on("messageCreate", function (message) {
+function readMessage(message) {
 	const author = message.author;
 	// Ignore own messages and non-bot channels
 	if (author.id === botID || message.guild != null && !bots.includes(message.channel.id)) {
@@ -90,15 +106,17 @@ client.on("messageCreate", function (message) {
 		parseCommands(message.content.substring(prefix.length), message);
 	} else if (message.guild == null && author.id !== devID) {
 		// Act on non-command direct messages
+		logMessage(`${author.tag}:\n${message}`);
 		sendMessage(me.dmChannel, `${author.tag}:\n${message}`);
 		let result = (phase === "responding") ? logResponse(message, author) : logVote(message, author);
 		sendMessage(message.author.dmChannel, result);
 	}
-});
+}
+client.on("messageCreate", readMessage);
 client.login(token);
 // Respond to console input
 let stdin = process.openStdin();
-stdin.addListener("data", function (text) {
+function consoleListener(text) {
 	text = text.toString().trim();
 	logMessage(`[R] Console input: ${text}`);
 	if (text.substring(0, 2) !== "//") { // Allow for dev comments
@@ -110,4 +128,5 @@ stdin.addListener("data", function (text) {
 			channel: me.dmChannel
 		});
 	}
-});
+}
+stdin.on("data", consoleListener);
