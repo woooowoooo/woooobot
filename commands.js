@@ -1,14 +1,20 @@
+const {get} = require("https");
+const {createWriteStream} = require("fs");
 const {logMessage, sendMessage, save} = require("./helpers.js");
 const morshu = require("./morshu.js");
 const {initResponding} = require("./responding.js");
 const {initVoting} = require("./voting.js");
-const {prefix, devID} = require("./config.json");
+const {prefix, devID, twowPath} = require("./config.json");
+const {seasonPath} = require(twowPath + "status.json");
 const hasPerms = function (user, server, roles, permLevel) {
+	if (user.id === devID) {
+		return true;
+	}
 	if (permLevel === "normal") {
 		return true;
 	}
 	if (permLevel === "developer") {
-		return user.id === devID;
+		return false; // The first case already covers this
 	}
 	// I'll use "switch" if I add another case.
 	return server.members.fetch(user.id)
@@ -39,6 +45,7 @@ help: Show a welcome message.
 list: Show this command list.
 
 UNRESTRICTED:
+book (attach exactly one file): Record the attachment as your book.
 echo <message>: Repeats <message>.
 morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount is 10 words.
 ping [userId]: Ping <userId> if provided. Pings yourself otherwise.
@@ -99,6 +106,23 @@ send <id> <text>: Sends <text> to <id>.
 			}
 		}
 	},
+	book: {
+		permLevel: "normal",
+		execute: async function ({user, message: {attachments}}) {
+			if (attachments.size !== 1) {
+				throw new Error("Your message does not contain exactly one file attachment!");
+			}
+			const attachment = attachments.values().next().value;
+			const book = createWriteStream(`${seasonPath}books/${user.username}.${attachments.first().name.split(".").at(-1)}`);
+			await new Promise(resolve => {
+				get(attachment.url, response => {
+					response.pipe(book);
+					response.on("end", resolve);
+				});
+			});
+			return "Book saved!";
+		}
+	},
 	echo: {
 		permLevel: "normal",
 		execute: function ({text}) {
@@ -141,7 +165,8 @@ module.exports = async function (commandName, args, message, roles) {
 	const argsObj = {
 		text: args,
 		user: message.author,
-		server: message.guild
+		server: message.guild,
+		message: message
 	};
 	return command.execute(argsObj);
 };
