@@ -1,4 +1,4 @@
-// Discord
+// Discord.js
 const {Client, Intents} = require("discord.js");
 const client = new Client({
 	intents: [
@@ -12,8 +12,7 @@ const client = new Client({
 	]
 });
 exports.client = client; // Client is exported so helpers.js can use it
-// Config modules
-const {getTime, logMessage, sendMessage} = require("./helpers.js");
+// Configs
 let config = require("./config.json");
 const {prefix, token, devID, botID, twowPath, lastUnread} = config; // TODO: Allow for multiple TWOWs
 const {id: serverID, roles, channels: {bots}} = require(twowPath + "twowConfig.json");
@@ -21,6 +20,7 @@ const {roundPath, phase} = require(twowPath + "status.json");
 const {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
 // Modules
 const readline = require("readline");
+const {getTime, logMessage, sendMessage, toSnowflake, save} = require("./helpers.js");
 const morshu = require("./morshu.js");
 const {logResponse} = require("./responding.js");
 const {logVote} = require("./voting.js");
@@ -58,8 +58,8 @@ process.on("uncaughtException", e => {
 client.once("ready", async function () {
 	// Send startup messages to console
 	const initLog = `Logged in as ${client.user.tag}.\n\n`;
-	logMessage('='.repeat(initLog.length - 2));
-	logMessage(initLog + morshu.generate(5) + '\n');
+	logMessage("=".repeat(initLog.length - 2));
+	logMessage(initLog + morshu.generate(5) + "\n");
 	// Initialize me
 	me = await client.users.fetch(devID);
 	me.createDM(); // To allow for console input to work
@@ -76,7 +76,6 @@ client.once("ready", async function () {
 		const messages = await dms.messages.fetch();
 		for (const [_, message] of messages.filter((m, s) => m.author.id !== botID && BigInt(s) > BigInt(lastUnread))) {
 			logMessage(`[R] ${message.author.tag} at ${getTime(message.createdAt)}:\n	${message}`);
-	// TODO: Update last checked time
 			// Act on message if I press "r"
 			await new Promise(resolve => {
 				function record(_, key) {
@@ -92,6 +91,9 @@ client.once("ready", async function () {
 	};
 	stdin.setRawMode(false);
 	stdin.on("data", consoleListener);
+	// Update last checked time
+	config.lastUnread = toSnowflake();
+	save("./config.json", config);
 });
 function readMessage(message) {
 	const author = message.author;
@@ -108,8 +110,11 @@ function readMessage(message) {
 		// Act on non-command direct messages
 		logMessage(`${author.tag}:\n${message}`);
 		sendMessage(me.dmChannel, `${author.tag}:\n${message}`);
-		let result = (phase === "responding") ? logResponse(message, author) : logVote(message, author);
-		sendMessage(message.author.dmChannel, result);
+		if (phase === "responding") {
+			sendMessage(message.author.dmChannel, logResponse(message, author));
+		} else if (phase === "voting") {
+			sendMessage(message.author.dmChannel, logVote(message, author));
+		}
 	}
 }
 client.on("messageCreate", readMessage);
