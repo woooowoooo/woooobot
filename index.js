@@ -13,10 +13,13 @@ const client = new Client({
 });
 exports.client = client; // Client is exported so helpers.js can use it
 // Config modules
-const {prefix, token, devID, botID, twows, currentTWOW} = require("./config.json"); // TODO: Allow for multiple TWOWs
-const {id: serverID, roles, channels: {bots}} = require(`${twows[currentTWOW]}/twowConfig.json`);
-// Function modules
 const {getTime, logMessage, sendMessage} = require("./helpers.js");
+let config = require("./config.json");
+const {prefix, token, devID, botID, twowPath, lastUnread} = config; // TODO: Allow for multiple TWOWs
+const {id: serverID, roles, channels: {bots}} = require(twowPath + "twowConfig.json");
+const {roundPath, phase} = require(twowPath + "status.json");
+const {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
+// Modules
 const morshu = require("./morshu.js");
 const {logResponse} = require("./responding.js");
 const {logVote} = require("./voting.js");
@@ -76,7 +79,6 @@ client.once("ready", async function () {
 });
 client.on("messageCreate", function (message) {
 	const author = message.author;
-	const {phase} = require(`${twows[currentTWOW]}/status.json`);
 	// Ignore own messages and non-bot channels
 	if (author.id === botID || message.guild != null && !bots.includes(message.channel.id)) {
 		return;

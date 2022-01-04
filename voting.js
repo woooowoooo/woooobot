@@ -1,17 +1,22 @@
 // Modules
-const {getTime, logMessage, sendMessage, save} = require("./helpers.js");
+const {logMessage, sendMessage, getTime, toUnixTime, save} = require("./helpers.js");
 const {generate: morshu} = require("./morshu.js");
 // Data
-const {twows, currentTWOW} = require("./config.json");
-const twowPath = twows[currentTWOW]; // Only works for a single TWOW.
-const status = require(`${twowPath}/status.json`);
-const {seasons, channels: {results}} = require(`${twowPath}/twowConfig.json`);
-const seasonPath = `${twowPath}/${seasons[status.currentSeason - 1]}`;
-const {rounds} = require(`${seasonPath}/seasonConfig.json`);
-const roundPath = `${seasonPath}/${rounds[status.currentRound - 1]}`;
-let {prompt} = require(`${roundPath}/roundConfig.json`);
-let responses = require(`${roundPath}/responses.json`);
-let votes = require(`${roundPath}/votes.json`);
+const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
+let status = require(twowPath + "status.json");
+const {currentRound, seasonPath, roundPath} = status;
+const {
+	roles: {alive, remind},
+	channels: {bots, voting, reminders: remindersId, results: resultsId}
+} = require(twowPath + "twowConfig.json");
+// Season-specific
+const {reminders, sections: _s, megascreen: _m} = require(seasonPath + "seasonConfig.json");
+const {drawScreen, drawResults} = require(seasonPath + "graphics.js");
+// Round-specific
+// TODO: Find a better way to do destructuring assignment with a collective default value
+const {prompt, vDeadline, keywords, sections = _s, megascreen = _m} = require(roundPath + "roundConfig.json");
+let responses = require(roundPath + "responses.json");
+let votes = require(roundPath + "votes.json");
 // Functions
 function partitionResponses(responseAmount, min = 7, max = (2 * min - 1), ideal = Math.floor((max + min) / 2)) {
 	let screenSizes = [];
