@@ -25,7 +25,14 @@ exports.initResponding = function () {
 };
 exports.logResponse = function (message) {
 	logMessage(`Recording response by ${message.author}:\n${message}`);
+	const passesTechnical = roundTechnicals.reduce((passes, name) => {
+		return passes && technicals[name].check(message.content);
+	}, true);
+	if (!passesTechnical) {
+		return `Your response (\`${message}\`) failed a technical.\nIt has not been recorded; please submit a response that follows all technicals.`;
+	}
 	let messageData = {
+		id: message.id,
 		author: message.author.id,
 		time: getTime(message.createdAt),
 		text: message.content
@@ -35,7 +42,7 @@ exports.logResponse = function (message) {
 			return twists[name].execute(message);
 		}, message.content);
 	}
-	responses[message.id] = messageData;
+	responses.push(messageData);
 	save(`${roundPath}/responses.json`, responses);
-	return `Your response (\`${message}\`) has been recorded. Your response is response #${Object.keys(responses).length - 1}`; // Subtract "version"
+	return `Your response (\`${message}\`) has been recorded. Your response is response #${responses.length}`;
 };

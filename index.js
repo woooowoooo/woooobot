@@ -22,8 +22,8 @@ const {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
 const readline = require("readline");
 const {getTime, logMessage, sendMessage, toSnowflake, save} = require("./helpers.js");
 const morshu = require("./morshu.js");
-const {logResponse} = require("./responding.js");
-const {logVote} = require("./voting.js");
+const {initResponding, logResponse} = require("./responding.js");
+const {initVoting, logVote} = require("./voting.js");
 let commands = require("./commands.js");
 // Other variables
 let me;
@@ -94,6 +94,12 @@ client.once("ready", async function () {
 	// Update last checked time
 	config.lastUnread = toSnowflake();
 	save("./config.json", config);
+	// Start new phase
+	if (phase === "responding" && getTime() > rDeadline) {
+		initVoting();
+	} else if (phase === "voting" && getTime() > vDeadline) {
+		initResponding();
+	}
 });
 function readMessage(message) {
 	const author = message.author;
@@ -108,8 +114,6 @@ function readMessage(message) {
 		parseCommands(message.content.substring(prefix.length), message);
 	} else if (message.guild == null && author.id !== devID) {
 		// Act on non-command direct messages
-		logMessage(`${author.tag}:\n${message}`);
-		sendMessage(me.dmChannel, `${author.tag}:\n${message}`);
 		if (phase === "responding") {
 			sendMessage(message.author.dmChannel, logResponse(message, author));
 		} else if (phase === "voting") {
