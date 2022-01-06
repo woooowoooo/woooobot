@@ -102,16 +102,55 @@ exports.initVoting = function () {
 };
 exports.logVote = function (message) {
 	logMessage(`Recording vote by ${message.author}:\n${message}`);
-	const voteFull = message.content.matchAll(/\[([^\s[\]]+) ([^\s[\]]+)\]/g);
-	votes[message.author.id] = {
-		"id": message.id,
-		"time": getTime(message.createdAt),
-		"text": message.content,
-		"section": section,
-		// "supervote": "TODO",
-		"screens": voteFull
+	const voteFull = Array.from(message.content.matchAll(/\[([^\s[\]]+) ([^\s[\]]+)\]/g));
+	if (voteFull.length === 0) {
+		return "No valid vote found.";
+	}
+	const section = screenSections[voteFull[0][1]];
+	let ratings = new Map();
+	for (const [_, screen, vote] of voteFull) {
+		logMessage(screen);
+		logMessage(vote);
+		// Check validity
+		if (!(screen in screenSections)) {
+			return `The screen \`${screen}\` does not exist.`;
+		}
+		if (screenSections[screen] !== section) {
+			return `The screen \`${screen}\` is not in section \`${section}\`. You may only vote in one section.`;
+		}
+		if (vote.length !== (new Set(vote.split(""))).size) {
+			return `The vote \`${vote}\` for screen \`${screen}\` contains duplicate characters.`;
+		}
+		// Calculate individual response ratings
+		let position = 0;
+		for (const char of vote) {
+			if (!(char in screenResponses[screen])) {
+				return `Invalid character \`${char}\` found in vote \`${vote}\` for screen \`${screen}\`.`;
+			}
+			ratings.set(screenResponses[screen][char], (vote.length - position - 1) / (vote.length - 1));
+			position++;
+		}
+	}
+	// Apply ratings to responses (separate step for atomicity)
+	for (const [id, rating] of ratings) {
+		const response = responses.find(res => (res.id === id));
+		response.ratings ??= {}; // Would be a map if they were natively serializable
+		response.ratings[message.author.id] = rating;
+	}
+	save(roundPath + "responses.json", responses);
+	const matches = voteFull.map(matches => matches[0]);
+	votes.push({
+		id: message.id,
+		author: message.author.id,
+		time: getTime(message.createdAt),
+		text: message.content,
+		section: section,
+		// TODO: supervote
+		screens: matches
 		// TODO: Add more stats
-	};
+	});
+	save(roundPath + "votes.json", votes);
+	return `Your vote has been recorded:\n\`\`\`${matches.join("\n")}\`\`\``;
 };
 exports.results = function () {
 	// TODO: Create results
