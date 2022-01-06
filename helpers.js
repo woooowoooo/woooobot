@@ -1,7 +1,7 @@
 // Logging
 const fs = require("fs");
 const {client} = require("./index.js");
-const {logging} = require("./config.json");
+const {logging, sandbox} = require("./config.json");
 let logStream;
 if (logging != null) {
 	const time = new Date();
@@ -25,17 +25,19 @@ exports.logMessage = function (message, error = false) {
 	}
 };
 // Discord.js
+exports.resolveId = async function (id) {
+	try {
+		return await client.channels.fetch(id);
+	} catch {
+		const user = await client.users.fetch(id);
+		return await user.createDM();
+	}
+};
 exports.sendMessage = async function (destination, message, id = false) {
-	if (id) {
-		try {
-			const channel = await client.channels.fetch(destination)
-			exports.sendMessage(channel, message);
-		} catch {
-			const user = await client.users.fetch(destination);
-			const dm = await user.createDM();
-			exports.sendMessage(dm, message);
-		}
-		return;
+	if (sandbox != null) {
+		destination = await exports.resolveId(sandbox);
+	} else if (id) {
+		destination = await exports.resolveId(destination);
 	}
 	if ((message.content?.length ?? message.length ?? 0) > 2000) {
 		throw new Error("Message is too long!");
@@ -67,6 +69,6 @@ exports.toUnixTime = function (time) {
 	return new Date(time).getTime() / 1000;
 };
 // Miscellaneous
-exports.save = function (path, content) {
-	fs.promises.writeFile(path, JSON.stringify(content, null, "\t"));
+exports.save = async function (path, content) {
+	await fs.promises.writeFile(path, JSON.stringify(content, null, "\t"));
 };
