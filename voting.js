@@ -3,7 +3,7 @@ const {logMessage, sendMessage, getTime, toUnixTime, save} = require("./helpers.
 const {generate: morshu} = require("./morshu.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
-let status = require(twowPath + "status.json");
+const status = require(twowPath + "status.json");
 const {currentRound, seasonPath, roundPath} = status;
 const {
 	roles: {alive, remind},
@@ -15,8 +15,8 @@ const {drawScreen, drawResults} = require(seasonPath + "graphics.js");
 // Round-specific
 // TODO: Find a better way to do destructuring assignment with a collective default value
 const {prompt, vDeadline, keywords, sections = _s, megascreen = _m} = require(roundPath + "roundConfig.json");
-let responses = require(roundPath + "responses.json");
-let votes = require(roundPath + "votes.json");
+const responses = require(roundPath + "responses.json");
+const votes = require(roundPath + "votes.json");
 const screens = require(roundPath + "screens.json");
 const {screenSections, screenResponses, sectionScreens} = screens;
 // Functions
