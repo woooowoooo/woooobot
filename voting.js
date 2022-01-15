@@ -18,7 +18,7 @@ const {prompt, vDeadline, keywords, sections = _s, megascreen = _m} = require(ro
 let responses = require(roundPath + "responses.json");
 let votes = require(roundPath + "votes.json");
 const screens = require(roundPath + "screens.json");
-const {screenSections, screenResponses} = screens;
+const {screenSections, screenResponses, sectionScreens} = screens;
 // Functions
 function partitionResponses(responseAmount) {
 	const MIN = 7;
@@ -106,17 +106,18 @@ exports.logVote = function (message) {
 	if (voteFull.length === 0) {
 		return "No valid vote found.";
 	}
-	const section = screenSections[voteFull[0][1]];
+	const section = votes[message.author.id]?.section ?? screenSections[voteFull[0][1]];
 	let ratings = new Map();
 	for (const [_, screen, vote] of voteFull) {
-		logMessage(screen);
-		logMessage(vote);
 		// Check validity
 		if (!(screen in screenSections)) {
 			return `The screen \`${screen}\` does not exist.`;
 		}
 		if (screenSections[screen] !== section) {
 			return `The screen \`${screen}\` is not in section \`${section}\`. You may only vote in one section.`;
+		}
+		if (vote.length !== Object.keys(screenResponses[screen]).length) {
+			return `The vote \`${vote}\` for screen \`${screen}\` is too ${vote.length > Object.keys(screenResponses[screen]).length ? "long" : "short"}.`;
 		}
 		if (vote.length !== (new Set(vote.split(""))).size) {
 			return `The vote \`${vote}\` for screen \`${screen}\` contains duplicate characters.`;
@@ -138,19 +139,26 @@ exports.logVote = function (message) {
 		response.ratings[message.author.id] = rating;
 	}
 	save(roundPath + "responses.json", responses);
-	const matches = voteFull.map(matches => matches[0]);
-	votes.push({
-		id: message.id,
-		author: message.author.id,
-		time: getTime(message.createdAt),
-		text: message.content,
+	// Update votes.json
+	const matches = voteFull.map(matches => [matches[1], matches[2]]);
+	votes[message.author.id] ??= {
 		section: section,
-		// TODO: supervote
-		screens: matches
-		// TODO: Add more stats
+		supervote: false,
+		screens: {},
+		messages: []
+	};
+	votes[message.author.id].screens = Object.assign(votes[message.author.id].screens, Object.fromEntries(matches));
+	votes[message.author.id].messages.push({
+		id: message.id,
+		time: getTime(message.createdAt),
+		text: message.content
 	});
+	if (Object.keys(votes[message.author.id].screens).length === sectionScreens[section]) {
+		votes[message.author.id].supervote = true;
+	}
+	// TODO: Add more stats
 	save(roundPath + "votes.json", votes);
-	return `Your vote has been recorded:\n\`\`\`${matches.join("\n")}\`\`\``;
+	return `Your vote has been recorded:\n\`\`\`${voteFull.map(matches => matches[0]).join("\n")}\`\`\`${votes[message.author.id].supervote ? "Thank you for supervoting!" : ""}`;
 };
 exports.results = function () {
 	// TODO: Create results
