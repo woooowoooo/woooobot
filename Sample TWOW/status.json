@@ -1,0 +1,8 @@
+{
+	"version": 3,
+	"currentSeason": "Season 1",
+	"currentRound": "Round 1",
+	"seasonPath": "./Sample TWOW/Season 1/",
+	"roundPath": "./Sample TWOW/Season 1/Round 1/",
+	"phase": "voting"
+}

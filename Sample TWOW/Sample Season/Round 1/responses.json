@@ -1,0 +1,24 @@
+[
+	{
+		"id": "123456789012345678",
+		"author": "814748906046226442",
+		"time": "2021-05-14 08:19:00",
+		"text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+		"twist": ".tile gnicsipida rutetcesnoc ,tema tis rolod muspi meroL",
+		"ratings": [
+			0,
+			100
+		]
+	},
+	{
+		"id": "987654321098765432",
+		"author": "271851145205514240",
+		"time": "2021-09-12 05:12:05",
+		"text": "That didn't work out",
+		"twist": "tuo krow t'ndid tahT",
+		"ratings": [
+			100,
+			0
+		]
+	}
+]

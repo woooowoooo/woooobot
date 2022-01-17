@@ -1,0 +1,17 @@
+{
+	"version": 2,
+	"name": "Sample Season",
+	"season": 1,
+	"dangerZone": true,
+	"cutoffs": [0.15, 0.60, 0.80],
+	"deadlines": [3, 2],
+	"reminders": {
+		"one day": 24,
+		"ONE HOUR": 1
+	},
+	"sections": 5,
+	"megascreen": true,
+	"rounds": {
+		"Round 1": "Round 1/"
+	}
+}
