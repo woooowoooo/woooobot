@@ -14,7 +14,7 @@ const client = new Client({
 exports.client = client; // Client is exported so helpers.js can use it
 // Configs
 let config = require("./config.json");
-const {prefix, token, devID, botID, twowPath, lastUnread} = config; // TODO: Allow for multiple TWOWs
+const {automatic, prefix, token, devID, botID, twowPath, lastUnread} = config; // TODO: Allow for multiple TWOWs
 const {id: serverID, roles, channels: {bots}} = require(twowPath + "twowConfig.json");
 const {roundPath, phase} = require(twowPath + "status.json");
 const {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
@@ -60,33 +60,27 @@ client.once("ready", async function () {
 	const initLog = `Logged in as ${client.user.tag}.\n\n`;
 	logMessage("=".repeat(initLog.length - 2));
 	logMessage(initLog + morshu.generate(5) + "\n");
-	// Initialize me
-	me = await client.users.fetch(devID);
+	me = await client.users.fetch(devID); // Initialize me
 	me.createDM(); // To allow for console input to work
-	// Act on recent DMs
+	// Get non-bot non-dev members
 	const server = await client.guilds.fetch(serverID);
-	await server.members.fetch();
-	const checkRole = await server.roles.fetch(roles.checkDMs);
+	const botRole = await server.roles.fetch(roles.bot);
+	const members = (await server.members.fetch()).filter(m => (m.id !== devID) && !m.roles.cache.has(botRole.id));
+	// Act on recent DMs
 	readline.emitKeypressEvents(process.stdin);
 	stdin.removeListener("data", consoleListener);
 	stdin.setRawMode(true);
-	for (const [_, member] of checkRole.members) {
-		const dms = await member.createDM();
-		logMessage(`DM to ${member.user.tag} created.\n`);
+	for (const [_, member] of members) {
+		const dms = await member.createDM().catch(() => logMessage(`[E] Failed to create DM to ${member.user.tag}`, true));
+		if (dms == null) {
+			continue;
+		}
+		logMessage(`DM to ${member.user.tag} created.`);
 		const messages = await dms.messages.fetch();
 		for (const [_, message] of messages.filter((m, s) => m.author.id !== botID && BigInt(s) > BigInt(lastUnread))) {
-			logMessage(`[R] ${message.author.tag} at ${getTime(message.createdAt)}:\n	${message}`);
-			// Act on message if I press "r"
-			await new Promise(resolve => {
-				function record(_, key) {
-					if (key.name === "r") {
-						readMessage(message);
-					}
-					stdin.removeListener("keypress", record);
-					resolve();
-				}
-				stdin.on("keypress", record);
-			});
+			if (readMessage(message, true)) {
+				automatic ? processMessage(message) : await processMessageAsync(message);
+			}
 		}
 	};
 	stdin.setRawMode(false);
@@ -98,30 +92,68 @@ client.once("ready", async function () {
 	if (phase === "responding" && getTime() > rDeadline) {
 		initVoting();
 	} else if (phase === "voting" && getTime() > vDeadline) {
-		initResponding();
+		// TODO: Results + start new round
+		// initResponding();
 	}
 });
-function readMessage(message) {
-	const author = message.author;
+// Process messages
+function readMessage(message, readTime = false) {
 	// Ignore own messages and non-bot channels
-	if (author.id === botID || message.guild != null && !bots.includes(message.channel.id)) {
-		return;
+	if (message.author.id === botID || message.guild != null && !bots.includes(message.channel.id)) {
+		return false;
 	}
-	const serverHeader = message.guild != null ? ` in ${message.guild.name}, #${message.channel.name}` : "";
-	logMessage(`[R] ${author.tag + serverHeader}:\n	${message}`);
+	let header = message.author.tag;
+	if (message.guild != null) {
+		header += ` in ${message.guild.name}, #${message.channel.name}`;
+	}
+	if (readTime) {
+		header += ` at ${getTime(message.createdAt)}`;
+	}
+	logMessage(`[R] ${header}:\n	${message}`);
+	return true;
+}
+function processMessage(message) {
 	if (message.content.substring(0, prefix.length) === prefix) {
 		// Act on bot commands
 		parseCommands(message.content.substring(prefix.length), message);
-	} else if (message.guild == null && author.id !== devID) {
+	} else if (message.guild == null && message.author.id !== devID) {
 		// Act on non-command direct messages
 		if (phase === "responding") {
-			sendMessage(message.author.dmChannel, logResponse(message, author));
+			sendMessage(message.author.dmChannel, logResponse(message, message.author));
 		} else if (phase === "voting") {
-			sendMessage(message.author.dmChannel, logVote(message, author));
+			sendMessage(message.author.dmChannel, logVote(message, message.author));
 		}
 	}
 }
-client.on("messageCreate", readMessage);
+async function processMessageAsync(message) {
+	// Process message if I press "r"; skip on other keys
+	return new Promise(resolve => {
+		function record(_, key) {
+			if (key.name === "r") {
+				processMessage(message);
+			}
+			stdin.removeListener("keypress", record);
+			resolve();
+		}
+		stdin.on("keypress", record);
+	});
+}
+client.on("messageCreate", async function (message) {
+	config.lastUnread = toSnowflake();
+	save("./config.json", config);
+	if (!readMessage(message)) { // Ignore irrelevant messages
+		return;
+	}
+	if (automatic) {
+		processMessage(message);
+	} else {
+		stdin.removeListener("data", consoleListener);
+		stdin.setRawMode(true);
+		await processMessageAsync(message);
+		stdin.setRawMode(false);
+		stdin.on("data", consoleListener);
+	}
+});
 client.login(token);
 // Respond to console input
 let stdin = process.openStdin();
