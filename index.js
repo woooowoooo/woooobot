@@ -27,7 +27,22 @@ const {initVoting, logVote} = require("./voting.js");
 let commands = require("./commands.js");
 // Other variables
 let me;
-// Command parsing function
+// Process messages
+function readMessage(message, readTime = false) {
+	// Ignore own messages and non-bot channels
+	if (message.author.id === botID || message.guild != null && !bots.includes(message.channel.id)) {
+		return false;
+	}
+	let header = message.author.tag;
+	if (message.guild != null) {
+		header += ` in ${message.guild.name}, #${message.channel.name}`;
+	}
+	if (readTime) {
+		header += ` at ${getTime(message.createdAt)}`;
+	}
+	logMessage(`[R] ${header}:\n	${message}`);
+	return true;
+}
 function parseCommands(text, message) {
 	const command = text.split(" ", 1)[0];
 	// Default parameters only act on "undefined" and not an empty string.
@@ -49,6 +64,32 @@ function parseCommands(text, message) {
 		if (message.author.id !== devID) { // I have access to the logs
 			sendMessage(message.channel, e);
 		}
+	});
+}
+function processMessage(message) {
+	if (message.content.substring(0, prefix.length) === prefix) {
+		// Act on bot commands
+		parseCommands(message.content.substring(prefix.length), message);
+	} else if (message.guild == null && message.author.id !== devID) {
+		// Act on non-command direct messages
+		if (phase === "responding") {
+			sendMessage(message.author.dmChannel, logResponse(message, message.author));
+		} else if (phase === "voting") {
+			sendMessage(message.author.dmChannel, logVote(message, message.author));
+		}
+	}
+}
+async function processMessageAsync(message) {
+	// Process message if I press "r"; skip on other keys
+	return new Promise(resolve => {
+		function record(_, key) {
+			if (key.name === "r") {
+				processMessage(message);
+			}
+			stdin.removeListener("keypress", record);
+			resolve();
+		}
+		stdin.on("keypress", record);
 	});
 }
 // Event handling
@@ -96,48 +137,6 @@ client.once("ready", async function () {
 		// initResponding();
 	}
 });
-// Process messages
-function readMessage(message, readTime = false) {
-	// Ignore own messages and non-bot channels
-	if (message.author.id === botID || message.guild != null && !bots.includes(message.channel.id)) {
-		return false;
-	}
-	let header = message.author.tag;
-	if (message.guild != null) {
-		header += ` in ${message.guild.name}, #${message.channel.name}`;
-	}
-	if (readTime) {
-		header += ` at ${getTime(message.createdAt)}`;
-	}
-	logMessage(`[R] ${header}:\n	${message}`);
-	return true;
-}
-function processMessage(message) {
-	if (message.content.substring(0, prefix.length) === prefix) {
-		// Act on bot commands
-		parseCommands(message.content.substring(prefix.length), message);
-	} else if (message.guild == null && message.author.id !== devID) {
-		// Act on non-command direct messages
-		if (phase === "responding") {
-			sendMessage(message.author.dmChannel, logResponse(message, message.author));
-		} else if (phase === "voting") {
-			sendMessage(message.author.dmChannel, logVote(message, message.author));
-		}
-	}
-}
-async function processMessageAsync(message) {
-	// Process message if I press "r"; skip on other keys
-	return new Promise(resolve => {
-		function record(_, key) {
-			if (key.name === "r") {
-				processMessage(message);
-			}
-			stdin.removeListener("keypress", record);
-			resolve();
-		}
-		stdin.on("keypress", record);
-	});
-}
 client.on("messageCreate", async function (message) {
 	config.lastUnread = toSnowflake();
 	save("./config.json", config);
