@@ -6,6 +6,7 @@ const {initResponding} = require("./responding.js");
 const {initVoting} = require("./voting.js");
 const {prefix, devID, twowPath} = require("./config.json");
 const {seasonPath} = require(twowPath + "status.json");
+const contestants = require(seasonPath + "seasonContestants.json");
 const hasPerms = function (user, server, roles, permLevel) {
 	if (user.id === devID) {
 		return true;
@@ -113,14 +114,17 @@ send <id> <text>: Sends <text> to <id>.
 				throw new Error("Your message does not contain exactly one file attachment!");
 			}
 			const attachment = attachments.values().next().value;
-			const book = createWriteStream(`${seasonPath}books/${user.username}.${attachments.first().name.split(".").at(-1)}`);
+			const firstBook = (contestants[user.id] == null);
+			contestants.bookPaths[user.id] ??= `${user.username}.${attachments.first().name.split(".").at(-1)}`;
+			save(seasonPath + "seasonContestants.json", contestants);
+			const book = createWriteStream(`${seasonPath}books/${contestants.bookPaths[user.id]}`);
 			await new Promise(resolve => {
 				get(attachment.url, response => {
 					response.pipe(book);
 					response.on("end", resolve);
 				});
 			});
-			return "Book saved!";
+			return `Book ${firstBook ? "saved" : "updated"}!`;
 		}
 	},
 	echo: {

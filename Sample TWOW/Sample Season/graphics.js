@@ -66,7 +66,7 @@ exports.drawResults = async function (path, round, prompt, rankings, header = fa
 	context.fillText("Book", 180, header + 30);
 	context.textAlign = "left";
 	context.fillText("Author — Response", 240, header + 30);
-	context.fillText("Norm. Rank", WIDTH - 820, header + 30);
+	context.fillText("Percentile", WIDTH - 820, header + 30);
 	context.fillText("Std. Deviation", WIDTH - 550, header + 30);
 	context.fillText("Skew", WIDTH - 265, header + 30);
 	context.fillText("Votes", WIDTH - 100, header + 30);
@@ -102,7 +102,7 @@ exports.drawResults = async function (path, round, prompt, rankings, header = fa
 		context.fillText(ranking.response, 123 + ROW_HEIGHT, offset + ROW_HEIGHT * 5 / 6, WIDTH - ROW_HEIGHT - 1000);
 		context.font = `${ROW_HEIGHT / 2}px serif`;
 		context.textAlign = "right";
-		context.fillText(ranking.percentage.toFixed(2) + "%", WIDTH - 600, offset + ROW_HEIGHT * 7 / 10);
+		context.fillText(ranking.percentile.toFixed(2) + "%", WIDTH - 600, offset + ROW_HEIGHT * 7 / 10);
 		context.fillText(ranking.stDev.toFixed(2) + "%", WIDTH - 330, offset + ROW_HEIGHT * 7 / 10);
 		context.fillText(ranking.skew.toFixed(2).replace("-", "–"), WIDTH - 140, offset + ROW_HEIGHT * 7 / 10);
 		context.fillText(ranking.votes, WIDTH - 20, offset + ROW_HEIGHT * 7 / 10);

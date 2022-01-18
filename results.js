@@ -6,36 +6,54 @@ const {automatic, twowPath} = require("./config.json"); // TODO: Add support for
 const {currentRound, seasonPath, roundPath} = require(twowPath + "status.json");
 const {channels: {results: resultsId}} = require(twowPath + "twowConfig.json");
 // Season-specific
-const {sections: _s, megascreen: _m} = require(seasonPath + "seasonConfig.json");
+const {names, bookPaths} = require(seasonPath + "seasonContestants.json");
 const {drawResults} = require(seasonPath + "graphics.js");
 // Round-specific
 const {prompt} = require(roundPath + "roundConfig.json");
 const contestants = require(roundPath + "contestants.json");
 const responses = require(roundPath + "responses.json");
-const votes = require(roundPath + "votes.json");
-const {screenSections, screenResponses, sectionScreens} = require(roundPath + "screens.json");
 // Results
-exports = function () {
-	logMessage("Results started.");
+function mean(array, map) {
+	if (map != null) {
+		array = array.map(map);
+	}
+	return array.reduce((a, b) => a + b, 0) / array.length;
+}
+function calculateResults() {
 	// TODO: Calculate results
-	const rankings = [];
+	const results = [];
 	for (const response of responses) {
 		const ratings = Array.from(Object.values(response.ratings));
-		const percentage = ratings.reduce((a, b) => a + b, 0) / ratings.length;
-		const stDev = 0; // TODO: Figure out how to calculate
-		const skew = 0; // TODO: Figure out how to calculate
-		rankings.push({
+		const average = mean(ratings);
+		const stDev = mean(ratings, rating => (rating - average) ** 2) ** 0.5; // StDevP
+		results.push({
 			type: "hi", // TODO: Figure out how to calculate
-			rank: 0, // TODO: Figure out how to calculate
-			book: "path", // TODO: Figure out how to calculate
-			name: "name", // TODO: Figure out how to calculate
+			book: `${seasonPath}books/${bookPaths[response.author]}`,
+			name: names[response.author],
 			response: response.text,
-			percentage: percentage * 100,
+			percentile: average * 100,
 			stDev: stDev * 100,
-			skew: skew,
+			skew: mean(ratings, rating => (rating - average) ** 3) / stDev ** 3,
 			votes: ratings.length
 		});
 	}
+	// TODO: Sort results
+	results.sort((a, b) => b.percentile - a.percentile);
+	const placed = new Set();
+	for (const i in results) {
+		if (placed.has(results[i].name)) {
+			results[i].type = "drp";
+		} else {
+			placed.add(results[i].name);
+		}
+		results[i].rank = i + 1;
+	}
+	return results;
+}
+exports = function () {
+	logMessage("Results started.");
+	sendMessage(resultsId, `@everyone ${currentRound} Results`);
+	const rankings = calculateResults();
 	// Reveal results
 	async function revealSlide(line) {
 		line = line.toString().trim();
@@ -55,8 +73,7 @@ exports = function () {
 		slide++;
 	}
 	async function sendSlide(path, header) {
-		// TODO: Use round name
-		await drawResults(`${roundPath}/results/${path}`, "Round 1", prompt, rankings, header);
+		await drawResults(`${roundPath}/results/${path}`, currentRound, prompt, rankings, header);
 		sendMessage(resultsId, {
 			files: [{
 				attachment: `${roundPath}/results/${path}`,
