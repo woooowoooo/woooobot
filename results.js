@@ -1,18 +1,19 @@
 // Modules
-const {logMessage, sendMessage} = require("./helpers.js");
+const {logMessage, sendMessage, save} = require("./helpers.js");
 const {generate: morshu} = require("./morshu.js");
 // Data
-const {automatic, twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
+const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const {currentRound, seasonPath, roundPath} = require(twowPath + "status.json");
 const {channels: {results: resultsId}} = require(twowPath + "twowConfig.json");
 // Season-specific
+const {dangerZone, cutoffs} = require(seasonPath + "seasonConfig.json");
 const {names, bookPaths} = require(seasonPath + "seasonContestants.json");
 const {drawResults} = require(seasonPath + "graphics.js");
 // Round-specific
 const {prompt} = require(roundPath + "roundConfig.json");
 const contestants = require(roundPath + "contestants.json");
 const responses = require(roundPath + "responses.json");
-// Results
+// Calculate results
 function mean(array, map) {
 	if (map != null) {
 		array = array.map(map);
@@ -20,15 +21,14 @@ function mean(array, map) {
 	return array.reduce((a, b) => a + b, 0) / array.length;
 }
 function calculateResults() {
-	// TODO: Calculate results
 	const results = [];
 	for (const response of responses) {
 		const ratings = Array.from(Object.values(response.ratings));
 		const average = mean(ratings);
 		const stDev = mean(ratings, rating => (rating - average) ** 2) ** 0.5; // StDevP
 		results.push({
-			type: "hi", // TODO: Figure out how to calculate
-			book: `${seasonPath}books/${bookPaths[response.author]}`,
+			book: bookPaths[response.author],
+			id: response.author,
 			name: names[response.author],
 			response: response.text,
 			percentile: average * 100,
@@ -37,51 +37,74 @@ function calculateResults() {
 			votes: ratings.length
 		});
 	}
-	// TODO: Sort results
-	results.sort((a, b) => b.percentile - a.percentile);
+	// Sort results
+	results.sort((a, b) => b.percentile - a.percentile || a.skew - b.skew); // Tiebreaker: Smaller skew is better
+	const types = dangerZone ? ["alive", "danger", "dead"] : ["alive", "dead"];
+	const responders = Object.keys(contestants.responseCount).length;
 	const placed = new Set();
-	for (const i in results) {
-		if (placed.has(results[i].name)) {
-			results[i].type = "drp";
-		} else {
-			placed.add(results[i].name);
+	let rank = 1;
+	for (const result of results) {
+		// TODO: Add check for dummies
+		if (placed.has(result.id)) {
+			result.type = "drp";
+			continue;
 		}
-		results[i].rank = i + 1;
+		placed.add(result.id);
+		let type = "prize";
+		for (const i in cutoffs) {
+			if (rank > cutoffs[i] * responders) {
+				type = types[i];
+			}
+		}
+		result.type = type;
+		result.rank = rank;
+		rank++;
 	}
+	save(roundPath + "results.json", results);
 	return results;
 }
-exports = function () {
+// Present results
+const stdin = process.openStdin();
+async function sendSlide(path, rankings, header) {
+	await drawResults(`${roundPath}results/${path}`, currentRound, prompt, rankings, header);
+	await sendMessage(resultsId, {
+		files: [{
+			attachment: `${roundPath}results/${path}`,
+			name: path
+		}]
+	}, true);
+}
+async function asyncRevealSlide(rankings, slide) {
+	// Enter to reveal
+	return new Promise(resolve => {
+		stdin.once("data", async function (line) { // TODO: Temporarily remove console listener
+			line = line.toString().trim();
+			logMessage(line);
+			if (line === "end") {
+				resolve(false);
+			}
+			const path = `slide${slide}.png`;
+			// TODO: Choose which rows to show
+			await sendSlide(path, rankings, (slide === 1));
+			slide++;
+			resolve(true);
+		});
+	});
+}
+exports.results = async function () {
 	logMessage("Results started.");
 	sendMessage(resultsId, `@everyone ${currentRound} Results`);
 	const rankings = calculateResults();
 	// Reveal results
-	async function revealSlide(line) {
-		line = line.toString().trim();
-		if (line === "stop") {
-			stdin.removeListener("data", revealSlide);
-			// Full leaderboard
-			const path = `leaderboard.png`;
-			await sendSlide(path, true);
-			// Spoiler wall
-			for (let i = 0; i < 50; i++) {
-				sendMessage(resultsId, morshu(1), true);
-			}
-			return;
-		}
-		const path = `slide${slide}.png`;
-		await sendSlide(path, (slide === 1));
+	let slide = 1;
+	while (await asyncRevealSlide(rankings, slide)) {
 		slide++;
 	}
-	async function sendSlide(path, header) {
-		await drawResults(`${roundPath}/results/${path}`, currentRound, prompt, rankings, header);
-		sendMessage(resultsId, {
-			files: [{
-				attachment: `${roundPath}/results/${path}`,
-				name: path
-			}]
-		}, true);
+	// Full leaderboard
+	const path = `leaderboard.png`;
+	await sendSlide(path, rankings, true); // Why is this sending last?
+	// Spoiler wall
+	for (let _ = 0; _ < 10; _++) {
+		await sendMessage(resultsId, morshu(1), true);
 	}
-	let slide = 1;
-	let stdin = process.openStdin();
-	stdin.addListener("data", revealSlide); // Enter to reveal
 };
