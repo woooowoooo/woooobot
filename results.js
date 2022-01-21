@@ -74,37 +74,28 @@ async function sendSlide(path, rankings, header) {
 		}]
 	}, true);
 }
-async function reveal(rankings, slide) {
-	// Enter to reveal
-	return new Promise(resolve => {
-		stdin.once("data", async function (line) { // TODO: Temporarily remove console listener
-			line = line.toString().trim().split(" ");
-			if (line[0] === "end") {
-				resolve(false);
-				return;
+async function reveal(rankings, slide, data) { // TODO: Temporarily remove console listener
+	const line = data.toString().trim().split(" ");
+	if (line[0] === "end") {
+		return false;
+	}
+	// Choose which rows to show
+	const selection = [];
+	for (const token of line) {
+		if (token.includes("-")) { // Token is a range
+			const start = rankings.findIndex(row => row.rank === parseInt(token.split("-")[0]));
+			const end = rankings.findIndex(row => row.rank === parseInt(token.split("-")[1]));
+			let range = rankings.slice(start, end + 1);
+			if (token.at(-1) === "f") { // Filter out DRPs
+				range = range.filter(row => row.type !== "drp");
 			}
-			// Choose which rows to show
-			const selection = [];
-			for (const token of line) {
-				if (token.includes("-")) { // Token is a range
-					const start = rankings.findIndex(row => row.rank === parseInt(token.split("-")[0]));
-					const end = rankings.findIndex(row => row.rank === parseInt(token.split("-")[1]));
-					let range = rankings.slice(start, end + 1);
-					if (token.at(-1) === "f") { // Filter out DRPs
-						range = range.filter(row => row.type !== "drp");
-					}
-					selection.push(...range);
-				} else { // Token is a single row
-					selection.push(rankings.find(row => row.rank === parseInt(token)));
-				}
-			}
-			// Create and send slide
-			const path = `slide${slide}.png`;
-			await sendSlide(path, selection, (slide === 1));
-			slide++;
-			resolve(true);
-		});
-	});
+			selection.push(...range);
+		} else { // Token is a single row
+			selection.push(rankings.find(row => row.rank === parseInt(token)));
+		}
+	}
+	await sendSlide(`slide${slide}.png`, selection, (slide === 1));
+	return true;
 }
 exports.results = async function () {
 	logMessage("Results started.");
@@ -112,7 +103,11 @@ exports.results = async function () {
 	const rankings = calculateResults();
 	// Reveal results
 	let slide = 1;
-	while (await reveal(rankings, slide)) {
+	let moreSlides = true;
+	while (moreSlides) {
+		moreSlides = await new Promise(resolve => {
+			stdin.once("data", async data => resolve(await reveal(rankings, slide, data)));
+		});
 		slide++;
 	}
 	// Full leaderboard
