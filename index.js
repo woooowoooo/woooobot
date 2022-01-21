@@ -22,10 +22,12 @@ const {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
 const readline = require("readline");
 const {getTime, logMessage, sendMessage, toSnowflake, save} = require("./helpers.js");
 const morshu = require("./morshu.js");
-const {initResponding, logResponse} = require("./responding.js");
+const {initResponding, initRound, logResponse} = require("./responding.js");
 const {initVoting, logVote} = require("./voting.js");
+const {results} = require("./results.js");
 let commands = require("./commands.js");
 // Other variables
+const stdin = process.openStdin();
 let me;
 // Process messages
 function readMessage(message, readTime = false) {
@@ -82,14 +84,12 @@ function processMessage(message) {
 async function processMessageAsync(message) {
 	// Process message if I press "r"; skip on other keys
 	return new Promise(resolve => {
-		function record(_, key) {
+		stdin.once("keypress", function (_, key) {
 			if (key.name === "r") {
 				processMessage(message);
 			}
-			stdin.removeListener("keypress", record);
 			resolve();
-		}
-		stdin.on("keypress", record);
+		});
 	});
 }
 // Event handling
@@ -106,7 +106,7 @@ client.once("ready", async function () {
 	// Get non-bot non-dev members
 	const server = await client.guilds.fetch(serverID);
 	const botRole = await server.roles.fetch(roles.bot);
-	const members = (await server.members.fetch()).filter(m => (m.id !== devID) && !m.roles.cache.has(botRole.id));
+	const members = (await server.members.fetch()).filter(m => m.id !== devID && !m.roles.cache.has(botRole.id));
 	// Act on recent DMs
 	readline.emitKeypressEvents(process.stdin);
 	stdin.removeListener("data", consoleListener);
@@ -133,7 +133,8 @@ client.once("ready", async function () {
 	if (phase === "responding" && getTime() > rDeadline) {
 		initVoting();
 	} else if (phase === "voting" && getTime() > vDeadline) {
-		// TODO: Results + start new round
+		results();
+		// initRound();
 		// initResponding();
 	}
 });
@@ -155,7 +156,6 @@ client.on("messageCreate", async function (message) {
 });
 client.login(token);
 // Respond to console input
-let stdin = process.openStdin();
 function consoleListener(text) {
 	text = text.toString().trim();
 	logMessage(`[R] Console input: ${text}`);

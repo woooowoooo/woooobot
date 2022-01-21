@@ -133,7 +133,7 @@ exports.logVote = function (message) {
 	}
 	// Apply ratings to responses (separate step for atomicity)
 	for (const [id, rating] of ratings) {
-		const response = responses.find(res => (res.id === id));
+		const response = responses.find(res => res.id === id);
 		response.ratings ??= {}; // Would be a map if they were natively serializable
 		response.ratings[message.author.id] = rating;
 	}

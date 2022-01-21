@@ -24,6 +24,10 @@ exports.initResponding = function () {
 	const unixDeadline = toUnixTime(rDeadline);
 	sendMessage(prompts, `<@&${alive}> Round ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)`, true);
 };
+exports.initRound = function () {
+	// TODO: Start new round
+	// TODO: Create new files
+};
 exports.logResponse = function (message) {
 	logMessage(`Recording response by ${message.author}:\n${message}`);
 	const allowed = contestants.prize.includes(message.author.id) ? 2 : 1;

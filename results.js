@@ -52,7 +52,7 @@ function calculateResults() {
 		placed.add(result.id);
 		let type = "prize";
 		for (const i in cutoffs) {
-			if (rank > cutoffs[i] * responders) {
+			if (rank > Math.round(cutoffs[i] * responders)) {
 				type = types[i];
 			}
 		}
@@ -74,18 +74,33 @@ async function sendSlide(path, rankings, header) {
 		}]
 	}, true);
 }
-async function asyncRevealSlide(rankings, slide) {
+async function reveal(rankings, slide) {
 	// Enter to reveal
 	return new Promise(resolve => {
 		stdin.once("data", async function (line) { // TODO: Temporarily remove console listener
-			line = line.toString().trim();
-			logMessage(line);
-			if (line === "end") {
+			line = line.toString().trim().split(" ");
+			if (line[0] === "end") {
 				resolve(false);
+				return;
 			}
+			// Choose which rows to show
+			const selection = [];
+			for (const token of line) {
+				if (token.includes("-")) { // Token is a range
+					const start = rankings.findIndex(row => row.rank === parseInt(token.split("-")[0]));
+					const end = rankings.findIndex(row => row.rank === parseInt(token.split("-")[1]));
+					let range = rankings.slice(start, end + 1);
+					if (token.at(-1) === "f") { // Filter out DRPs
+						range = range.filter(row => row.type !== "drp");
+					}
+					selection.push(...range);
+				} else { // Token is a single row
+					selection.push(rankings.find(row => row.rank === parseInt(token)));
+				}
+			}
+			// Create and send slide
 			const path = `slide${slide}.png`;
-			// TODO: Choose which rows to show
-			await sendSlide(path, rankings, (slide === 1));
+			await sendSlide(path, selection, (slide === 1));
 			slide++;
 			resolve(true);
 		});
@@ -97,14 +112,14 @@ exports.results = async function () {
 	const rankings = calculateResults();
 	// Reveal results
 	let slide = 1;
-	while (await asyncRevealSlide(rankings, slide)) {
+	while (await reveal(rankings, slide)) {
 		slide++;
 	}
 	// Full leaderboard
 	const path = `leaderboard.png`;
 	await sendSlide(path, rankings, true); // Why is this sending last?
 	// Spoiler wall
-	for (let _ = 0; _ < 10; _++) {
+	for (let _ = 0; _ < 50; _++) {
 		await sendMessage(resultsId, morshu(1), true);
 	}
 };
