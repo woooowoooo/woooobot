@@ -85,7 +85,7 @@ send <id> <text>: Sends <text> to <id>.
 	},
 	edit: {
 		permLevel: "developer",
-		execute: function ({text}) {
+		execute: async function ({text}) {
 			let [path, key, value] = text.split(" ");
 			if (path.match(/..\//)) {
 				throw new Error("You can't edit above miniTWOW-level!");
@@ -93,7 +93,7 @@ send <id> <text>: Sends <text> to <id>.
 			path = `./${path}`;
 			let file = require(path);
 			file[key] = value;
-			save(path, file);
+			await save(path, file);
 			logMessage(file);
 		}
 	},
@@ -116,7 +116,7 @@ send <id> <text>: Sends <text> to <id>.
 			const attachment = attachments.values().next().value;
 			const firstBook = (contestants[user.id] == null);
 			contestants.bookPaths[user.id] ??= `${user.username}.${attachments.first().name.split(".").at(-1)}`;
-			save(seasonPath + "seasonContestants.json", contestants);
+			await save(seasonPath + "seasonContestants.json", contestants);
 			const book = createWriteStream(`${seasonPath}books/${contestants.bookPaths[user.id]}`);
 			await new Promise(resolve => {
 				get(attachment.url, response => {
@@ -172,5 +172,5 @@ module.exports = async function (commandName, args, message, roles) {
 		server: message.guild,
 		message: message
 	};
-	return command.execute(argsObj);
+	return await command.execute(argsObj);
 };

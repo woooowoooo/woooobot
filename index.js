@@ -128,7 +128,7 @@ client.once("ready", async function () {
 	stdin.on("data", consoleListener);
 	// Update last checked time
 	config.lastUnread = toSnowflake();
-	save("./config.json", config);
+	await save("./config.json", config);
 	// Start new phase
 	if (phase === "responding" && getTime() > rDeadline) {
 		initVoting();
@@ -139,7 +139,7 @@ client.once("ready", async function () {
 });
 client.on("messageCreate", async function (message) {
 	config.lastUnread = toSnowflake();
-	save("./config.json", config);
+	await save("./config.json", config);
 	if (!readMessage(message)) { // Ignore irrelevant messages
 		return;
 	}
