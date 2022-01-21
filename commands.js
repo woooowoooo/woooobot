@@ -4,11 +4,11 @@ const {logMessage, sendMessage, save} = require("./helpers.js");
 const morshu = require("./morshu.js");
 const {initResponding} = require("./responding.js");
 const {initVoting} = require("./voting.js");
-const {prefix, devID, twowPath} = require("./config.json");
+const {prefix, devId, twowPath} = require("./config.json");
 const {seasonPath} = require(twowPath + "status.json");
 const contestants = require(seasonPath + "seasonContestants.json");
 const hasPerms = function (user, server, roles, permLevel) {
-	if (user.id === devID) {
+	if (user.id === devId) {
 		return true;
 	}
 	if (permLevel === "normal") {

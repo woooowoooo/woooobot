@@ -14,8 +14,8 @@ const client = new Client({
 exports.client = client; // Client is exported so helpers.js can use it
 // Configs
 let config = require("./config.json");
-const {automatic, prefix, token, devID, botID, twowPath, lastUnread} = config; // TODO: Allow for multiple TWOWs
-const {id: serverID, roles, channels: {bots}} = require(twowPath + "twowConfig.json");
+const {automatic, prefix, token, devId, botId, twowPath, lastUnread} = config; // TODO: Allow for multiple TWOWs
+const {id: serverId, roles, channels: {bots}} = require(twowPath + "twowConfig.json");
 const {roundPath, phase} = require(twowPath + "status.json");
 const {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
 // Modules
@@ -32,7 +32,7 @@ let me;
 // Process messages
 function readMessage(message, readTime = false) {
 	// Ignore own messages and non-bot channels
-	if (message.author.id === botID || message.guild != null && !bots.includes(message.channel.id)) {
+	if (message.author.id === botId || message.guild != null && !bots.includes(message.channel.id)) {
 		return false;
 	}
 	let header = message.author.tag;
@@ -50,7 +50,7 @@ function parseCommands(text, message) {
 	// Default parameters only act on "undefined" and not an empty string.
 	const args = text.substring(command.length + 1) || undefined;
 	// Reload commands
-	if (command === "reload" && message.author.id === devID) {
+	if (command === "reload" && message.author.id === devId) {
 		delete require.cache[require.resolve("./commands.js")];
 		commands = require("./commands.js");
 		logMessage("Commands reloaded.");
@@ -63,7 +63,7 @@ function parseCommands(text, message) {
 		}
 	}).catch(e => {
 		logMessage(`[E] ${e}`, true);
-		if (message.author.id !== devID) { // I have access to the logs
+		if (message.author.id !== devId) { // I have access to the logs
 			sendMessage(message.channel, e);
 		}
 	});
@@ -72,7 +72,7 @@ function processMessage(message) {
 	if (message.content.substring(0, prefix.length) === prefix) {
 		// Act on bot commands
 		parseCommands(message.content.substring(prefix.length), message);
-	} else if (message.guild == null && message.author.id !== devID) {
+	} else if (message.guild == null && message.author.id !== devId) {
 		// Act on non-command direct messages
 		if (phase === "responding") {
 			sendMessage(message.author.dmChannel, logResponse(message, message.author));
@@ -101,12 +101,12 @@ client.once("ready", async function () {
 	const initLog = `Logged in as ${client.user.tag}.\n\n`;
 	logMessage("=".repeat(initLog.length - 2));
 	logMessage(initLog + morshu.generate(5) + "\n");
-	me = await client.users.fetch(devID); // Initialize me
+	me = await client.users.fetch(devId); // Initialize me
 	me.createDM(); // To allow for console input to work
 	// Get non-bot non-dev members
-	const server = await client.guilds.fetch(serverID);
+	const server = await client.guilds.fetch(serverId);
 	const botRole = await server.roles.fetch(roles.bot);
-	const members = (await server.members.fetch()).filter(m => m.id !== devID && !m.roles.cache.has(botRole.id));
+	const members = (await server.members.fetch()).filter(m => m.id !== devId && !m.roles.cache.has(botRole.id));
 	// Act on recent DMs
 	readline.emitKeypressEvents(process.stdin);
 	stdin.removeListener("data", consoleListener);
@@ -118,7 +118,7 @@ client.once("ready", async function () {
 		}
 		logMessage(`DM to ${member.user.tag} created.`);
 		const messages = await dms.messages.fetch();
-		for (const [_, message] of messages.filter((m, s) => m.author.id !== botID && BigInt(s) > BigInt(lastUnread))) {
+		for (const [_, message] of messages.filter((m, s) => m.author.id !== botId && BigInt(s) > BigInt(lastUnread))) {
 			if (readMessage(message, true)) {
 				automatic ? processMessage(message) : await processMessageAsync(message);
 			}

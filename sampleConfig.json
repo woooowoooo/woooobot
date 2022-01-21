@@ -4,8 +4,8 @@
 	"sandbox": "000000000000000000",
 	"prefix": "sample ",
 	"token": "INSERT TOKEN HERE",
-	"devID": "000000000000000000",
-	"botID": "000000000000000000",
+	"devId": "000000000000000000",
+	"botId": "000000000000000000",
 	"lastUnread": "000000000000000000",
 	"twows": {
 		"Sample TWOW": "./Sample TWOW/"
