@@ -1,7 +1,5 @@
 // Modules
 const {logMessage, sendMessage, getTime, toUnixTime, save} = require("./helpers.js");
-const technicals = require("./technicals.js");
-const twists = require("./twists.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const status = require(twowPath + "status.json");
@@ -12,6 +10,8 @@ const {
 } = require(twowPath + "twowConfig.json");
 // Season-specific
 const {deadlines, reminders} = require(seasonPath + "seasonConfig.json");
+const technicals = require(seasonPath + "technicals.js");
+const twists = require(seasonPath + "twists.js");
 // Round-specific
 const {prompt, rDeadline, technicals: roundTechnicals, twists: roundTwists} = require(roundPath + "roundConfig.json");
 const contestants = require(roundPath + "contestants.json");
