@@ -22,7 +22,8 @@ const {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
 const readline = require("readline");
 const {getTime, logMessage, sendMessage, toSnowflake, save} = require("./helpers.js");
 const morshu = require("./morshu.js");
-const {initResponding, initRound, logResponse} = require("./responding.js");
+const {initRound} = require("./inits.js");
+const {initResponding, logResponse} = require("./responding.js");
 const {initVoting, logVote} = require("./voting.js");
 const {results} = require("./results.js");
 let commands = require("./commands.js");
@@ -134,7 +135,7 @@ client.once("ready", async function () {
 		initVoting();
 	} else if (phase === "voting" && getTime() > vDeadline) {
 		results();
-		// initRound();
+		initRound();
 		// initResponding();
 	}
 });
