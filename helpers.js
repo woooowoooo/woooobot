@@ -55,6 +55,9 @@ exports.sendMessage = async function (destination, message, id = false) {
 };
 // Time
 exports.getTime = function (time = new Date()) {
+	if (typeof time === "number") { // Is Unix time
+		time = new Date(time * 1000);
+	}
 	return time.toISOString().substring(0, 10) + " " + time.toISOString().substring(11, 19);
 };
 exports.toSnowflake = function (time) {
@@ -66,7 +69,7 @@ exports.toUnixTime = function (time) {
 	if (time == null) {
 		return Date.now() / 1000;
 	}
-	return new Date(time).getTime() / 1000;
+	return new Date(time + "Z").getTime() / 1000; // + "Z" to prevent timezone offset
 };
 // Miscellaneous
 exports.save = async function (path, content) {

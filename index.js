@@ -134,7 +134,7 @@ client.once("ready", async function () {
 	if (phase === "responding" && getTime() > rDeadline) {
 		initVoting();
 	} else if (phase === "voting" && getTime() > vDeadline) {
-		results();
+		// results();
 		initRound();
 		// initResponding();
 	}
