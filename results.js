@@ -74,7 +74,7 @@ async function sendSlide(path, rankings, header) {
 		}]
 	}, true);
 }
-async function reveal(rankings, slide, data) { // TODO: Temporarily remove console listener
+async function reveal(rankings, slide, data) {
 	const line = data.toString().trim().split(" ");
 	if (line[0] === "end") {
 		return false;
@@ -104,15 +104,18 @@ exports.results = async function () {
 	// Reveal results
 	let slide = 1;
 	let moreSlides = true;
+	const consoleListener = stdin.listeners("data")[0];
+	stdin.removeListener("data", consoleListener);
 	while (moreSlides) {
 		moreSlides = await new Promise(resolve => {
 			stdin.once("data", async data => resolve(await reveal(rankings, slide, data)));
 		});
 		slide++;
 	}
+	stdin.addListener("data", consoleListener);
 	// Full leaderboard
 	const path = `leaderboard.png`;
-	await sendSlide(path, rankings, true); // Why is this sending last?
+	await sendSlide(path, rankings, true);
 	// Spoiler wall
 	for (let _ = 0; _ < 50; _++) {
 		await sendMessage(resultsId, morshu(1), true);

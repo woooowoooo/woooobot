@@ -109,9 +109,9 @@ client.once("ready", async function () {
 	const botRole = await server.roles.fetch(roles.bot);
 	const members = (await server.members.fetch()).filter(m => m.id !== devId && !m.roles.cache.has(botRole.id));
 	// Act on recent DMs
-	readline.emitKeypressEvents(process.stdin);
 	stdin.removeListener("data", consoleListener);
 	stdin.setRawMode(true);
+	readline.emitKeypressEvents(process.stdin);
 	for (const [_, member] of members) {
 		const dms = await member.createDM().catch(() => logMessage(`[E] Failed to create DM to ${member.user.tag}`, true));
 		if (dms == null) {
@@ -134,7 +134,7 @@ client.once("ready", async function () {
 	if (phase === "responding" && getTime() > rDeadline) {
 		initVoting();
 	} else if (phase === "voting" && getTime() > vDeadline) {
-		// results();
+		results();
 		initRound();
 		// initResponding();
 	}

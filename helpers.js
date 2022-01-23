@@ -42,7 +42,7 @@ exports.sendMessage = async function (destination, message, id = false) {
 	if ((message.content?.length ?? message.length ?? 0) > 2000) {
 		throw new Error("Message is too long!");
 	}
-	destination.send(message);
+	await destination.send(message);
 	// Log message
 	if (typeof message === "object") {
 		message = JSON.stringify(message);
