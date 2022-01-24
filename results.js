@@ -104,7 +104,7 @@ exports.results = async function () {
 	// Reveal results
 	let slide = 1;
 	let moreSlides = true;
-	const consoleListener = stdin.listeners("data")[0];
+	const consoleListener = stdin.listeners("data")[1];
 	stdin.removeListener("data", consoleListener);
 	while (moreSlides) {
 		moreSlides = await new Promise(resolve => {

@@ -157,9 +157,11 @@ client.on("messageCreate", async function (message) {
 });
 client.login(token);
 // Respond to console input
-function consoleListener(text) {
-	text = text.toString().trim();
-	logMessage(`[R] Console input: ${text}`);
+function consoleLogger(data) {
+	logMessage(`[R] Console input: ${data.toString().trim()}`);
+}
+function consoleListener(data) {
+	let text = data.toString().trim();
 	if (text.substring(0, 2) !== "//") { // Allow for dev comments
 		if (text.substring(0, prefix.length) === prefix) {
 			text = text.substring(prefix.length);
@@ -170,4 +172,5 @@ function consoleListener(text) {
 		});
 	}
 }
+stdin.on("data", consoleLogger);
 stdin.on("data", consoleListener);
