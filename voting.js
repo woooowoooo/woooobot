@@ -5,7 +5,7 @@ const {twowPath} = require("./config.json"); // TODO: Add support for multiple T
 const status = require(twowPath + "status.json");
 const {currentRound, seasonPath, roundPath} = status;
 const {
-	roles: {remind},
+	roles: {supervoter, remind},
 	channels: {bots, voting, reminders: remindersId}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
@@ -153,6 +153,11 @@ exports.logVote = function (message) {
 	});
 	if (Object.keys(votes[message.author.id].screens).length === sectionScreens[section]) {
 		votes[message.author.id].supervote = true;
+		client.guilds.fetch(twows[currentTWOW]).then(server => {
+			server.members.fetch(message.author.id).then(author => {
+				author.roles.add(supervoter);
+			});
+		});
 	}
 	// TODO: Add more stats
 	save(roundPath + "votes.json", votes);
