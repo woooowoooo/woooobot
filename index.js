@@ -12,21 +12,21 @@ const client = new Client({
 	]
 });
 exports.client = client; // Client is exported so helpers.js can use it
+// Modules
+const readline = require("readline");
+const {getTime, logMessage, sendMessage, toSnowflake, save, reload} = require("./helpers.js");
+const morshu = require("./morshu.js");
+const {initRound} = require("./inits.js");
+let {initResponding, logResponse} = require("./responding.js");
+const {initVoting, logVote} = require("./voting.js");
+const {results} = require("./results.js");
+let commands = require("./commands.js");
 // Configs
 let config = require("./config.json");
 const {automatic, prefix, token, devId, botId, twowPath, lastUnread} = config; // TODO: Allow for multiple TWOWs
 const {id: serverId, roles, channels: {bots}} = require(twowPath + "twowConfig.json");
 const {roundPath, phase} = require(twowPath + "status.json");
 const {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
-// Modules
-const readline = require("readline");
-const {getTime, logMessage, sendMessage, toSnowflake, save} = require("./helpers.js");
-const morshu = require("./morshu.js");
-const {initRound} = require("./inits.js");
-const {initResponding, logResponse} = require("./responding.js");
-const {initVoting, logVote} = require("./voting.js");
-const {results} = require("./results.js");
-let commands = require("./commands.js");
 // Other variables
 const stdin = process.openStdin();
 let me;
@@ -52,9 +52,7 @@ function parseCommands(text, message) {
 	const args = text.substring(command.length + 1) || undefined;
 	// Reload commands
 	if (command === "reload" && message.author.id === devId) {
-		delete require.cache[require.resolve("./commands.js")];
-		commands = require("./commands.js");
-		logMessage("Commands reloaded.");
+		commands = reload("./commands.js");
 		return;
 	}
 	// Execute other commands
@@ -137,6 +135,7 @@ client.once("ready", async function () {
 		results();
 		initRound();
 		// initResponding();
+		({initResponding, logResponse} = reload("./responding.js"));
 	}
 });
 client.on("messageCreate", async function (message) {

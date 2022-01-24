@@ -72,6 +72,11 @@ exports.toUnixTime = function (time) {
 	return new Date(time + "Z").getTime() / 1000; // + "Z" to prevent timezone offset
 };
 // Miscellaneous
+exports.reload = function (path) {
+	delete require.cache[require.resolve(path)];
+	exports.logMessage(`${path} reloaded.`);
+	return require(path);
+};
 exports.save = async function (path, content) {
 	await fs.promises.writeFile(path, JSON.stringify(content, null, "\t"));
 };
