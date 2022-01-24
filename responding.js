@@ -13,7 +13,7 @@ const {deadlines, reminders} = require(seasonPath + "seasonConfig.json");
 const technicals = require(seasonPath + "technicals.js");
 const twists = require(seasonPath + "twists.js");
 // Round-specific
-const {prompt, rDeadline, technicals: roundTechnicals, twists: roundTwists} = require(roundPath + "roundConfig.json");
+const {prompt, rDeadline, technicals: roundTechnicals = [], twists: roundTwists} = require(roundPath + "roundConfig.json");
 const contestants = require(roundPath + "contestants.json");
 const responses = require(roundPath + "responses.json");
 // Functions
@@ -32,14 +32,23 @@ exports.logResponse = function (message) {
 	if (contestants.responseCount[message.author.id] >= allowed) {
 		return `You have already responded to the prompt!`;
 	}
-	// TODO: Have a default tenWords technical
+	// Default tenWords technical
+	if (!roundTechnicals.includes("noTenWords")) {
+		roundTechnicals.unshift("tenWords");
+		technicals.tenWord = {
+			check: function (response) {
+				return response.split(/\s/).filter(word => /\w/.test(word)).length <= 10; // Don't count punctuation-only "words"
+			}
+		};
+	}
+	// Check technicals
 	const passesTechnical = roundTechnicals.reduce((passes, name) => {
 		return passes && technicals[name].check(message.content);
 	}, true);
 	if (!passesTechnical) {
 		return `Your response (\`${message}\`) failed a technical.\nIt has not been recorded; please submit a response that follows all technicals.`;
 	}
-	// TODO: Allow DRPs
+	// Build response object
 	let messageData = {
 		id: message.id,
 		author: message.author.id,
