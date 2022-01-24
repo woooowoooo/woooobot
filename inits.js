@@ -7,7 +7,7 @@ const status = require(twowPath + "status.json");
 let {currentSeason, currentRound, seasonPath, roundPath} = status;
 const {seasons} = require(twowPath + "twowConfig.json");
 // Season-specific
-const {rounds} = require(seasonPath + "seasonConfig.json");
+const {rounds, nextPrompt} = require(seasonPath + "seasonConfig.json");
 const seasonConfig = require(seasonPath + "seasonConfig.json");
 const seasonContestants = require(seasonPath + "seasonContestants.json");
 // Round-specific
@@ -19,7 +19,7 @@ async function newRound() {
 	await fs.mkdir(roundPath + "results/");
 	await fs.mkdir(roundPath + "screens/");
 	roundConfig.round = currentRound;
-	roundConfig.prompt = "";
+	roundConfig.prompt = nextPrompt ?? "";
 	roundConfig.rDeadline = getTime(toUnixTime(roundConfig.vDeadline) + seasonConfig.deadlines[0] * 86400);
 	roundConfig.vDeadline = getTime(toUnixTime(roundConfig.rDeadline) + seasonConfig.deadlines[1] * 86400);
 	await save(roundPath + "roundConfig.json", roundConfig);

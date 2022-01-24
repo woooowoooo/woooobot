@@ -51,15 +51,45 @@ echo <message>: Repeats <message>.
 morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount is 10 words.
 ping [userId]: Ping <userId> if provided. Pings yourself otherwise.
 
-MODERATOR-ONLY:
+ADMIN-ONLY:
 phase [newPhase]: Changes round status to <newPhase>. If no argument is provided, increments the phase.
 
 DEVELOPER-ONLY:
-edit <path> <key> <value>: Changes the value of <key> in <path> to <value>.
+change <path> <key> <value>: Changes the value of <key> in <path> to <value>.
+edit <messageId> <channelId> <newMessage>: Edits the message <messageId> (in <channelId>) to <newMessage>.
 eval <command>: Runs <command>.
 reload: Reloads commands.js.
 send <id> <text>: Sends <text> to <id>.
 \`\`\``;
+		}
+	},
+	change: {
+		permLevel: "developer",
+		execute: async function ({text}) {
+			let [path, key, value] = text.split(" ");
+			if (path.match(/..\//)) {
+				throw new Error("You can't edit above miniTWOW-level!");
+			}
+			path = `./${path}`;
+			let file = require(path);
+			file[key] = value;
+			await save(path, file);
+			logMessage(file);
+		}
+	},
+	edit: {
+		permLevel: "developer",
+		execute: async function ({text, message}) {
+			const [channelId, messageId, ...newMessage] = text.split(" ");
+			const channel = await message.guild.channels.fetch(channelId).catch(() => {
+				throw new Error("Channel not in this server!");
+			});
+			const msg = await channel.messages.fetch(messageId).catch(() => {
+				throw new Error("Message not in specified channel!");
+			});
+			await msg.edit(newMessage.join(" ")).catch(() => {
+				throw new Error("Message not editable!");
+			});
 		}
 	},
 	eval: {
@@ -81,20 +111,6 @@ send <id> <text>: Sends <text> to <id>.
 			let [channelId, ...message] = text.split(" ");
 			channelId = channelId.match(/^<(#|@|@!)(?<id>\d+)>$/)?.groups.id ?? channelId;
 			sendMessage(channelId, message.join(" "), true);
-		}
-	},
-	edit: {
-		permLevel: "developer",
-		execute: async function ({text}) {
-			let [path, key, value] = text.split(" ");
-			if (path.match(/..\//)) {
-				throw new Error("You can't edit above miniTWOW-level!");
-			}
-			path = `./${path}`;
-			let file = require(path);
-			file[key] = value;
-			await save(path, file);
-			logMessage(file);
 		}
 	},
 	phase: {

@@ -63,7 +63,7 @@ function parseCommands(text, message) {
 	}).catch(e => {
 		logMessage(`[E] ${e}`, true);
 		if (message.author.id !== devId) { // I have access to the logs
-			sendMessage(message.channel, e);
+			sendMessage(message.channel, e.message);
 		}
 	});
 }
