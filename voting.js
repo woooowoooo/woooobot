@@ -1,4 +1,5 @@
 // Modules
+const {client} = require("./index.js");
 const {logMessage, sendMessage, getTime, toUnixTime, save} = require("./helpers.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
@@ -74,11 +75,12 @@ async function createScreen(responses, keyword, section) {
 }
 async function createSection(responses, sizes, sectWord) {
 	for (let i = 0; i < responses.length; i++) { // Randomize response array
-		let j = Math.floor(Math.random() * i);
+		const j = Math.floor(Math.random() * i);
 		[responses[i], responses[j]] = [responses[j], responses[i]];
 	}
 	for (let i = 0; i < sizes.length; i++) {
-		await createScreen(responses.splice(0, sizes[i]), `${sectWord}-${i + 1}`, sectWord);
+		const keyword = autoKeywords ? `${sectWord}-${i + 1}` : keywords[sectWord][i];
+		await createScreen(responses.splice(0, sizes[i]), keyword, sectWord);
 	}
 }
 exports.initVoting = async function () {
@@ -91,7 +93,8 @@ exports.initVoting = async function () {
 	logMessage(prompt);
 	const screenSizes = partitionResponses(responses.length);
 	for (let i = 0; i < sections; i++) {
-		await createSection([...responses], screenSizes, (i + 1).toString());
+		const sectWord = autoKeywords ? (i + 1).toString() : Object.keys(keywords)[i];
+		await createSection([...responses], screenSizes, sectWord);
 	}
 	if (megascreen) {
 		await createScreen(responses, "MEGA", "MEGA");
