@@ -42,7 +42,7 @@ function partitionResponses(responseAmount) {
 	screenSizes[i] = responseAmount;
 	return screenSizes;
 }
-function createScreen(responses, keyword, section) {
+async function createScreen(responses, keyword, section) {
 	let rows = new Map();
 	let ids = new Map();
 	// Create text screen
@@ -63,41 +63,40 @@ function createScreen(responses, keyword, section) {
 	screenResponses[keyword] = Object.fromEntries(ids.entries());
 	// Draw screen
 	const path = `${roundPath}/screens/${keyword}.png`;
-	drawScreen(path, keyword, Array.from(rows.entries())).then(() => {
-		sendMessage(voting, {
-			content: screen, // For easy voter.js input
-			files: [{
-				attachment: path,
-				name: keyword + ".png"
-			}]
-		}, true);
-	});
+	await drawScreen(path, keyword, Array.from(rows.entries()));
+	await sendMessage(voting, {
+		content: screen, // For easy voter.js input
+		files: [{
+			attachment: path,
+			name: keyword + ".png"
+		}]
+	}, true);
 }
-function createSection(responses, sizes, sectWord) {
+async function createSection(responses, sizes, sectWord) {
 	for (let i = 0; i < responses.length; i++) { // Randomize response array
 		let j = Math.floor(Math.random() * i);
 		[responses[i], responses[j]] = [responses[j], responses[i]];
 	}
 	for (let i = 0; i < sizes.length; i++) {
-		createScreen(responses.splice(0, sizes[i]), `${sectWord}-${i + 1}`, sectWord);
+		await createScreen(responses.splice(0, sizes[i]), `${sectWord}-${i + 1}`, sectWord);
 	}
 }
-exports.initVoting = function () {
+exports.initVoting = async function () {
 	logMessage("Voting period started.");
 	status.phase = "voting";
-	save(`${twowPath}/status.json`, status);
+	await save(`${twowPath}/status.json`, status);
 	const unixDeadline = toUnixTime(vDeadline);
-	sendMessage(voting, `@everyone ${currentRound}\nVote to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)`, true);
+	await sendMessage(voting, `@everyone ${currentRound}\nVote to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)`, true);
 	// Create voting
 	logMessage(prompt);
 	const screenSizes = partitionResponses(responses.length);
 	for (let i = 0; i < sections; i++) {
-		createSection([...responses], screenSizes, (i + 1).toString());
+		await createSection([...responses], screenSizes, (i + 1).toString());
 	}
 	if (megascreen) {
-		createScreen(responses, "MEGA", "MEGA");
+		await createScreen(responses, "MEGA", "MEGA");
 	}
-	save(roundPath + "screens.json", screens);
+	await save(roundPath + "screens.json", screens);
 };
 exports.logVote = function (message) {
 	logMessage(`Recording vote by ${message.author}:\n${message}`);

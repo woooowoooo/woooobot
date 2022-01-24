@@ -130,12 +130,12 @@ client.once("ready", async function () {
 	await save("./config.json", config);
 	// Start new phase
 	if (phase === "responding" && getTime() > rDeadline) {
-		initVoting();
+		await initVoting();
 	} else if (phase === "voting" && getTime() > vDeadline) {
-		results();
-		initRound();
-		// initResponding();
+		await results();
+		await initRound();
 		({initResponding, logResponse} = reload("./responding.js"));
+		await initResponding();
 	}
 });
 client.on("messageCreate", async function (message) {

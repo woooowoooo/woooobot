@@ -25,6 +25,9 @@ async function newRound() {
 	await save(roundPath + "roundConfig.json", roundConfig);
 	contestants.responseCount = {};
 	await save(roundPath + "contestants.json", contestants);
+	await save(roundPath + "responses.json", []);
+	await save(roundPath + "votes.json", {});
+	await save(roundPath + "screens.json", {});
 }
 exports.initRound = async function () {
 	// Start new round
@@ -36,7 +39,7 @@ exports.initRound = async function () {
 	status.roundPath = roundPath;
 	await save(twowPath + "status.json", status);
 	logMessage("New round started: " + currentRound);
-	newRound();
+	await newRound();
 };
 exports.initSeason = async function () {
 	// Start new season

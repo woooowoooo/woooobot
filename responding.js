@@ -17,12 +17,12 @@ const {prompt, rDeadline, technicals: roundTechnicals, twists: roundTwists} = re
 const contestants = require(roundPath + "contestants.json");
 const responses = require(roundPath + "responses.json");
 // Functions
-exports.initResponding = function () {
+exports.initResponding = async function () {
 	logMessage("Responding period started.");
 	status.phase = "responding";
-	save(`${twowPath}/status.json`, status);
+	await save(`${twowPath}/status.json`, status);
 	const unixDeadline = toUnixTime(rDeadline);
-	sendMessage(prompts, `<@&${alive}> Round ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)`, true);
+	await sendMessage(prompts, `<@&${alive}> ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)`, true);
 };
 exports.logResponse = function (message) {
 	logMessage(`Recording response by ${message.author}:\n${message}`);
@@ -32,6 +32,7 @@ exports.logResponse = function (message) {
 	if (contestants.responseCount[message.author.id] >= allowed) {
 		return `You have already responded to the prompt!`;
 	}
+	// TODO: Have a default tenWords technical
 	const passesTechnical = roundTechnicals.reduce((passes, name) => {
 		return passes && technicals[name].check(message.content);
 	}, true);
