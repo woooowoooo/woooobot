@@ -1,10 +1,15 @@
 // Modules
+const {client} = require("./index.js");
 const {logMessage, sendMessage, save} = require("./helpers.js");
 const {generate: morshu} = require("./morshu.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const {currentRound, seasonPath, roundPath} = require(twowPath + "status.json");
-const {channels: {results: resultsId}} = require(twowPath + "twowConfig.json");
+const {
+	id: serverId,
+	channels: {results: resultsId},
+	roles: {prize, supervoter, alive, dead}
+} = require(twowPath + "twowConfig.json");
 // Season-specific
 const {dangerZone, cutoffs} = require(seasonPath + "seasonConfig.json");
 const {names, bookPaths} = require(seasonPath + "seasonContestants.json");
@@ -119,5 +124,19 @@ exports.results = async function () {
 	// Spoiler wall
 	for (let _ = 0; _ < 50; _++) {
 		await sendMessage(resultsId, morshu(1), true);
+	}
+	// Assign roles
+	const twow = await client.guilds.fetch(serverId);
+	for (const row of rankings.filter(row => row.type !== "drp" && row.type !== "dummy")) {
+		const author = await twow.members.fetch(row.id);
+		author.roles.remove(supervoter);
+		if (row.type === "dead") {
+			author.roles.remove([prize, alive]);
+			author.roles.add(dead);
+		} else if (row.type === "prize") {
+			author.roles.add(prize);
+		} else { // "alive" or "danger"
+			author.roles.remove(prize);
+		}
 	}
 };

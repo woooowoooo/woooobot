@@ -25,7 +25,7 @@ exports.logMessage = function (message, error = false) {
 	}
 };
 // Discord.js
-exports.resolveId = async function (id) {
+exports.resolveChannel = async function (id) {
 	try {
 		return await client.channels.fetch(id);
 	} catch {
@@ -35,9 +35,9 @@ exports.resolveId = async function (id) {
 };
 exports.sendMessage = async function (destination, message, id = false) {
 	if (sandbox != null) {
-		destination = await exports.resolveId(sandbox);
+		destination = await exports.resolveChannel(sandbox);
 	} else if (id) {
-		destination = await exports.resolveId(destination);
+		destination = await exports.resolveChannel(destination);
 	}
 	if ((message.content?.length ?? message.length ?? 0) > 2000) {
 		throw new Error("Message is too long!");
@@ -52,6 +52,13 @@ exports.sendMessage = async function (destination, message, id = false) {
 	} else { // If it's not a DM it's probably a text channel.
 		exports.logMessage(`[S] ${destination.guild.name}, ${destination.name}:\n	${message}`);
 	}
+};
+exports.addRole = async function (server, user, role) {
+	if (typeof server === "string") {
+		server = await client.guilds.fetch(server);
+	}
+	const member = await server.members.fetch(user);
+	member.roles.add(role);
 };
 // Time
 exports.getTime = function (time = new Date()) {

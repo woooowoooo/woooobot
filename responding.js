@@ -1,10 +1,11 @@
 // Modules
-const {logMessage, sendMessage, getTime, toUnixTime, save} = require("./helpers.js");
+const {logMessage, sendMessage, addRole, getTime, toUnixTime, save} = require("./helpers.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const status = require(twowPath + "status.json");
 const {seasonPath, roundPath} = status;
 const {
+	id: serverId,
 	roles: {alive, remind},
 	channels: {bots, prompts, reminders: remindersId}
 } = require(twowPath + "twowConfig.json");
@@ -61,6 +62,11 @@ exports.logResponse = function (message) {
 		}, message.content);
 	}
 	responses.push(messageData);
+	if (status.currentRound === "Round 1") {
+		// Do Round 1 stuff
+		contestants.alive.push(message.author.id);
+		addRole(serverId, message.author.id, alive);
+	}
 	contestants.responseCount[message.author.id]++;
 	save(`${roundPath}/responses.json`, responses);
 	save(`${roundPath}/contestants.json`, contestants);

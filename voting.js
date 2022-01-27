@@ -1,11 +1,12 @@
 // Modules
-const {client} = require("./index.js");
-const {logMessage, sendMessage, getTime, toUnixTime, save} = require("./helpers.js");
+// const {client} = require("./index.js");
+const {logMessage, sendMessage, addRole, getTime, toUnixTime, save} = require("./helpers.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const status = require(twowPath + "status.json");
 const {currentRound, seasonPath, roundPath} = status;
 const {
+	id: serverId,
 	roles: {supervoter, remind},
 	channels: {bots, voting, reminders: remindersId}
 } = require(twowPath + "twowConfig.json");
@@ -156,11 +157,7 @@ exports.logVote = function (message) {
 	});
 	if (Object.keys(votes[message.author.id].screens).length === sectionScreens[section]) {
 		votes[message.author.id].supervote = true;
-		client.guilds.fetch(twows[currentTWOW]).then(server => {
-			server.members.fetch(message.author.id).then(author => {
-				author.roles.add(supervoter);
-			});
-		});
+		addRole(serverId, message.author.id, supervoter);
 	}
 	// TODO: Add more stats
 	save(roundPath + "votes.json", votes);
