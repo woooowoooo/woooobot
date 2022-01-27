@@ -10,7 +10,7 @@ const {
 	channels: {bots, prompts, reminders: remindersId}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
-const {deadlines, reminders} = require(seasonPath + "seasonConfig.json");
+const {deadlines, reminders, dummies} = require(seasonPath + "seasonConfig.json");
 const technicals = require(seasonPath + "technicals.js");
 const twists = require(seasonPath + "twists.js");
 // Round-specific
@@ -27,6 +27,10 @@ exports.initResponding = async function () {
 };
 exports.logResponse = function (message) {
 	logMessage(`Recording response by ${message.author}:\n${message}`);
+	const isDummy = status.currentRound !== "Round 1" && !contestants.alive.includes(message.author.id);
+	if (!dummies && isDummy) {
+		return "Dummy/filler responses are currently not accepted.";
+	}
 	const allowed = contestants.prize.includes(message.author.id) ? 2 : 1;
 	contestants.responseCount[message.author.id] ??= 0;
 	// TODO: Allow edits
