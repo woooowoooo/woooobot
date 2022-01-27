@@ -16,10 +16,10 @@ exports.client = client; // Client is exported so helpers.js can use it
 const readline = require("readline");
 const {getTime, logMessage, sendMessage, toSnowflake, save, reload} = require("./helpers.js");
 const morshu = require("./morshu.js");
-const {initRound} = require("./inits.js");
+let {initRound} = require("./inits.js");
 let {initResponding, logResponse} = require("./responding.js");
-const {initVoting, logVote} = require("./voting.js");
-const {results} = require("./results.js");
+let {initVoting, logVote} = require("./voting.js");
+let {results} = require("./results.js");
 let commands = require("./commands.js");
 // Configs
 let config = require("./config.json");
@@ -74,9 +74,9 @@ function processMessage(message) {
 	} else if (message.guild == null && message.author.id !== devId) {
 		// Act on non-command direct messages
 		if (phase === "responding") {
-			sendMessage(message.author.dmChannel, logResponse(message, message.author));
+			sendMessage(message.author.dmChannel, logResponse(message));
 		} else if (phase === "voting") {
-			sendMessage(message.author.dmChannel, logVote(message, message.author));
+			sendMessage(message.author.dmChannel, logVote(message));
 		}
 	}
 }
@@ -100,7 +100,8 @@ client.once("ready", async function () {
 	const initLog = `Logged in as ${client.user.tag}.\n\n`;
 	logMessage("=".repeat(initLog.length - 2));
 	logMessage(initLog + morshu.generate(5) + "\n");
-	me = await client.users.fetch(devId); // Initialize me
+	// Initialize me
+	me = await client.users.fetch(devId);
 	me.createDM(); // To allow for console input to work
 	// Get non-bot non-dev members
 	const server = await client.guilds.fetch(serverId);
@@ -134,7 +135,10 @@ client.once("ready", async function () {
 	} else if (phase === "voting" && getTime() > vDeadline) {
 		await results();
 		await initRound();
+		({initRound} = reload("./inits.js"));
 		({initResponding, logResponse} = reload("./responding.js"));
+		({initVoting, logVote} = reload("./voting.js"));
+		({results} = reload("./results.js"));
 		await initResponding();
 	}
 });
