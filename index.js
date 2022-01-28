@@ -25,8 +25,8 @@ let commands = require("./commands.js");
 let config = require("./config.json");
 const {automatic, prefix, token, devId, botId, twowPath, lastUnread} = config; // TODO: Allow for multiple TWOWs
 const {id: serverId, roles, channels: {bots}} = require(twowPath + "twowConfig.json");
-const {roundPath, phase} = require(twowPath + "status.json");
-const {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
+let {roundPath, phase} = require(twowPath + "status.json");
+let {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
 // Other variables
 const stdin = process.openStdin();
 let me;
@@ -135,11 +135,14 @@ client.once("ready", async function () {
 	} else if (phase === "voting" && getTime() > vDeadline) {
 		await results();
 		await initRound();
+		({roundPath} = reload(twowPath + "status.json"));
+		({rDeadline, vDeadline} = reload(roundPath + "roundConfig.json"));
 		({initRound} = reload("./inits.js"));
 		({initResponding, logResponse} = reload("./responding.js"));
 		({initVoting, logVote} = reload("./voting.js"));
 		({results} = reload("./results.js"));
 		await initResponding();
+		({phase} = reload(twowPath + "status.json"));
 	}
 });
 client.on("messageCreate", async function (message) {

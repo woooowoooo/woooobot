@@ -1,9 +1,7 @@
 const {get} = require("https");
 const {createWriteStream} = require("fs");
-const {logMessage, sendMessage, save} = require("./helpers.js");
+const {logMessage, sendMessage, reload, save} = require("./helpers.js");
 const morshu = require("./morshu.js");
-const {initResponding} = require("./responding.js");
-const {initVoting} = require("./voting.js");
 const {prefix, devId, twowPath} = require("./config.json");
 const {seasonPath} = require(twowPath + "status.json");
 const contestants = require(seasonPath + "seasonContestants.json");
@@ -117,10 +115,11 @@ send <id> <text>: Sends <text> to <id>.
 		permLevel: "admin",
 		execute: function ({text: phase}) {
 			if (phase === "responding") {
-				initResponding();
+				require("./responding.js").initResponding();
 			} else if (phase === "voting") {
-				initVoting();
+				require("./voting.js").initVoting();
 			}
+			({phase} = reload(twowPath + "status.json"));
 		}
 	},
 	book: {

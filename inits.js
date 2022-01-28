@@ -36,7 +36,12 @@ exports.initRound = async function (newRoundName) {
 	await save(roundPath + "contestants.json", contestants);
 	await save(roundPath + "responses.json", []);
 	await save(roundPath + "votes.json", {});
-	await save(roundPath + "screens.json", {});
+	await save(roundPath + "screens.json", {
+		version: 1,
+		sectionScreens: {},
+		screenSections: {},
+		screenResponses: {}
+	});
 };
 exports.initSeason = async function () {
 	// Start new season
