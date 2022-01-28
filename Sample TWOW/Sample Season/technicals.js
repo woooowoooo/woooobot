@@ -9,6 +9,13 @@ const technicals = {
 			return wordCount <= 10;
 		}
 	},
+	noTenWord: {
+		title: "No Ten Word Limit",
+		description: "Responses are freed from the ten word limit of the original TWOW.",
+		check: function () {
+			return true; // The freeing is done in responding.js
+		}
+	},
 	concise: {
 		title: "Conciseness Is Key",
 		description: "Responses must be at most 80 characters long.",

@@ -11,7 +11,7 @@ const {
 	channels: {bots, voting, reminders: remindersId}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
-const {reminders, sections: _s, megascreen: _m} = require(seasonPath + "seasonConfig.json");
+const {reminders, autoKeywords, sections: _s, megascreen: _m} = require(seasonPath + "seasonConfig.json");
 const {drawScreen} = require(seasonPath + "graphics.js");
 // Round-specific
 // TODO: Find a better way to do destructuring assignment with a collective default value

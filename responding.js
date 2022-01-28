@@ -38,19 +38,15 @@ exports.logResponse = function (message) {
 		return `You have already responded to the prompt!`;
 	}
 	// Default tenWords technical
-	if (!roundTechnicals.includes("noTenWords")) {
-		roundTechnicals.unshift("tenWords");
-		technicals.tenWord = {
-			check: function (response) {
-				return response.split(/\s/).filter(word => /\w/.test(word)).length <= 10; // Don't count punctuation-only "words"
-			}
-		};
+	function tenWord(response) {
+		return response.split(/\s/).filter(word => /\w/.test(word)).length <= 10; // Don't count punctuation-only "words"
 	}
-	// Check technicals
-	const passesTechnical = roundTechnicals.reduce((passes, name) => {
+	let passesTechnicals = roundTechnicals.includes("noTenWord") ? true : tenWord(message.content);
+	// Check other technicals
+	passesTechnicals ||= roundTechnicals.reduce((passes, name) => {
 		return passes && technicals[name].check(message.content);
 	}, true);
-	if (!passesTechnical) {
+	if (!passesTechnicals) {
 		return `Your response (\`${message}\`) failed a technical.\nIt has not been recorded; please submit a response that follows all technicals.`;
 	}
 	// Build response object
