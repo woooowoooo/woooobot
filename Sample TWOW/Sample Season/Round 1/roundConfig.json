@@ -5,15 +5,9 @@
 	"prompt": "You just got bamboozled. How do you unbamboozle yourself?",
 	"rDeadline": "2021-10-23 22:30:00",
 	"vDeadline": "2021-10-31 00:00:00",
-	"technicals": [
-		"tenWord"
-	],
 	"twists": [
 		"backwards"
 	],
 	"sections": 2,
-	"megascreen": false,
-	"keywords": [
-		["TODO:", "IDKLMAO"]
-	]
+	"megascreen": false
 }

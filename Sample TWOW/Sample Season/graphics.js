@@ -1,17 +1,19 @@
 // S1 GRAPHICS
 const {createCanvas, loadImage} = require("canvas");
 const fs = require("fs").promises;
+const FONT_STACK = "px Charter, serif";
 const HEADER_HEIGHT = 240;
 const ROW_HEIGHT = 120;
 const WIDTH = 2400;
 exports.drawScreen = async function (path, keyword, responses) {
+	// Easily change to SVG by adding `, "svg"` after `ROW_HEIGHT`
 	const canvas = createCanvas(WIDTH, HEADER_HEIGHT + ROW_HEIGHT * responses.length);
 	const context = canvas.getContext("2d");
 	// Header
 	context.fillStyle = "white";
 	context.fillRect(0, 0, WIDTH, HEADER_HEIGHT);
 	context.fillStyle = "black";
-	context.font = `${HEADER_HEIGHT / 2}px serif`;
+	context.font = (HEADER_HEIGHT / 2) + FONT_STACK;
 	context.textAlign = "center";
 	context.fillText(keyword, WIDTH / 2, (HEADER_HEIGHT + context.measureText(keyword).actualBoundingBoxAscent) / 2);
 	// Rows
@@ -20,7 +22,7 @@ exports.drawScreen = async function (path, keyword, responses) {
 		context.fillStyle = `hsl(0, 0%, ${80 + 10 * (i % 2)}%)`;
 		context.fillRect(0, offset, WIDTH, ROW_HEIGHT);
 		context.fillStyle = "black";
-		context.font = `${ROW_HEIGHT / 3}px serif`;
+		context.font = (ROW_HEIGHT / 3) + FONT_STACK;
 		context.textAlign = "center";
 		context.fillText(row[0], 60, offset + ROW_HEIGHT * 5 / 8);
 		context.textAlign = "left";
@@ -38,12 +40,12 @@ exports.drawResults = async function (path, round, prompt, rankings, header = fa
 	context.fillRect(0, 0, WIDTH, header + 40);
 	context.fillStyle = "black";
 	if (header) {
-		context.font = "40px serif";
+		context.font = 40 + FONT_STACK;
 		context.textAlign = "center";
 		// Split the prompt into two lines
 		if (context.measureText(prompt).width <= WIDTH - 60) {
 			context.fillText(prompt, WIDTH / 2, 210, WIDTH - 60);
-			context.font = "120px serif";
+			context.font = 120 + FONT_STACK;
 			context.fillText(round + " Results", WIDTH / 2, 130);
 		} else {
 			let line1 = [];
@@ -55,11 +57,11 @@ exports.drawResults = async function (path, round, prompt, rankings, header = fa
 			}
 			context.fillText(line1.join(" "), WIDTH / 2, 170, WIDTH - 60);
 			context.fillText(line2.join(" "), WIDTH / 2, 220, WIDTH - 60);
-			context.font = "100px serif";
+			context.font = 100 + FONT_STACK;
 			context.fillText(round + " Results", WIDTH / 2, 110);
 		}
 	}
-	context.font = "30px serif";
+	context.font = 30 + FONT_STACK;
 	context.textAlign = "right";
 	context.fillText("Rank", 120, header + 30);
 	context.textAlign = "center";
@@ -76,7 +78,8 @@ exports.drawResults = async function (path, round, prompt, rankings, header = fa
 		"alive": "hsl(100, 90%, ",
 		"danger": "hsl(30, 90%, ",
 		"dead": "hsl(0, 90%, ",
-		"dummy": "hsl(0, 0%, "
+		"dummy": "hsl(0, 0%, ",
+		"drp": "hsl(0, 0%, "
 	};
 	let typeFreqs = {};
 	await rankings.forEach(async (ranking, i) => {
@@ -92,21 +95,21 @@ exports.drawResults = async function (path, round, prompt, rankings, header = fa
 		context.fillRect(0, offset, WIDTH, ROW_HEIGHT);
 		// Text
 		context.fillStyle = "black";
-		context.font = `${ROW_HEIGHT * 2 / 3}px serif`;
+		context.font = (ROW_HEIGHT * 2 / 3) + FONT_STACK;
 		context.textAlign = "right";
-		context.fillText(ranking.rank, 120, offset + ROW_HEIGHT * 3 / 4);
+		context.fillText(ranking.rank ?? "—", 120, offset + ROW_HEIGHT * 3 / 4);
 		context.textAlign = "left";
-		context.font = `${ROW_HEIGHT / 2}px serif`;
+		context.font = (ROW_HEIGHT / 2) + FONT_STACK;
 		context.fillText(ranking.name, 120 + ROW_HEIGHT, offset + ROW_HEIGHT / 2);
-		context.font = `${ROW_HEIGHT / 4}px serif`;
+		context.font = (ROW_HEIGHT / 4) + FONT_STACK;
 		context.fillText(ranking.response, 123 + ROW_HEIGHT, offset + ROW_HEIGHT * 5 / 6, WIDTH - ROW_HEIGHT - 1000);
-		context.font = `${ROW_HEIGHT / 2}px serif`;
+		context.font = (ROW_HEIGHT / 2) + FONT_STACK;
 		context.textAlign = "right";
 		context.fillText(ranking.percentile.toFixed(2) + "%", WIDTH - 600, offset + ROW_HEIGHT * 7 / 10);
 		context.fillText(ranking.stDev.toFixed(2) + "%", WIDTH - 330, offset + ROW_HEIGHT * 7 / 10);
 		context.fillText(ranking.skew.toFixed(2).replace("-", "–"), WIDTH - 140, offset + ROW_HEIGHT * 7 / 10);
 		context.fillText(ranking.votes, WIDTH - 20, offset + ROW_HEIGHT * 7 / 10);
-		const book = await loadImage("Sample TWOW/Season 1/books/" + (ranking.book ?? "default-book.png"));
+		const book = await loadImage("Sample TWOW/Sample Season/books/" + (ranking.book ?? "default-book.png"));
 		context.drawImage(book, 120, offset, ROW_HEIGHT, ROW_HEIGHT);
 	});
 	await fs.writeFile(path, canvas.toBuffer());

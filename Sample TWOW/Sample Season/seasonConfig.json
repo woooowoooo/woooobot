@@ -1,17 +1,21 @@
 {
-	"version": 2,
-	"name": "Sample Season",
-	"season": 1,
-	"dangerZone": true,
-	"cutoffs": [0.15, 0.60, 0.80],
+	"version": 3,
+	"season": "Sample Season",
 	"deadlines": [3, 2],
 	"reminders": {
 		"one day": 24,
 		"ONE HOUR": 1
 	},
+	"dummies": false,
 	"sections": 5,
 	"megascreen": true,
+	"autoKeywords": true,
+	"dangerZone": true,
+	"cutoffs": [0.15, 0.60, 0.80],
 	"rounds": {
 		"Round 1": "Round 1/"
+	},
+	"nextRound": {
+		"prompt": "This will be the Round 2 prompt."
 	}
 }
