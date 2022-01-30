@@ -1,5 +1,5 @@
 // Parts of speech
-const adjectives = ["long", "sorry", "little", "richer"];
+const adjectives = ["sorry", "rich", "little", "long"]; // Ordered by precedence
 const adverbs = ["enough", "back"];
 const conjunctions = ["as long as", "when"];
 const determiners = {
@@ -51,23 +51,35 @@ function roll(chance) {
 function capitalize(word) {
 	return word.charAt(0).toUpperCase() + word.substring(1);
 }
-function oneOrMore(options, chance, separator = true, generator = false) {
-	const option = choose(options);
-	let text = generator ? options() : option;
-	if (roll(chance) && (generator || (!generator && options.length > 1))) {
-		text += separator ? ", " : " ";
-		if (!generator) {
-			options.splice(options.indexOf(option), 1); // Prevent duplicates
-		}
-		text += oneOrMore(options, chance, separator, generator);
-	}
-	return text;
-}
+// RegEx ? + *
 function optional(chance, generator, appendSpace = false) {
 	if (!roll(chance)) {
 		return "";
 	}
 	return appendSpace ? generator() + " " : " " + generator();
+}
+function plus(options, chance, separator = true, generator = false) {
+	const option = choose(options);
+	let selections = [generator ? options() : option];
+	if (roll(chance) && (generator || (!generator && options.length > 1))) {
+		if (!generator) {
+			options.splice(options.indexOf(option), 1); // Prevent duplicates
+		}
+		selections.push(plus(options, chance, separator, generator));
+	}
+	return selections.join(separator ? ", " : " ");
+}
+function starOrdered(options, chance, separator = true, appendSpace = false) {
+	let selections = [];
+	for (const option of options) {
+		if (roll(chance / options.length)) { // For similar probabilities as plus
+			selections.push(option);
+		}
+	}
+	if (selections.length === 0) {
+		return "";
+	}
+	return (appendSpace ? "" : " ") + selections.join(separator ? ", " : " ") + (appendSpace ? " " : "");
 }
 // Generation
 function genNounPhrase() {
@@ -75,15 +87,14 @@ function genNounPhrase() {
 		[0.4, () => { // Singular noun
 			verbForm = "singular";
 			return choose(determiners.singular) +
-			optional(multipleChance, () => oneOrMore(adjectives, multipleChance)) +
-			" " +
-			oneOrMore(nouns.singular, multipleChance, false);
+			starOrdered(adjectives, multipleChance) +
+			" " + plus(nouns.singular, multipleChance, false);
 		}],
 		[0.2, () => { // Plural noun
 			verbForm = "plural";
 			return optional(pluralDeterminerChance, () => choose(determiners.plural), true) +
-			optional(multipleChance, () => oneOrMore(adjectives, multipleChance), true) +
-			optional(multipleChance, () => oneOrMore(nouns.singular, multipleChance, false), true) +
+			starOrdered(adjectives, multipleChance, true, true) +
+			starOrdered(nouns.singular, multipleChance, false, true) +
 			choose(nouns.plural);
 		}],
 		[0.2, () => { // Pronoun that is not "he", "she", or "it"
@@ -97,8 +108,8 @@ function genNounPhrase() {
 		[0.1, () => { // Mass noun
 			verbForm = "singular";
 			return optional(pluralDeterminerChance, () => choose(determiners.plural), true) +
-			optional(multipleChance, () => oneOrMore(adjectives, multipleChance), true) +
-			optional(multipleChance, () => oneOrMore(nouns.singular, multipleChance, false), true) +
+			starOrdered(adjectives, multipleChance, true, true) +
+			starOrdered(nouns.singular, multipleChance, false, true) +
 			choose(nouns.mass);
 		}]
 	];
@@ -109,7 +120,7 @@ function genVerbPhrase() {
 		[0.3, () => choose(verbs.modal) + " " + choose(verbs.base)],
 		[0.7, () => choose(verbs[verbForm])]
 	];
-	return chooseWeighted(subs) + optional(multipleChance, () => oneOrMore(adverbs, multipleChance)) + optional(nounPhraseChance, genNounPhrase);
+	return chooseWeighted(subs) + starOrdered(adverbs, multipleChance) + optional(nounPhraseChance, () => genNounPhrase());
 }
 function genClause() {
 	return genNounPhrase() + " " + genVerbPhrase();
@@ -123,7 +134,7 @@ function genSentence() {
 		[0.3, () => genClause() + choose([": ", "; ", `, ${choose(conjunctions)} `]) + genClause()],
 		[0.15, () => genClause() + " " + genSubClause()],
 		[0.15, () => genSubClause() + ", " + genClause()],
-		[0.1, () => oneOrMore(() => genNounPhrase(), multipleChance, true, true) + ": " + genClause()]
+		[0.1, () => plus(() => genNounPhrase(), multipleChance, true, true) + ": " + genClause()]
 	];
 	const punctuation = [
 		[0.5, "."],
