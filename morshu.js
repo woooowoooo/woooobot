@@ -16,19 +16,16 @@ const nouns = {
 	pronoun: ["you", "I"] // "it" is also a pronoun but it is singular
 };
 const verbs = {
-	base: ["want", "be", "have", "give", "come"], // Infinitive
 	singular: ["wants", "is", "has", "gives", "comes"], // Indicative 3rd person singular
-	plural: ["want", "are", "have", "give", "come"], // Indicative except 3rd person singular
+	plural: ["want", "are", "have", "give", "come"], // Base + Indicative except 3rd person singular
 	gerund: ["wanting", "being", "having", "giving", "coming"], // Gerund and present participle
 	modal: ["can", "can not"] // Not a verb form
 };
 // Chance variables
-const pluralDeterminerChance = 0.5; // Chance of a plural noun having a determiner
+const pluralDetChance = 0.5; // Chance of a plural noun having a determiner
 const multipleChance = 0.2; // Chance of there being multiple nouns, verbs, etc.
-const nounPhraseChance = 0.2; // Chance of a verb phrase having a noun phrase
+const objectChance = 0.8; // Chance of a verb phrase having an object TODO: Replace with better transitivity stuff
 const formalChance = 0.5; // Chance of a sentence having a formal tone (i.e. no contractions)
-// State variables
-let verbForm = "singular";
 // Helper functions
 function choose(array) {
 	return array[Math.floor(Math.random() * array.length)];
@@ -82,48 +79,36 @@ function starOrdered(options, chance, separator = true, appendSpace = false) {
 	return (appendSpace ? "" : " ") + selections.join(separator ? ", " : " ") + (appendSpace ? " " : "");
 }
 // Generation
-function genNounPhrase() {
-	const subs = [
-		[0.4, () => { // Singular noun
-			verbForm = "singular";
-			return choose(determiners.singular) +
-			starOrdered(adjectives, multipleChance) +
-			" " + plus(nouns.singular, multipleChance, false);
-		}],
-		[0.2, () => { // Plural noun
-			verbForm = "plural";
-			return optional(pluralDeterminerChance, () => choose(determiners.plural), true) +
-			starOrdered(adjectives, multipleChance, true, true) +
-			starOrdered(nouns.singular, multipleChance, false, true) +
-			choose(nouns.plural);
-		}],
-		[0.2, () => { // Pronoun that is not "he", "she", or "it"
-			verbForm = "plural";
-			return choose(nouns.pronoun);
-		}],
-		[0.1, () => { // Proper noun
-			verbForm = "singular";
-			return choose(nouns.proper);
-		}],
-		[0.1, () => { // Mass noun
-			verbForm = "singular";
-			return optional(pluralDeterminerChance, () => choose(determiners.plural), true) +
-			starOrdered(adjectives, multipleChance, true, true) +
-			starOrdered(nouns.singular, multipleChance, false, true) +
-			choose(nouns.mass);
-		}]
+function genNounPhrase(verbForm) {
+	const singleSubs = [
+		[0.6, () => choose(determiners.singular) + " " + genAdjPhrase() + plus(nouns.singular, multipleChance, false)],
+		[0.2, () => choose(nouns.proper)], // Proper noun
+		[0.2, () => optional(pluralDetChance, () => choose(determiners.plural), true) + genAdjPhrase() + choose(nouns.mass)] // Mass noun
 	];
-	return chooseWeighted(subs);
+	const pluralSubs = [
+		[0.5, () => optional(pluralDetChance, () => choose(determiners.plural), true) + genAdjPhrase() + choose(nouns.plural)],
+		[0.5, () => choose(nouns.pronoun)] // Pronoun that is not "he", "she", or "it"
+	];
+	return chooseWeighted(verbForm === "singular" ? singleSubs : pluralSubs);
 }
-function genVerbPhrase() {
+function genVerbPhrase(verbForm) {
 	const subs = [
-		[0.3, () => choose(verbs.modal) + " " + choose(verbs.base)],
-		[0.7, () => choose(verbs[verbForm])]
+		[0.6, () => choose(verbs[verbForm])],
+		[0.2, () => choose(verbs.modal) + " " + choose(verbs.plural)], // Base = plural except for be
+		[0.2, () => (verbForm === "singular" ? "is " : "are ") + choose(verbs.gerund)], // Present continuous
 	];
-	return chooseWeighted(subs) + starOrdered(adverbs, multipleChance) + optional(nounPhraseChance, () => genNounPhrase());
+	return chooseWeighted(subs) + starOrdered(adverbs, multipleChance) + optional(objectChance, () => genNounPhrase());
+}
+function genAdjPhrase() {
+	return starOrdered(adjectives, multipleChance, true, true) + starOrdered(nouns.singular, multipleChance, false, true);
 }
 function genClause() {
-	return genNounPhrase() + " " + genVerbPhrase();
+	const number = [
+		[0.6, "singular"],
+		[0.4, "plural"]
+	];
+	const verbForm = chooseWeighted(number, false);
+	return genNounPhrase(verbForm) + " " + genVerbPhrase(verbForm);
 }
 function genSubClause() {
 	return choose(prepositions) + " " + genClause();
@@ -144,7 +129,9 @@ function genSentence() {
 		[0.05, "‽"]
 	];
 	const corrections = [
-		["I are", "I am"]
+		["I are", "I am"],
+		["can are", "can be"],
+		["can not are", "can not be"]
 	];
 	const contractions = [
 		["I am", "I'm"],
@@ -179,3 +166,6 @@ exports.generate = function (sentenceAmount) {
 	}
 	return sentences.join("\n");
 };
+if (module === require.main) {
+	console.log(exports.generate(10));
+}
