@@ -8,23 +8,30 @@ const determiners = {
 };
 const interjections = ["mmm"];
 const prepositions = ["as", "when"];
+const modals = ["can", "can not"];
 const nouns = {
 	singular: ["lamp", "rope", "bomb", "friend", "ruby", "rupee", "link", "credit", "back"],
 	plural: ["lamps", "ropes", "bombs", "friends", "rubies", "rupees", "links", "credits", "backs"],
-	mass: ["oil"],
-	proper: ["it", "yours", "enough", "Link"],
-	pronoun: ["you", "I"] // "it" is also a pronoun but it is singular
+	mass: ["oil", "rope", "credit"],
+	proper: ["it", "yours", "enough", "Link"]
 };
-const verbs = {
-	singular: ["wants", "is", "has", "gives", "comes"], // Indicative 3rd person singular
-	plural: ["want", "are", "have", "give", "come"], // Base + Indicative except 3rd person singular
-	gerund: ["wanting", "being", "having", "giving", "coming"], // Gerund and present participle
-	modal: ["can", "can not"] // Not a verb form
+const pronouns = { // "it" is also a pronoun but it is singular
+	subject: ["I", "you"],
+	object: ["me", "you"]
 };
+const verbs = [ // Sorted by transitivity; each verb is of form [base + non-3p singular, 3p singular, gerund]
+	[["come", "comes", "coming"]],
+	[
+		["want", "wants", "wanting"],
+		["are", "is", "being"],
+		["have", "has", "having"]
+	],
+	[["give", "gives", "giving"]]
+];
 // Chance variables
 const pluralDetChance = 0.5; // Chance of a plural noun having a determiner
 const multipleChance = 0.2; // Chance of there being multiple nouns, verbs, etc.
-const objectChance = 0.8; // Chance of a verb phrase having an object TODO: Replace with better transitivity stuff
+const adjectiveChance = 0.1; // Chance of there being an adjective or noun adjunct
 const formalChance = 0.5; // Chance of a sentence having a formal tone (i.e. no contractions)
 // Helper functions
 function choose(array) {
@@ -79,7 +86,7 @@ function starOrdered(options, chance, separator = true, appendSpace = false) {
 	return (appendSpace ? "" : " ") + selections.join(separator ? ", " : " ") + (appendSpace ? " " : "");
 }
 // Generation
-function genNounPhrase(verbForm) {
+function genNounPhrase(verbForm, object = false) {
 	const singleSubs = [
 		[0.6, () => choose(determiners.singular) + " " + genAdjPhrase() + plus(nouns.singular, multipleChance, false)],
 		[0.2, () => choose(nouns.proper)], // Proper noun
@@ -87,27 +94,31 @@ function genNounPhrase(verbForm) {
 	];
 	const pluralSubs = [
 		[0.5, () => optional(pluralDetChance, () => choose(determiners.plural), true) + genAdjPhrase() + choose(nouns.plural)],
-		[0.5, () => choose(nouns.pronoun)] // Pronoun that is not "he", "she", or "it"
+		[0.5, () => choose(pronouns[object ? "object" : "subject"])] // Pronoun that is not "he", "she", or "it"
 	];
 	return chooseWeighted(verbForm === "singular" ? singleSubs : pluralSubs);
 }
 function genVerbPhrase(verbForm) {
+	let transitivity = choose([0, 1, 1, 1, 2]); // There are three transitive verbs out of five total
+	const verb = choose(verbs[transitivity]);
+	let objects = "";
+	while (transitivity > 0) {
+		objects += " " + genNounPhrase(roll(0.6) ? "singular" : "plural", true);
+		transitivity--;
+	}
 	const subs = [
-		[0.6, () => choose(verbs[verbForm])],
-		[0.2, () => choose(verbs.modal) + " " + choose(verbs.plural)], // Base = plural except for be
-		[0.2, () => (verbForm === "singular" ? "is " : "are ") + choose(verbs.gerund)], // Present continuous
+		[0.5, () => verb[verbForm === "singular" ? 1 : 0] + starOrdered(adverbs, multipleChance) + objects],
+		[0.2, () => (verbForm === "singular" ? "is" : "are") + " " + choose(adjectives)], // Copula
+		[0.15, () => choose(modals) + " " + verb[0] + starOrdered(adverbs, multipleChance) + objects], // Base = plural (except for be)
+		[0.15, () => (verbForm === "singular" ? "is" : "are") + " " + verb[2] + starOrdered(adverbs, multipleChance) + objects] // Present continuous
 	];
-	return chooseWeighted(subs) + starOrdered(adverbs, multipleChance) + optional(objectChance, () => genNounPhrase());
+	return chooseWeighted(subs);
 }
 function genAdjPhrase() {
-	return starOrdered(adjectives, multipleChance, true, true) + starOrdered(nouns.singular, multipleChance, false, true);
+	return starOrdered(adjectives, adjectiveChance, true, true) + starOrdered(nouns.singular, adjectiveChance, false, true);
 }
 function genClause() {
-	const number = [
-		[0.6, "singular"],
-		[0.4, "plural"]
-	];
-	const verbForm = chooseWeighted(number, false);
+	const verbForm = roll(0.6) ? "singular" : "plural";
 	return genNounPhrase(verbForm) + " " + genVerbPhrase(verbForm);
 }
 function genSubClause() {
