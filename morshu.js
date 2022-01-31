@@ -12,11 +12,12 @@ const nouns = {
 	singular: ["lamp", "rope", "bomb", "friend", "ruby", "rupee", "link", "credit", "back"],
 	plural: ["lamps", "ropes", "bombs", "friends", "rubies", "rupees", "links", "credits", "backs"],
 	mass: ["oil", "rope", "credit"],
-	proper: ["it", "yours", "enough", "Link"]
+	proper: ["enough", "Link"]
 };
-const pronouns = { // "it" is also a pronoun but it is singular
-	subject: ["I", "you"],
-	object: ["me", "you"]
+const pronouns = {
+	subject: ["I", "you", "it"],
+	object: ["me", "you", "it"],
+	possessive: ["mine", "yours", "its"]
 };
 // Sorted by transitivity; each verb is of form [base + non-3p singular, 3p singular, gerund]
 // Adverbs are integrated
@@ -96,8 +97,10 @@ function starOrdered(options, chance, separator = true, appendSpace = false) {
 function genNounPhrase(verbForm, object = false) {
 	const singleSubs = [
 		[0.6, () => choose(determiners.singular) + " " + genAdjPhrase() + plus(nouns.singular, multipleChance, false)],
-		[0.2, () => choose(nouns.proper)], // Proper noun
-		[0.2, () => optional(pluralDetChance, () => choose(determiners.plural), true) + genAdjPhrase() + choose(nouns.mass)] // Mass noun
+		[0.2, () => optional(pluralDetChance, () => choose(determiners.plural), true) + genAdjPhrase() + choose(nouns.mass)], // Mass noun
+		[0.1, () => choose(nouns.proper)], // Proper noun
+		[0.05, () => choose(pronouns.possessive)], // yours
+		[0.05, () => pronouns[object ? "object" : "subject"][2]], // it
 	];
 	const pluralSubs = [
 		[0.5, () => optional(pluralDetChance, () => choose(determiners.plural), true) + genAdjPhrase() + choose(nouns.plural)],
