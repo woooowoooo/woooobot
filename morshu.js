@@ -1,6 +1,5 @@
 // Parts of speech
-const adjectives = ["sorry", "rich", "little", "long"]; // Ordered by precedence
-const adverbs = ["enough", "back"];
+const adjectives = ["long", "sorry", "little", "rich"];
 const conjunctions = ["as long as", "when"];
 const determiners = {
 	singular: ["my", "a"],
@@ -19,12 +18,20 @@ const pronouns = { // "it" is also a pronoun but it is singular
 	subject: ["I", "you"],
 	object: ["me", "you"]
 };
-const verbs = [ // Sorted by transitivity; each verb is of form [base + non-3p singular, 3p singular, gerund]
-	[["come", "comes", "coming"]],
+// Sorted by transitivity; each verb is of form [base + non-3p singular, 3p singular, gerund]
+// Adverbs are integrated
+const verbs = [
+	[
+		["come", "comes", "coming"],
+		["come back", "comes back", "coming back"],
+		["come enough", "comes enough", "coming enough"],
+		["are back", "is back", "being back"],
+	],
 	[
 		["want", "wants", "wanting"],
 		["are", "is", "being"],
-		["have", "has", "having"]
+		["have", "has", "having"],
+		["give back", "gives back", "giving back"]
 	],
 	[["give", "gives", "giving"]]
 ];
@@ -107,10 +114,10 @@ function genVerbPhrase(verbForm) {
 		transitivity--;
 	}
 	const subs = [
-		[0.5, () => verb[verbForm === "singular" ? 1 : 0] + starOrdered(adverbs, multipleChance) + objects],
+		[0.5, () => verb[verbForm === "singular" ? 1 : 0] + objects],
 		[0.2, () => (verbForm === "singular" ? "is" : "are") + " " + choose(adjectives)], // Copula
-		[0.15, () => choose(modals) + " " + verb[0] + starOrdered(adverbs, multipleChance) + objects], // Base = plural (except for be)
-		[0.15, () => (verbForm === "singular" ? "is" : "are") + " " + verb[2] + starOrdered(adverbs, multipleChance) + objects] // Present continuous
+		[0.15, () => choose(modals) + " " + verb[0] + objects], // Base = plural (except for be)
+		[0.15, () => (verbForm === "singular" ? "is" : "are") + " " + verb[2] + objects] // Present continuous
 	];
 	return chooseWeighted(subs);
 }
