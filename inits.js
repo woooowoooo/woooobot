@@ -7,8 +7,8 @@ const status = require(twowPath + "status.json");
 let {currentSeason, currentRound, seasonPath, roundPath} = status;
 const {seasons, nextSeason = {}} = require(twowPath + "twowConfig.json");
 // Season-specific
-const {rounds, nextRound = {}} = require(seasonPath + "seasonConfig.json");
 const seasonConfig = require(seasonPath + "seasonConfig.json");
+const {rounds, nextRound = {}} = seasonConfig;
 const seasonContestants = require(seasonPath + "seasonContestants.json");
 // Round-specific
 const roundConfig = require(roundPath + "roundConfig.json");
@@ -16,6 +16,12 @@ const contestants = require(roundPath + "contestants.json");
 exports.initRound = async function (newRoundName) {
 	// Start new round
 	currentRound = newRoundName ?? Object.keys(rounds)[Object.keys(rounds).indexOf(currentRound) + 1];
+	if (currentRound == null) {
+		// A sensible default; breaks after in-between rounds, but survives extra-descriptive round names
+		currentRound = "Round " + (Object.keys(rounds).length + 1);
+		seasonConfig.rounds[currentRound] = currentRound + "/";
+		await save(seasonPath + "seasonConfig.json", seasonConfig);
+	}
 	roundPath = seasonPath + rounds[currentRound];
 	status.currentRound = currentRound;
 	status.roundPath = roundPath;

@@ -1,12 +1,13 @@
 {
 	"version": 3,
 	"season": "Sample Season",
+	"autoDeadlines": true,
 	"deadlines": [3, 2],
 	"reminders": {
 		"one day": 24,
 		"ONE HOUR": 1
 	},
-	"dummies": false,
+	"dummies": true,
 	"sections": 5,
 	"megascreen": true,
 	"autoKeywords": true,

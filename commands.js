@@ -1,10 +1,7 @@
 const {get} = require("https");
 const {createWriteStream} = require("fs");
 const {logMessage, sendMessage, reload, save} = require("./helpers.js");
-const morshu = require("./morshu.js");
 const {prefix, devId, twowPath} = require("./config.json");
-const {seasonPath} = require(twowPath + "status.json");
-const contestants = require(seasonPath + "seasonContestants.json");
 const hasPerms = function (user, server, roles, permLevel) {
 	if (user.id === devId) {
 		return true;
@@ -118,6 +115,17 @@ send <id> <text>: Sends <text> to <id>.
 				require("./responding.js").initResponding();
 			} else if (phase === "voting") {
 				require("./voting.js").initVoting();
+			} else if (phase === "results") {
+				require("./results.js").results();
+			} else if (phase === "newRound") {
+				require("./inits.js").initRound().then(() => {
+					({roundPath} = reload(twowPath + "status.json"));
+					reload(roundPath + "roundConfig.json");
+					reload("./inits.js");
+					reload("./responding.js");
+					reload("./voting.js");
+					reload("./results.js");
+				});
 			}
 			({phase} = reload(twowPath + "status.json"));
 		}
@@ -125,6 +133,8 @@ send <id> <text>: Sends <text> to <id>.
 	book: {
 		permLevel: "normal",
 		execute: async function ({user, message: {attachments}}) {
+			const {seasonPath} = require(twowPath + "status.json");
+			const contestants = require(seasonPath + "seasonContestants.json");
 			if (attachments.size !== 1) {
 				throw new Error("Your message does not contain exactly one file attachment!");
 			}
@@ -157,7 +167,7 @@ send <id> <text>: Sends <text> to <id>.
 			if (isNaN(parseInt(sentences)) || sentences <= 0) {
 				throw new Error(`"${sentences}" is not a positive integer!`);
 			}
-			return morshu.generate(sentences);
+			return require("./morshu.js").generate(sentences);
 		}
 	},
 	ping: {

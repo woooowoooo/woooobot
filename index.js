@@ -25,7 +25,8 @@ let commands = require("./commands.js");
 let config = require("./config.json");
 const {automatic, prefix, token, devId, botId, twowPath, lastUnread} = config; // TODO: Allow for multiple TWOWs
 const {id: serverId, roles, channels: {bots}} = require(twowPath + "twowConfig.json");
-let {roundPath, phase} = require(twowPath + "status.json");
+let {seasonPath, roundPath, phase} = require(twowPath + "status.json");
+let {autoDeadlines} = require(seasonPath + "seasonConfig.json");
 let {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
 // Other variables
 const stdin = process.openStdin();
@@ -53,6 +54,7 @@ function parseCommands(text, message) {
 	// Reload commands
 	if (command === "reload" && message.author.id === devId) {
 		commands = reload("./commands.js");
+		// TODO: Add a way to reload other modules
 		return;
 	}
 	// Execute other commands
@@ -130,19 +132,21 @@ client.once("ready", async function () {
 	config.lastUnread = toSnowflake();
 	await save("./config.json", config);
 	// Start new phase
-	if (phase === "responding" && getTime() > rDeadline) {
-		await initVoting();
-	} else if (phase === "voting" && getTime() > vDeadline) {
-		await results();
-		await initRound();
-		({roundPath} = reload(twowPath + "status.json"));
-		({rDeadline, vDeadline} = reload(roundPath + "roundConfig.json"));
-		({initRound} = reload("./inits.js"));
-		({initResponding, logResponse} = reload("./responding.js"));
-		({initVoting, logVote} = reload("./voting.js"));
-		({results} = reload("./results.js"));
-		await initResponding();
-		({phase} = reload(twowPath + "status.json"));
+	if (autoDeadlines) {
+		if (phase === "responding" && getTime() > rDeadline) {
+			await initVoting();
+		} else if (phase === "voting" && getTime() > vDeadline) {
+			await results();
+			await initRound();
+			({roundPath} = reload(twowPath + "status.json"));
+			({rDeadline, vDeadline} = reload(roundPath + "roundConfig.json"));
+			({initRound} = reload("./inits.js"));
+			({initResponding, logResponse} = reload("./responding.js"));
+			({initVoting, logVote} = reload("./voting.js"));
+			({results} = reload("./results.js"));
+			await initResponding();
+			({phase} = reload(twowPath + "status.json"));
+		}
 	}
 });
 client.on("messageCreate", async function (message) {
