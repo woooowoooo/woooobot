@@ -32,6 +32,7 @@ function calculateResults() {
 		const average = mean(ratings);
 		const stDev = mean(ratings, rating => (rating - average) ** 2) ** 0.5; // StDevP
 		results.push({
+			dummy: response.dummy,
 			book: bookPaths[response.author],
 			id: response.author,
 			name: names[response.author],
@@ -49,7 +50,10 @@ function calculateResults() {
 	const placed = new Set();
 	let rank = 1;
 	for (const result of results) {
-		// TODO: Add check for dummies
+		if (result.dummy) {
+			result.type = "dummy";
+			continue;
+		}
 		if (placed.has(result.id)) {
 			result.type = "drp";
 			continue;
@@ -66,7 +70,7 @@ function calculateResults() {
 		rank++;
 	}
 	save(roundPath + "results.json", results);
-	return results;
+	return {results, placed}; // Return placed to find DNPs
 }
 // Present results
 const stdin = process.openStdin();
@@ -90,7 +94,7 @@ async function reveal(rankings, slide, data) {
 		if (token.includes("-")) { // Token is a range
 			const start = rankings.findIndex(row => row.rank === parseInt(token.split("-")[0]));
 			const end = rankings.findIndex(row => row.rank === parseInt(token.split("-")[1]));
-			let range = rankings.slice(start, end + 1);
+			let range = rankings.slice((start !== -1 ? start : 0), (end !== -1 ? end + 1 : rankings.length));
 			if (token.at(-1) === "f") { // Filter out DRPs
 				range = range.filter(row => row.type !== "drp");
 			}
@@ -105,7 +109,7 @@ async function reveal(rankings, slide, data) {
 exports.results = async function () {
 	logMessage("Results started.");
 	sendMessage(resultsId, `@everyone ${currentRound} Results`);
-	const rankings = calculateResults();
+	const {results: rankings, placed: responders} = calculateResults();
 	// Reveal results
 	let slide = 1;
 	let moreSlides = true;
@@ -125,6 +129,11 @@ exports.results = async function () {
 	for (let _ = 0; _ < 50; _++) {
 		await sendMessage(resultsId, morshu(1), true);
 	}
+	// Reset contestants.json
+	contestants.dnp = [...contestants.prize, ...contestants.alive].filter(id => !responders.has(id));
+	contestants.prize = [];
+	contestants.alive = [];
+	contestants.dead = [];
 	// Assign roles
 	const twow = await client.guilds.fetch(serverId);
 	for (const row of rankings.filter(row => row.type !== "drp" && row.type !== "dummy")) {
@@ -138,5 +147,7 @@ exports.results = async function () {
 		} else { // "alive" or "danger"
 			author.roles.remove(prize);
 		}
+		contestants[row.type].push(author);
 	}
+	save(roundPath + "contestants.json", contestants);
 };

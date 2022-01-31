@@ -83,6 +83,7 @@ async function createSection(responses, sizes, sectWord) {
 		const keyword = autoKeywords ? `${sectWord}-${i + 1}` : keywords[sectWord][i];
 		await createScreen(responses.splice(0, sizes[i]), keyword, sectWord);
 	}
+	sectionScreens[sectWord] = sizes.length;
 }
 exports.initVoting = async function () {
 	logMessage("Voting period started.");
@@ -103,7 +104,7 @@ exports.initVoting = async function () {
 	await save(roundPath + "screens.json", screens);
 };
 exports.logVote = function (message) {
-	logMessage(`Recording vote by ${message.author}:\n${message}`);
+	logMessage(`Recording vote by ${message.author}:\n\t${message}`);
 	const voteFull = Array.from(message.content.matchAll(/\[([^\s[\]]+) ([^\s[\]]+)\]/g));
 	if (voteFull.length === 0) {
 		return "No valid vote found.";
@@ -130,7 +131,11 @@ exports.logVote = function (message) {
 			if (!(char in screenResponses[screen])) {
 				return `Invalid character \`${char}\` found in vote \`${vote}\` for screen \`${screen}\`.`;
 			}
-			ratings.set(screenResponses[screen][char], (vote.length - position - 1) / (vote.length - 1));
+			if (vote.length === 1) {
+				ratings.set(screenResponses[screen][char], 0.5);
+			} else {
+				ratings.set(screenResponses[screen][char], (vote.length - position - 1) / (vote.length - 1));
+			}
 			position++;
 		}
 	}

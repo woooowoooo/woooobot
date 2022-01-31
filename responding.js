@@ -6,7 +6,7 @@ const status = require(twowPath + "status.json");
 const {seasonPath, roundPath} = status;
 const {
 	id: serverId,
-	roles: {alive, remind},
+	roles: {alive: aliveId, remind},
 	channels: {bots, prompts, reminders: remindersId}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
@@ -23,15 +23,17 @@ exports.initResponding = async function () {
 	status.phase = "responding";
 	await save(`${twowPath}/status.json`, status);
 	const unixDeadline = toUnixTime(rDeadline);
-	await sendMessage(prompts, `<@&${alive}> ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)`, true);
+	await sendMessage(prompts, `<@&${aliveId}> ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)`, true);
 };
 exports.logResponse = function (message) {
-	logMessage(`Recording response by ${message.author}:\n${message}`);
-	const isDummy = status.currentRound !== "Round 1" && !contestants.alive.includes(message.author.id);
+	logMessage(`Recording response by ${message.author}:\n\t${message}`);
+	const prized = contestants.prize.includes(message.author.id);
+	const alive = contestants.alive.includes(message.author.id);
+	const isDummy = status.currentRound !== "Round 1" && !(prized || alive);
 	if (!dummies && isDummy) {
 		return "Dummy/filler responses are currently not accepted.";
 	}
-	const allowed = contestants.prize.includes(message.author.id) ? 2 : 1;
+	const allowed = prized ? 2 : 1;
 	contestants.responseCount[message.author.id] ??= 0;
 	// TODO: Allow edits
 	if (contestants.responseCount[message.author.id] >= allowed) {
@@ -54,7 +56,8 @@ exports.logResponse = function (message) {
 		id: message.id,
 		author: message.author.id,
 		time: getTime(message.createdAt),
-		text: message.content
+		text: message.content,
+		dummy: isDummy
 	};
 	if (roundTwists != null) {
 		messageData.twist = roundTwists.reduce((message, name) => {
@@ -65,7 +68,7 @@ exports.logResponse = function (message) {
 	if (status.currentRound === "Round 1") {
 		// Do Round 1 stuff
 		contestants.alive.push(message.author.id);
-		addRole(serverId, message.author.id, alive);
+		addRole(serverId, message.author.id, aliveId);
 	}
 	contestants.responseCount[message.author.id]++;
 	save(`${roundPath}/responses.json`, responses);
