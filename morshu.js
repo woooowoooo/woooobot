@@ -3,13 +3,14 @@ const nouns = {
 	singular: ["lamp", "rope", "bomb", "friend", "ruby", "rupee", "link", "credit", "back"],
 	plural: ["lamps", "ropes", "bombs", "friends", "rubies", "rupees", "links", "credits", "backs"],
 	mass: ["oil", "rope", "credit"],
-	proper: ["enough", "Link"]
+	proper: ["Link"]
 };
 const pronouns = {
 	subject: ["I", "you", "it"],
 	object: ["me", "you", "it"],
 	possDep: ["my", "your", "its"], // Also acts as determiners
-	possInd: ["mine", "yours", "its"]
+	possInd: ["mine", "yours", "its"],
+	enough: "enough"
 };
 const determiners = {
 	singular: [...pronouns.possDep, "a", "a", "a"], // Too lazy to change singular to weighted
@@ -21,8 +22,7 @@ const verbs = [
 	[
 		["come", "comes", "coming"],
 		["come back", "comes back", "coming back"],
-		["come enough", "comes enough", "coming enough"],
-		["are back", "is back", "being back"],
+		["are back", "is back", "being back"]
 	],
 	[
 		["want", "wants", "wanting"],
@@ -42,6 +42,7 @@ const singularChance = 0.6; // Chance of a singular noun
 const pluralDetChance = 0.5; // Chance of a plural noun having a determiner
 const multipleChance = 0.2; // Chance of there being multiple nouns, verbs, etc.
 const adjectiveChance = 0.1; // Chance of there being an adjective or noun adjunct
+const enoughChance = 0.5; // Chance of an adjective being qualified with "enough"
 const formalChance = 0.5; // Chance of a sentence having a formal tone (i.e. no contractions)
 // Helper functions
 function choose(array) {
@@ -96,7 +97,7 @@ function starOrdered(options, chance, separator = true, appendSpace = false) {
 	return (appendSpace ? "" : " ") + selections.join(separator ? ", " : " ") + (appendSpace ? " " : "");
 }
 // Generation
-function genNounPhrase(verbForm, object = false) {
+function genNounPhrase(verbForm, object = false, direct = true) {
 	const singleSubs = [
 		[0.5, () => choose(determiners.singular) + " " + genAdjPhrase() + choose(nouns.singular)],
 		[0.2, () => optional(pluralDetChance, () => choose(determiners.plural), true) + genAdjPhrase() + choose(nouns.mass)], // Mass noun
@@ -108,6 +109,9 @@ function genNounPhrase(verbForm, object = false) {
 		[0.5, () => optional(pluralDetChance, () => choose(determiners.plural), true) + genAdjPhrase() + choose(nouns.plural)],
 		[0.5, () => pronouns[object ? "object" : "subject"][choose([0, 1])]] // Non-3p pronoun
 	];
+	if (verbForm === "singular" && object && direct && roll(0.2)) {
+		return pronouns.enough;
+	}
 	return chooseWeighted(verbForm === "singular" ? singleSubs : pluralSubs);
 }
 function genVerbPhrase(verbForm) {
