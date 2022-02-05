@@ -95,8 +95,8 @@ async function reveal(rankings, slide, data) {
 			const start = rankings.findIndex(row => row.rank === parseInt(token.split("-")[0]));
 			const end = rankings.findIndex(row => row.rank === parseInt(token.split("-")[1]));
 			let range = rankings.slice((start !== -1 ? start : 0), (end !== -1 ? end + 1 : rankings.length));
-			if (token.at(-1) === "f") { // Filter out DRPs
-				range = range.filter(row => row.type !== "drp");
+			if (token.at(-1) === "f") { // Filter out DRPs and dummies
+				range = range.filter(row => row.type !== "drp" && row.type !== "dummy");
 			}
 			selection.push(...range);
 		} else { // Token is a single row

@@ -14,7 +14,7 @@ const {deadlines, reminders, dummies} = require(seasonPath + "seasonConfig.json"
 const technicals = require(seasonPath + "technicals.js");
 const twists = require(seasonPath + "twists.js");
 // Round-specific
-const {prompt, rDeadline, technicals: roundTechnicals = [], twists: roundTwists} = require(roundPath + "roundConfig.json");
+const {prompt, example, rDeadline, technicals: roundTechnicals = [], twists: roundTwists} = require(roundPath + "roundConfig.json");
 const contestants = require(roundPath + "contestants.json");
 const responses = require(roundPath + "responses.json");
 // Functions
@@ -23,7 +23,7 @@ exports.initResponding = async function () {
 	status.phase = "responding";
 	await save(`${twowPath}/status.json`, status);
 	const unixDeadline = toUnixTime(rDeadline);
-	await sendMessage(prompts, `<@&${aliveId}> ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)`, true);
+	await sendMessage(prompts, `<@&${aliveId}> ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)\nHere's an example response: \`${example ?? ""}\``, true);
 };
 exports.logResponse = function (message) {
 	logMessage(`Recording response by ${message.author}:\n\t${message}`);

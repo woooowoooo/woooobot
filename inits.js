@@ -39,6 +39,7 @@ exports.initRound = async function (newRoundName) {
 	}, nextRound);
 	await save(roundPath + "roundConfig.json", roundConfig);
 	contestants.responseCount = {};
+	contestants.dead = [];
 	await save(roundPath + "contestants.json", contestants);
 	await save(roundPath + "responses.json", []);
 	await save(roundPath + "votes.json", {});
