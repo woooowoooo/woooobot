@@ -38,8 +38,10 @@ const conjunctions = ["as long as", "when"];
 const prepositions = ["as", "when"];
 const interjections = ["mmm"];
 // Chance variables
+const questionChance = 0.2;
 const singularChance = 0.6; // Chance of a singular noun
 const pluralDetChance = 0.5; // Chance of a plural noun having a determiner
+const notChance = 0.5; // Chance of a verb being qualified with "not"
 const multipleChance = 0.2; // Chance of there being multiple nouns, verbs, etc.
 const adjectiveChance = 0.1; // Chance of there being an adjective or noun adjunct
 const enoughChance = 0.5; // Chance of an adjective being qualified with "enough"
@@ -114,52 +116,59 @@ function genNounPhrase(verbForm, object = false, direct = true) {
 	}
 	return chooseWeighted(verbForm === "singular" ? singleSubs : pluralSubs);
 }
-function genVerbPhrase(verbForm) {
+function genAdjPhrase() {
+	return starOrdered(adjectives, adjectiveChance, true, true) + starOrdered(nouns.singular, adjectiveChance, false, true);
+}
+function genClause(question = false) {
+	// Choose verb
+	const verbForm = roll(singularChance) ? "singular" : "plural";
+	const singularity = verbForm === "singular" ? 1 : 0;
 	let transitivity = choose([0, 1, 1, 1, 2]); // There are three transitive verbs out of five total
 	const verb = choose(verbs[transitivity]);
+	// Verb arguments
+	const subject = genNounPhrase(verbForm);
 	let objects = "";
 	while (transitivity > 0) {
 		objects += " " + genNounPhrase(roll(singularChance) ? "singular" : "plural", true, transitivity === 1);
 		transitivity--;
 	}
-	const singularity = verbForm === "singular" ? 1 : 0;
+	// Generate rest of clause
+	function questionSwitch(verb) {
+		return (question ? verb + " " + subject : subject + " " + verb) + " " + optional(notChance, () => "not", true);
+	}
 	const subs = [
-		[0.5, () => verb[singularity] + objects],
-		[0.2, () => ["are", "is"][singularity] + " " + choose(adjectives) + optional(enoughChance, () => pronouns.enough)], // Copula
-		[0.15, () => choose(modals) + " " + verb[0] + objects], // Base = plural (except for be)
-		[0.15, () => ["are", "is"][singularity] + " " + verb[2] + objects] // Present continuous
+		[0.5, () => !question ? (subject + " " + verb[singularity] + objects) : chooseWeighted(subs)], // Would be a valid question if there was "do"
+		[0.2, () => questionSwitch(["are", "is"][singularity]) + choose(adjectives) + optional(enoughChance, () => pronouns.enough)], // Copula
+		[0.15, () => questionSwitch(choose(["can", "can't"])) + (verb[0] !== "are" ? verb[0] : "be") + objects], // Base = plural (except for be)
+		[0.15, () => questionSwitch(["are", "is"][singularity]) + verb[2] + objects] // Present continuous
 	];
 	return chooseWeighted(subs);
-}
-function genAdjPhrase() {
-	return starOrdered(adjectives, adjectiveChance, true, true) + starOrdered(nouns.singular, adjectiveChance, false, true);
-}
-function genClause() {
-	const verbForm = roll(singularChance) ? "singular" : "plural";
-	return genNounPhrase(verbForm) + " " + genVerbPhrase(verbForm);
 }
 function genSubClause() {
 	return choose(prepositions) + " " + genClause();
 }
 function genSentence() {
+	const isQuestion = roll(questionChance);
 	const subs = [
-		[0.3, () => genClause()],
-		[0.3, () => genClause() + choose([": ", "; ", `, ${choose(conjunctions)} `]) + genClause()],
-		[0.15, () => genClause() + " " + genSubClause()],
-		[0.15, () => genSubClause() + ", " + genClause()],
-		[0.1, () => plus(() => genNounPhrase(roll(singularChance) ? "singular" : "plural"), multipleChance, true, true) + ": " + genClause()]
+		[0.35, () => genClause(isQuestion)],
+		[0.15, () => genClause() + choose([": ", "; "]) + genClause(isQuestion)],
+		[0.15, () => genClause(isQuestion) + " " + genSubClause()],
+		[0.15, () => genSubClause() + ", " + genClause(isQuestion)],
+		[0.1, () => genClause(isQuestion) + ", " + choose(conjunctions) + " " + genClause()],
+		[0.1, () => plus(() => genNounPhrase(roll(singularChance) ? "singular" : "plural"), multipleChance, true, true) + ": " + genClause(isQuestion)]
 	];
 	const punctuation = [
-		[0.5, "."],
-		[0.2, "!"],
-		[0.15, "?"],
+		[0.6, "."],
+		[0.3, "!"],
 		[0.1, "…"],
-		[0.05, "‽"]
+	];
+	const questionPunct = [
+		[0.8, "?"],
+		[0.2, "‽"]
 	];
 	const corrections = [
 		["I are", "I am"],
-		["can are", "can be"],
-		["can not are", "can not be"]
+		["are I", "am I"]
 	];
 	const contractions = [
 		["I am", "I'm"],
@@ -172,7 +181,7 @@ function genSentence() {
 		["is not", "isn't"],
 		["are not", "aren't"]
 	];
-	let sentence = chooseWeighted(subs) + chooseWeighted(punctuation, false);
+	let sentence = chooseWeighted(subs) + chooseWeighted(isQuestion ? questionPunct : punctuation, false);
 	for (const correction of corrections) {
 		sentence = sentence.replaceAll(correction[0], correction[1]);
 	}
