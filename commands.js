@@ -130,6 +130,21 @@ send <id> <text>: Sends <text> to <id>.
 			({phase} = reload(twowPath + "status.json"));
 		}
 	},
+	vote: {
+		permLevel: "admin",
+		execute: async function ({text}) {
+			const [userId, messageId, ...vote] = text.split(" ");
+			const message = {
+				id: messageId,
+				content: vote.join(" "),
+				// createdAt: functionHere(messageId), TODO: Add snowflake to time conversion
+				author: {
+					id: userId
+				},
+			};
+			require("./voting.js").logVote(message);
+		}
+	},
 	book: {
 		permLevel: "normal",
 		execute: async function ({user, message: {attachments}}) {
