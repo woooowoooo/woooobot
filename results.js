@@ -108,7 +108,7 @@ async function reveal(rankings, slide, data) {
 }
 exports.results = async function () {
 	logMessage("Results started.");
-	sendMessage(resultsId, `@everyone ${currentRound} Results`);
+	await sendMessage(resultsId, `@everyone ${currentRound} Results`, true);
 	const {results: rankings, placed: responders} = calculateResults();
 	// Reveal results
 	let slide = 1;
@@ -116,6 +116,7 @@ exports.results = async function () {
 	const consoleListener = stdin.listeners("data")[1];
 	stdin.removeListener("data", consoleListener);
 	while (moreSlides) {
+		// TODO: Only send slide and increment if input is valid
 		moreSlides = await new Promise(resolve => {
 			stdin.once("data", async data => resolve(await reveal(rankings, slide, data)));
 		});
@@ -147,7 +148,17 @@ exports.results = async function () {
 		} else { // "alive" or "danger"
 			author.roles.remove(prize);
 		}
-		contestants[row.type].push(author);
+		contestants[row.type !== "danger" ? row.type : "alive"].push(author);
+	}
+	for (const dnpId of contestants.dnp) {
+		try {
+			const dnper = await twow.members.fetch(dnpId);
+			dnper.roles.remove(supervoter);
+			dnper.roles.remove([prize, alive]);
+			dnper.roles.add(dead);
+		} catch {
+			logMessage(`${names[dnpId]} has left the server and DNPed.`, true);
+		}
 	}
 	save(roundPath + "contestants.json", contestants);
 };

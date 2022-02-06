@@ -33,7 +33,7 @@ exports.logResponse = function (message) {
 	if (!dummies && isDummy) {
 		return "Dummy/filler responses are currently not accepted.";
 	}
-	const allowed = prized ? 2 : 1;
+	const allowed = prized ? 3 : 2; // Temporary edit for this season
 	contestants.responseCount[message.author.id] ??= 0;
 	// TODO: Allow edits
 	if (contestants.responseCount[message.author.id] >= allowed) {

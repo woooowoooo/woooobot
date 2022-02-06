@@ -65,7 +65,7 @@ async function createScreen(responses, keyword, section) {
 	screenResponses[keyword] = Object.fromEntries(ids.entries());
 	// Draw screen
 	const path = `${roundPath}/screens/${keyword}.png`;
-	await drawScreen(path, keyword, Array.from(rows.entries()));
+	await drawScreen(path, keyword, prompt, Array.from(rows.entries()));
 	await sendMessage(voting, {
 		content: screen, // For easy voter.js input
 		files: [{
