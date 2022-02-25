@@ -30,13 +30,10 @@ let {autoDeadlines} = require(seasonPath + "seasonConfig.json");
 let {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
 // Other variables
 const stdin = process.openStdin();
+const queue = [];
 let me;
 // Process messages
-function readMessage(message, readTime = false) {
-	// Ignore own messages and non-bot channels
-	if (message.author.id === botId || message.guild != null && !bots.includes(message.channel.id)) {
-		return false;
-	}
+function readMessage(message, readTime = false, queued = queue.length > 0) {
 	let header = message.author.tag;
 	if (message.guild != null) {
 		header += ` in ${message.guild.name}, #${message.channel.name}`;
@@ -44,8 +41,7 @@ function readMessage(message, readTime = false) {
 	if (readTime) {
 		header += ` at ${getTime(message.createdAt)}`;
 	}
-	logMessage(`[R] ${header}:\n	${message}`);
-	return true;
+	logMessage(`[R] ${header}${queued ? " (queued)" : `:\n	${message}`}`);
 }
 function parseCommands(text, message) {
 	const command = text.split(" ", 1)[0];
@@ -69,7 +65,7 @@ function parseCommands(text, message) {
 		}
 	});
 }
-function processMessage(message) {
+function processMessage(message = queue.shift()) {
 	if (message.content.substring(0, prefix.length) === prefix) {
 		// Act on bot commands
 		parseCommands(message.content.substring(prefix.length), message);
@@ -109,10 +105,7 @@ client.once("ready", async function () {
 	const server = await client.guilds.fetch(serverId);
 	const botRole = await server.roles.fetch(roles.bot);
 	const members = (await server.members.fetch()).filter(m => m.id !== devId && !m.roles.cache.has(botRole.id));
-	// Act on recent DMs
-	stdin.removeListener("data", consoleListener);
-	stdin.setRawMode(true);
-	readline.emitKeypressEvents(process.stdin);
+	// Queue unread DMs
 	for (const [_, member] of members) {
 		const dms = await member.createDM().catch(() => logMessage(`[E] Failed to create DM to ${member.user.tag}`, true));
 		if (dms == null) {
@@ -121,13 +114,27 @@ client.once("ready", async function () {
 		logMessage(`DM to ${member.user.tag} created.`);
 		const messages = await dms.messages.fetch();
 		for (const [_, message] of messages.filter((m, s) => m.author.id !== botId && BigInt(s) > BigInt(lastUnread))) {
-			if (readMessage(message, true)) {
-				automatic ? processMessage(message) : await processMessageAsync(message);
-			}
+			readMessage(message, true, true);
+			queue.push(message);
 		}
 	};
-	stdin.setRawMode(false);
-	stdin.on("data", consoleListener);
+	// Act on unread messages
+	if (!automatic) {
+		stdin.removeListener("data", consoleListener);
+		stdin.removeListener("data", consoleLogger);
+		stdin.setRawMode(true);
+		readline.emitKeypressEvents(process.stdin);
+	}
+	while (queue.length > 0) {
+		const message = queue.shift();
+		readMessage(message, true, false);
+		automatic ? processMessage(message) : await processMessageAsync(message);
+	}
+	if (!automatic) {
+		stdin.setRawMode(false);
+		stdin.on("data", consoleListener);
+		stdin.on("data", consoleLogger);
+	}
 	// Update last checked time
 	config.lastUnread = toSnowflake();
 	await save("./config.json", config);
@@ -152,17 +159,23 @@ client.once("ready", async function () {
 client.on("messageCreate", async function (message) {
 	config.lastUnread = toSnowflake();
 	await save("./config.json", config);
-	if (!readMessage(message)) { // Ignore irrelevant messages
+	if (message.author.id === botId || message.guild != null && !bots.includes(message.channel.id)) { // Ignore irrelevant messages
+		return;
+	}
+	readMessage(message);
+	if (queue.push(message) > 1) {
 		return;
 	}
 	if (automatic) {
-		processMessage(message);
+		processMessage();
 	} else {
 		stdin.removeListener("data", consoleListener);
+		stdin.removeListener("data", consoleLogger);
 		stdin.setRawMode(true);
-		await processMessageAsync(message);
+		await processMessageAsync();
 		stdin.setRawMode(false);
 		stdin.on("data", consoleListener);
+		stdin.on("data", consoleLogger);
 	}
 });
 client.login(token);
