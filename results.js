@@ -8,7 +8,7 @@ const {currentRound, seasonPath, roundPath} = require(twowPath + "status.json");
 const {
 	id: serverId,
 	channels: {results: resultsId},
-	roles: {prize, supervoter, alive, dead}
+	roles: {prize, supervoter, alive, dead, noRemind}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
 const {dangerZone, cutoffs} = require(seasonPath + "seasonConfig.json");
@@ -70,7 +70,7 @@ function calculateResults() {
 		rank++;
 	}
 	save(roundPath + "results.json", results);
-	return {results, placed}; // Return placed to find DNPs
+	return results;
 }
 // Present results
 const stdin = process.openStdin();
@@ -109,7 +109,7 @@ async function reveal(rankings, slide, data) {
 exports.results = async function () {
 	logMessage("Results started.");
 	await sendMessage(resultsId, `@everyone ${currentRound} Results`, true);
-	const {results: rankings, placed: responders} = calculateResults();
+	const rankings = calculateResults();
 	// Reveal results
 	let slide = 1;
 	let moreSlides = true;
@@ -131,15 +131,15 @@ exports.results = async function () {
 		await sendMessage(resultsId, morshu(1), true);
 	}
 	// Reset contestants.json
-	contestants.dnp = [...contestants.prize, ...contestants.alive].filter(id => !responders.has(id));
 	contestants.prize = [];
 	contestants.alive = [];
 	contestants.dead = [];
 	// Assign roles
 	const twow = await client.guilds.fetch(serverId);
+	(await twow.roles.fetch(supervoter)).members.forEach(member => member.roles.remove(supervoter));
+	(await twow.roles.fetch(noRemind)).members.forEach(member => member.roles.remove(noRemind));
 	for (const row of rankings.filter(row => row.type !== "drp" && row.type !== "dummy")) {
 		const author = await twow.members.fetch(row.id);
-		author.roles.remove(supervoter);
 		if (row.type === "dead") {
 			author.roles.remove([prize, alive]);
 			author.roles.add(dead);
@@ -149,16 +149,6 @@ exports.results = async function () {
 			author.roles.remove(prize);
 		}
 		contestants[row.type !== "danger" ? row.type : "alive"].push(author);
-	}
-	for (const dnpId of contestants.dnp) {
-		try {
-			const dnper = await twow.members.fetch(dnpId);
-			dnper.roles.remove(supervoter);
-			dnper.roles.remove([prize, alive]);
-			dnper.roles.add(dead);
-		} catch {
-			logMessage(`${names[dnpId]} has left the server and DNPed.`, true);
-		}
 	}
 	save(roundPath + "contestants.json", contestants);
 };

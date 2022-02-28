@@ -57,8 +57,12 @@ exports.addRole = async function (server, user, role) {
 	if (typeof server === "string") {
 		server = await client.guilds.fetch(server);
 	}
-	const member = await server.members.fetch(user);
-	member.roles.add(role);
+	try {
+		const member = await server.members.fetch(user);
+		member.roles.add(role);
+	} catch {
+		logMessage(`Failed to add role ${role} to ${user} in ${server.name}.`, true);
+	}
 };
 // Time
 exports.getTime = function (time = new Date()) {

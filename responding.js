@@ -6,7 +6,7 @@ const status = require(twowPath + "status.json");
 const {seasonPath, roundPath} = status;
 const {
 	id: serverId,
-	roles: {alive: aliveId, remind},
+	roles: {alive: aliveId, noRemind},
 	channels: {bots, prompts, reminders: remindersId}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
@@ -24,6 +24,7 @@ exports.initResponding = async function () {
 	await save(`${twowPath}/status.json`, status);
 	const unixDeadline = toUnixTime(rDeadline);
 	await sendMessage(prompts, `<@&${aliveId}> ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)\nHere's an example response: \`${example ?? ""}\``, true);
+	// TODO: Send reminders
 };
 exports.logResponse = function (message) {
 	// Reject extra responses and determine dummies
@@ -77,6 +78,9 @@ exports.logResponse = function (message) {
 	}
 	contestants.responseCount[message.author.id] ??= 0;
 	contestants.responseCount[message.author.id]++;
+	if (contestants.responseCount[message.author.id] === allowed) {
+		addRole(serverId, message.author.id, noRemind);
+	}
 	save(`${roundPath}/responses.json`, responses);
 	save(`${roundPath}/contestants.json`, contestants);
 	return `Your response (\`${message}\`) has been recorded${isDummy ? " as a dummy. **This means that its placement in results does not matter.**" : "."} Your response is response #${responses.length}`;

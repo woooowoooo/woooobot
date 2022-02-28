@@ -7,7 +7,7 @@ const status = require(twowPath + "status.json");
 const {currentRound, seasonPath, roundPath} = status;
 const {
 	id: serverId,
-	roles: {supervoter, remind},
+	roles: {supervoter, noRemind},
 	channels: {bots, voting, reminders: remindersId}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
@@ -16,6 +16,7 @@ const {drawScreen} = require(seasonPath + "graphics.js");
 // Round-specific
 // TODO: Find a better way to do destructuring assignment with a collective default value
 const {prompt, vDeadline, keywords, sections = _s, megascreen = _m} = require(roundPath + "roundConfig.json");
+const contestants = require(roundPath + "contestants.json");
 const responses = require(roundPath + "responses.json");
 const votes = require(roundPath + "votes.json");
 const screens = require(roundPath + "screens.json");
@@ -102,6 +103,22 @@ exports.initVoting = async function () {
 		await createScreen(responses, "MEGA", "MEGA");
 	}
 	await save(roundPath + "screens.json", screens);
+	// DNP non-responders
+	const twow = await client.guilds.fetch(serverId);
+	const responders = Object.keys(contestants.responseCount).length;
+	contestants.dnp = [...contestants.prize, ...contestants.alive].filter(id => !responders.has(id));
+	for (const dnpId of contestants.dnp) {
+		try {
+			const dnper = await twow.members.fetch(dnpId);
+			dnper.roles.remove([prize, alive]);
+			dnper.roles.add(dead);
+		} catch {
+			logMessage(`${names[dnpId]}'s roles are not accessible due to leaving the server.`, true);
+		}
+	}
+	save(roundPath + "contestants.json", contestants);
+	// TODO: Send reminders
+	(await twow.roles.fetch(noRemind)).members.forEach(member => member.roles.remove(noRemind));
 };
 exports.logVote = function (message) {
 	logMessage(`Recording vote by ${message.author}:\n\t${message}`);
@@ -163,6 +180,7 @@ exports.logVote = function (message) {
 	if (Object.keys(votes[message.author.id].screens).length === sectionScreens[section]) {
 		votes[message.author.id].supervote = true;
 		addRole(serverId, message.author.id, supervoter);
+		addRole(serverId, message.author.id, noRemind);
 	}
 	// TODO: Add more stats
 	save(roundPath + "votes.json", votes);
