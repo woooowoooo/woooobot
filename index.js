@@ -83,7 +83,10 @@ async function processMessageAsync(message) {
 	return new Promise(resolve => {
 		stdin.once("keypress", function (_, key) {
 			if (key.name === "r") {
+				logMessage("Message read");
 				processMessage(message);
+			} else {
+				logMessage("Message skipped");
 			}
 			resolve();
 		});
