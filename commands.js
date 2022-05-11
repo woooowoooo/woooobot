@@ -158,12 +158,10 @@ send <id> <text>: Sends <text> to <id>.
 			contestants.bookPaths[user.id] ??= `${user.username}.${attachments.first().name.split(".").at(-1)}`;
 			await save(seasonPath + "seasonContestants.json", contestants);
 			const book = createWriteStream(`${seasonPath}books/${contestants.bookPaths[user.id]}`);
-			await new Promise(resolve => {
-				get(attachment.url, response => {
-					response.pipe(book);
-					response.on("end", resolve);
-				});
-			});
+			await new Promise(resolve => get(attachment.url, response => {
+				response.pipe(book);
+				response.on("end", resolve);
+			}));
 			return `Book ${firstBook ? "saved" : "updated"}!`;
 		}
 	},

@@ -80,22 +80,18 @@ function processMessage(message = queue.shift()) {
 }
 async function processMessageAsync(message) {
 	// Process message if I press "r"; skip on other keys
-	return new Promise(resolve => {
-		stdin.once("keypress", function (_, key) {
-			if (key.name === "r") {
-				logMessage("Message read");
-				processMessage(message);
-			} else {
-				logMessage("Message skipped");
-			}
-			resolve();
-		});
-	});
+	return new Promise(resolve => stdin.once("keypress", function (_, key) {
+		if (key.name === "r") {
+			logMessage("Message read");
+			processMessage(message);
+		} else {
+			logMessage("Message skipped");
+		}
+		resolve();
+	}));
 }
 // Event handling
-process.on("uncaughtException", e => {
-	logMessage(`[E] ${e}\nStack trace is below:\n${e.stack}`, true);
-});
+process.on("uncaughtException", e => logMessage(`[E] ${e}\nStack trace is below:\n${e.stack}`, true));
 client.once("ready", async function () {
 	// Send startup messages to console
 	const initLog = `Logged in as ${client.user.tag}.\n\n`;
@@ -167,6 +163,7 @@ client.on("messageCreate", async function (message) {
 	}
 	readMessage(message);
 	if (queue.push(message) > 1) {
+		// TODO: Fix queue
 		return;
 	}
 	if (automatic) {

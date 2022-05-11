@@ -61,7 +61,7 @@ exports.addRole = async function (server, user, role) {
 		const member = await server.members.fetch(user);
 		member.roles.add(role);
 	} catch {
-		logMessage(`Failed to add role ${role} to ${user} in ${server.name}.`, true);
+		logMessage(`[E] Failed to add role ${role} to ${user} in ${server.name}.`, true);
 	}
 };
 // Time
