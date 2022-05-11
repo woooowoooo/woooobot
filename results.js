@@ -31,15 +31,16 @@ function calculateResults() {
 		const ratings = Array.from(Object.values(response.ratings));
 		const average = mean(ratings);
 		const stDev = mean(ratings, rating => (rating - average) ** 2) ** 0.5; // StDevP
+		const skew = mean(ratings, rating => (rating - average) ** 3) / stDev ** 3;
 		results.push({
 			dummy: response.dummy,
 			book: bookPaths[response.author],
 			id: response.author,
 			name: names[response.author],
 			response: response.text,
-			percentile: average * 100,
-			stDev: stDev * 100,
-			skew: mean(ratings, rating => (rating - average) ** 3) / stDev ** 3,
+			percentile: Math.round(average * 1e10) / 1e8, // Avoid ranking by rounding error
+			stDev: Math.round(stDev * 1e10) / 1e8,
+			skew: Math.round(skew * 1e8) / 1e8,
 			votes: ratings.length
 		});
 	}
@@ -83,49 +84,67 @@ async function sendSlide(path, rankings, header) {
 		}]
 	}, true);
 }
-async function reveal(rankings, slide, data) {
-	const line = data.toString().trim().split(" ");
-	if (line[0] === "end") {
-		return false;
+function findEntry(rankings, token) {
+	let index = rankings.findIndex(row => row.rank === parseInt(token));
+	if (token.includes(".")) { // Token is unranked
+		index += parseInt(token.split(".")[1]);
 	}
-	// Choose which rows to show
+	if (rankings[index] == undefined) {
+		throw new Error("Invalid token: " + token);
+	}
+	return index;
+}
+function selectEntries(rankings, line) {
 	const selection = [];
 	for (const token of line) {
 		if (token.includes("-")) { // Token is a range
-			const start = rankings.findIndex(row => row.rank === parseInt(token.split("-")[0]));
-			const end = rankings.findIndex(row => row.rank === parseInt(token.split("-")[1]));
-			let range = rankings.slice((start !== -1 ? start : 0), (end !== -1 ? end + 1 : rankings.length));
+			const start = findEntry(rankings, token.split("-")[0]);
+			const end = findEntry(rankings, token.split("-")[1]);
+			let range = rankings.slice(start, end + 1);
 			if (token.at(-1) === "f") { // Filter out DRPs and dummies
 				range = range.filter(row => row.type !== "drp" && row.type !== "dummy");
 			}
 			selection.push(...range);
 		} else { // Token is a single row
-			selection.push(rankings.find(row => row.rank === parseInt(token)));
+			selection.push(rankings[findEntry(rankings, token)]);
 		}
 	}
-	await sendSlide(`slide${slide}.png`, selection, (slide === 1));
-	return true;
+	return selection;
 }
 exports.results = async function () {
 	logMessage("Results started.");
 	await sendMessage(resultsId, `@everyone ${currentRound} Results`, true);
 	const rankings = calculateResults();
+	await drawResults(`${roundPath}results/leaderboard.png`, currentRound, prompt, rankings, true);
 	// Reveal results
 	let slide = 1;
 	let moreSlides = true;
 	const consoleListener = stdin.listeners("data")[1];
 	stdin.removeListener("data", consoleListener);
 	while (moreSlides) {
-		// TODO: Only send slide and increment if input is valid
-		moreSlides = await new Promise(resolve => {
-			stdin.once("data", async data => resolve(await reveal(rankings, slide, data)));
-		});
-		slide++;
+		moreSlides = await new Promise(resolve => stdin.once("data", async input => {
+			const line = input.toString().trim().split(" ");
+			if (line[0] === "end") {
+				resolve(false);
+			}
+			try { // Only send slide and increment if input is valid
+				const selection = selectEntries(rankings, line);
+				await sendSlide(`slide${slide}.png`, selection, (slide === 1));
+				slide++;
+			} catch (e) {
+				logMessage(`[E] ${e}`, true);
+			}
+			resolve(true);
+		}));
 	}
 	stdin.addListener("data", consoleListener);
 	// Full leaderboard
-	const path = `leaderboard.png`;
-	await sendSlide(path, rankings, true);
+	await sendMessage(resultsId, {
+		files: [{
+			attachment: `${roundPath}results/leaderboard.png`,
+			name: "leaderboard.png"
+		}]
+	}, true);
 	// Spoiler wall
 	for (let _ = 0; _ < 50; _++) {
 		await sendMessage(resultsId, morshu(1), true);
@@ -135,7 +154,7 @@ exports.results = async function () {
 	contestants.alive = [];
 	contestants.dead = [];
 	// Assign roles
-	const twow = await client.guilds.fetch(serverId);
+	/* const twow = await client.guilds.fetch(serverId);
 	(await twow.roles.fetch(supervoter)).members.forEach(member => member.roles.remove(supervoter));
 	(await twow.roles.fetch(noRemind)).members.forEach(member => member.roles.remove(noRemind));
 	for (const row of rankings.filter(row => row.type !== "drp" && row.type !== "dummy")) {
@@ -150,5 +169,5 @@ exports.results = async function () {
 		}
 		contestants[row.type !== "danger" ? row.type : "alive"].push(author);
 	}
-	save(roundPath + "contestants.json", contestants);
+	save(roundPath + "contestants.json", contestants); */
 };
