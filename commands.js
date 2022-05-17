@@ -157,7 +157,7 @@ send <id> <text>: Sends <text> to <id>.
 	},
 	book: {
 		permLevel: "normal",
-		execute: async function ({user, message: {attachments}}) {
+		execute: async function ({message: {author: user, attachments}}) {
 			const {seasonPath} = require(twowPath + "status.json");
 			const contestants = require(seasonPath + "seasonContestants.json");
 			if (attachments.size !== 1) {
@@ -195,7 +195,7 @@ send <id> <text>: Sends <text> to <id>.
 	},
 	ping: {
 		permLevel: "normal",
-		execute: function ({text, user: {id}}) {
+		execute: function ({text, message: {user: {id}}}) {
 			if (text != null) {
 				if (text.substring(0,2) === "<@") { // User sends in a ping
 					return text;
@@ -214,11 +214,5 @@ module.exports = async function (commandName, args, message, roles) {
 	if (!hasPerms(message.author, message.guild, roles, command.permLevel)) {
 		throw new Error("You aren't allowed to use this command!");
 	}
-	const argsObj = {
-		text: args,
-		user: message.author,
-		server: message.guild,
-		message: message
-	};
-	return await command.execute(argsObj);
+	return await command.execute({message, text: args});
 };
