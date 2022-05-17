@@ -119,6 +119,14 @@ exports.initVoting = async function () {
 	save(roundPath + "contestants.json", contestants);
 	// TODO: Send reminders
 	(await twow.roles.fetch(noRemind)).members.forEach(member => member.roles.remove(noRemind));
+	/* for (let reminder in reminders) {
+		const date = new Date((unixDeadline - reminders[reminder] * 3600) * 1000);
+		if (date.getTime() > Date.now()) {
+			const reminderBotTime = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}-${date.toISOString().substring(11, 19)}`;
+			// TODO: Non-hardcoded bot channel
+			sendMessage(bots[3], `$r <#${bots[3]}> ${reminderBotTime} @everyone You have ${reminder} left to vote!`, true);
+		}
+	}; */
 };
 exports.logVote = function (message) {
 	logMessage(`Recording vote by ${message.author}:\n\t${message}`);

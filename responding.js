@@ -1,4 +1,5 @@
 // Modules
+// const {client} = require("./index.js");
 const {logMessage, sendMessage, addRole, getTime, toUnixTime, save} = require("./helpers.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
@@ -25,6 +26,14 @@ exports.initResponding = async function () {
 	const unixDeadline = toUnixTime(rDeadline);
 	await sendMessage(prompts, `<@&${aliveId}> ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)\nHere's an example response: \`${example ?? ""}\``, true);
 	// TODO: Send reminders
+	/* for (let reminder in reminders) {
+		const date = new Date((unixDeadline - reminders[reminder] * 3600) * 1000);
+		if (date.getTime() > Date.now()) {
+			const reminderBotTime = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}-${date.toISOString().substring(11, 19)}`;
+			// TODO: Non-hardcoded bot channel
+			sendMessage(bots[3], `$r <#${remindersId}> ${reminderBotTime} <@&${aliveId}> You have ${reminder} left to respond to the prompt!`, true);
+		}
+	}; */
 };
 exports.logResponse = function (message) {
 	// Reject extra responses and determine dummies
