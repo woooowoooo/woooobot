@@ -1,6 +1,6 @@
 // Modules
 const fs = require("fs").promises;
-const {logMessage, getTime, toUnixTime, save} = require("./helpers.js");
+const {logMessage, toTimeString, toUnixTime, save} = require("./helpers.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const status = require(twowPath + "status.json");
@@ -34,8 +34,8 @@ exports.initRound = async function (newRoundName) {
 	Object.assign(roundConfig, {
 		round: currentRound,
 		prompt: "",
-		rDeadline: getTime(toUnixTime(roundConfig.vDeadline) + seasonConfig.deadlines[0] * 86400),
-		vDeadline: getTime(toUnixTime(roundConfig.rDeadline) + seasonConfig.deadlines[1] * 86400)
+		rDeadline: toTimeString(toUnixTime(roundConfig.vDeadline) + seasonConfig.deadlines[0] * 86400),
+		vDeadline: toTimeString(toUnixTime(roundConfig.rDeadline) + seasonConfig.deadlines[1] * 86400)
 	}, nextRound);
 	await save(roundPath + "roundConfig.json", roundConfig);
 	contestants.responseCount = {};

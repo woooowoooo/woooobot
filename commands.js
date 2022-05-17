@@ -147,7 +147,7 @@ send <id> <text>: Sends <text> to <id>.
 			const message = {
 				id: messageId,
 				content: vote.join(" "),
-				// createdAt: functionHere(messageId), TODO: Add snowflake to time conversion
+				createdAt: toUnixTime(messageId),
 				author: {
 					id: userId
 				},

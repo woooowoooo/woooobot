@@ -1,6 +1,6 @@
 // Modules
 // const {client} = require("./index.js");
-const {logMessage, sendMessage, addRole, getTime, toUnixTime, save} = require("./helpers.js");
+const {logMessage, sendMessage, addRole, toTimeString, toUnixTime, save} = require("./helpers.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const status = require(twowPath + "status.json");
@@ -182,7 +182,7 @@ exports.logVote = function (message) {
 	votes[message.author.id].screens = Object.assign(votes[message.author.id].screens, Object.fromEntries(matches));
 	votes[message.author.id].messages.push({
 		id: message.id,
-		time: getTime(message.createdAt),
+		time: toTimeString(message.createdAt),
 		text: message.content
 	});
 	if (Object.keys(votes[message.author.id].screens).length === sectionScreens[section]) {

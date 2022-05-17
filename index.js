@@ -26,7 +26,7 @@ let {
 let {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
 // Modules
 const readline = require("readline");
-const {getTime, logMessage, sendMessage, toSnowflake, save, reload} = require("./helpers.js");
+const {toTimeString, logMessage, sendMessage, toSnowflake, save, reload} = require("./helpers.js");
 const morshu = require("./morshu.js");
 let {initRound} = require("./inits.js");
 let {initResponding, logResponse} = require(respondingPath);
@@ -44,7 +44,7 @@ function readMessage(message, readTime = false, queued = queue.length > 0) {
 		header += ` in ${message.guild.name}, #${message.channel.name}`;
 	}
 	if (readTime) {
-		header += ` at ${getTime(message.createdAt)}`;
+		header += ` at ${toTimeString(message.createdAt)}`;
 	}
 	logMessage(`[R] ${header}${queued ? " (queued)" : `:\n	${message}`}`);
 }
@@ -144,9 +144,9 @@ client.once("ready", async function () {
 	await save("./config.json", config);
 	// Start new phase
 	if (autoDeadlines) {
-		if (phase === "responding" && getTime() > rDeadline) {
+		if (phase === "responding" && toTimeString() > rDeadline) {
 			await initVoting();
-		} else if (phase === "voting" && getTime() > vDeadline) {
+		} else if (phase === "voting" && toTimeString() > vDeadline) {
 			await results();
 			await initRound();
 			({roundPath} = reload(twowPath + "status.json"));

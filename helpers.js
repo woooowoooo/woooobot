@@ -7,14 +7,14 @@ if (logging != null) {
 	const time = new Date();
 	const path = logging + time.toISOString().substring(0, 7);
 	fs.promises.mkdir(path, {recursive: true}).then(() => {
-		logStream = fs.createWriteStream(`${path}/${exports.getTime(time).replace(/\s/g, "-")}.log`, {flags: "ax"});
+		logStream = fs.createWriteStream(`${path}/${exports.toTimeString(time).replace(/\s/g, "-")}.log`, {flags: "ax"});
 	});
 }
 exports.logMessage = function (message, error = false) {
 	if (Array.isArray(message)) {
 		message = message.join("\n\t");
 	}
-	const time = exports.getTime();
+	const time = exports.toTimeString();
 	if (error) {
 		console.error(`${time} ${message}`);
 	} else {
@@ -65,20 +65,25 @@ exports.addRole = async function (server, user, role) {
 	}
 };
 // Time
-exports.getTime = function (time = new Date()) {
-	if (typeof time === "number") { // Is Unix time
+exports.toTimeString = function (time = new Date()) { // (Unix | null) -> String // ISO8601 without T and timezone
+	if (typeof time === "number") { // Unix -> Date
 		time = new Date(time * 1000);
 	}
 	return time.toISOString().substring(0, 10) + " " + time.toISOString().substring(11, 19);
 };
-exports.toSnowflake = function (time) {
-	const unixTime = Math.floor(exports.toUnixTime(time));
+exports.toSnowflake = function (time) { // (String | Unix | null) -> Snowflake
+	if (typeof time === "string") { // String -> Unix
+		time = Math.floor(exports.toUnixTime(time));
+	}
 	// Convert to Discord epoch
-	return (BigInt(unixTime - 1420070400) << 22n).toString() + "000";
+	return (BigInt(time - 1420070400) * 1000n << 22n).toString();
 };
-exports.toUnixTime = function (time) {
-	if (time == null) {
+exports.toUnixTime = function (time) { // (Snowflake | String | null) -> Unix
+	if (time == null) { // Now
 		return Date.now() / 1000;
+	}
+	if (typeof time === "string" && time[10] !== " ") { // Snowflake -> Unix
+		return Number((BigInt(time) >> 22n) / 1000n + 1420070400n);
 	}
 	return new Date(time + "Z").getTime() / 1000; // + "Z" to prevent timezone offset
 };
