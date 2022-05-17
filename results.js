@@ -154,7 +154,7 @@ exports.results = async function () {
 	contestants.alive = [];
 	contestants.dead = [];
 	// Assign roles
-	/* const twow = await client.guilds.fetch(serverId);
+	const twow = await client.guilds.fetch(serverId);
 	(await twow.roles.fetch(supervoter)).members.forEach(member => member.roles.remove(supervoter));
 	(await twow.roles.fetch(noRemind)).members.forEach(member => member.roles.remove(noRemind));
 	for (const row of rankings.filter(row => row.type !== "drp" && row.type !== "dummy")) {
@@ -169,5 +169,5 @@ exports.results = async function () {
 		}
 		contestants[row.type !== "danger" ? row.type : "alive"].push(author);
 	}
-	save(roundPath + "contestants.json", contestants); */
+	save(roundPath + "contestants.json", contestants);
 };

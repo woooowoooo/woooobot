@@ -110,24 +110,34 @@ send <id> <text>: Sends <text> to <id>.
 	},
 	phase: {
 		permLevel: "admin",
-		execute: function ({text: phase}) {
+		execute: async function ({text: phase}) {
+			let {seasonPath, roundPath} = require(twowPath + "status.json");
+			let {
+				respondingPath = "./responding.js",
+				votingPath = "./voting.js",
+				resultsPath = "./results.js"
+			} = require(seasonPath + "seasonConfig.json");
 			if (phase === "responding") {
-				require("./responding.js").initResponding();
+				await require(respondingPath).initResponding();
 			} else if (phase === "voting") {
-				require("./voting.js").initVoting();
+				await require(votingPath).initVoting();
 			} else if (phase === "results") {
-				require("./results.js").results();
+				await require(resultsPath).results();
 			} else if (phase === "newRound") {
-				require("./inits.js").initRound().then(() => {
-					({roundPath} = reload(twowPath + "status.json"));
-					reload(roundPath + "roundConfig.json");
-					reload("./inits.js");
-					reload("./responding.js");
-					reload("./voting.js");
-					reload("./results.js");
-				});
+				await require("./inits.js").initRound();
+				({seasonPath, roundPath} = reload(twowPath + "status.json"));
+				({
+					respondingPath = "./responding.js",
+					votingPath = "./voting.js",
+					resultsPath = "./results.js"
+				} = reload(seasonPath + "seasonConfig.json"));
+				reload(roundPath + "roundConfig.json");
+				reload("./inits.js");
+				reload(respondingPath);
+				reload(votingPath);
+				reload(resultsPath);
 			}
-			({phase} = reload(twowPath + "status.json"));
+			reload(twowPath + "status.json");
 		}
 	},
 	vote: {
