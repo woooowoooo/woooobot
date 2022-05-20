@@ -1,11 +1,11 @@
 // Logging
 const fs = require("fs");
 const {client} = require("./index.js");
-const {logging, sandbox} = require("./config.json");
+const {logging, loggingPath, sandbox, sandboxId} = require("./config.json");
 let logStream;
-if (logging != null) {
+if (logging) {
 	const time = new Date();
-	const path = logging + time.toISOString().substring(0, 7);
+	const path = loggingPath + time.toISOString().substring(0, 7);
 	fs.promises.mkdir(path, {recursive: true}).then(() => {
 		logStream = fs.createWriteStream(`${path}/${exports.toTimeString(time).replace(/\s/g, "-")}.log`, {flags: "ax"});
 	});
@@ -20,7 +20,7 @@ exports.logMessage = function (message, error = false) {
 	} else {
 		console.log(`${time} ${message}`);
 	}
-	if (logging != null) {
+	if (logging) {
 		logStream.write(`${time} ${message}\n`);
 	}
 };
@@ -34,8 +34,8 @@ exports.resolveChannel = async function (id) {
 	}
 };
 exports.sendMessage = async function (destination, message, id = false) {
-	if (sandbox != null) {
-		destination = await exports.resolveChannel(sandbox);
+	if (sandbox) {
+		destination = await exports.resolveChannel(sandboxId);
 	} else if (id) {
 		destination = await exports.resolveChannel(destination);
 	}

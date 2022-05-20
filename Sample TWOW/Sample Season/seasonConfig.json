@@ -1,6 +1,9 @@
 {
 	"version": 3,
 	"season": "Sample Season",
+	"respondingPath": "optional-custom-responding.js",
+	"votingPath": "optional-custom-voting.js",
+	"resultsPath": "optional-custom-results.js",
 	"autoDeadlines": true,
 	"deadlines": [3, 2],
 	"reminders": {
@@ -17,6 +20,9 @@
 		"Round 1": "Round 1/"
 	},
 	"nextRound": {
-		"prompt": "This will be the Round 2 prompt."
+		"prompt": "This will be the Round 2 prompt.",
+		"example": "Example response",
+		"rDeadline": "2022-02-20",
+		"vDeadline": "2022-02-22"
 	}
 }

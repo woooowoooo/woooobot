@@ -1,12 +1,15 @@
 {
 	"version": 3,
-	"logging": "./logs/",
-	"sandbox": "000000000000000000",
+	"sandbox": false,
+	"logging": false,
+	"automatic": false,
 	"prefix": "sample ",
 	"token": "INSERT TOKEN HERE",
 	"devId": "000000000000000000",
 	"botId": "000000000000000000",
+	"sandboxId": "000000000000000000",
 	"lastUnread": "000000000000000000",
+	"loggingPath": "./logs/",
 	"twows": {
 		"Sample TWOW": "./Sample TWOW/"
 	},
