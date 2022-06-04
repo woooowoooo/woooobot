@@ -43,7 +43,7 @@ list: Show this command list.
 UNRESTRICTED:
 book (attach exactly one file): Record the attachment as your book.
 echo <message>: Repeats <message>.
-morshu [wordCount]: Generates <wordCount> amount of morshu words. Default amount is 10 words.
+morshu [sentenceCount]: Generates <sentenceCount> amount of morshu sentences. Default amount is one sentence.
 ping [userId]: Ping <userId> if provided. Pings yourself otherwise.
 
 ADMIN-ONLY:

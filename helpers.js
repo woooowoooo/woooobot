@@ -66,26 +66,26 @@ exports.addRole = async function (server, user, role) {
 };
 // Time
 exports.toTimeString = function (time = new Date()) { // (Unix | null) -> String // ISO8601 without T and timezone
-	if (typeof time === "number") { // Unix -> Date
+	if (typeof time === "number") { // Unix -> Date -> String
 		time = new Date(time * 1000);
 	}
-	return time.toISOString().substring(0, 10) + " " + time.toISOString().substring(11, 19);
+	return time.toISOString().substring(0, 10) + " " + time.toISOString().substring(11, 19); // Date -> String
 };
 exports.toSnowflake = function (time) { // (String | Unix | null) -> Snowflake
-	if (typeof time === "string") { // String -> Unix
+	if (time == undefined || typeof time === "string") { // (String | null) -> Unix -> Snowflake
 		time = Math.floor(exports.toUnixTime(time));
 	}
 	// Convert to Discord epoch
-	return (BigInt(time - 1420070400) * 1000n << 22n).toString();
+	return (BigInt(time - 1420070400) * 1000n << 22n).toString(); // Unix -> Snowflake
 };
 exports.toUnixTime = function (time) { // (Snowflake | String | null) -> Unix
-	if (time == null) { // Now
+	if (time == null) { // null -> Unix
 		return Date.now() / 1000;
 	}
 	if (typeof time === "string" && time[10] !== " ") { // Snowflake -> Unix
 		return Number((BigInt(time) >> 22n) / 1000n + 1420070400n);
 	}
-	return new Date(time + "Z").getTime() / 1000; // + "Z" to prevent timezone offset
+	return new Date(time + "Z").getTime() / 1000; // String -> Unix // + "Z" to prevent timezone offset
 };
 // Miscellaneous
 exports.reload = function (path) {

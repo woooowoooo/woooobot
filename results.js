@@ -89,7 +89,7 @@ function findEntry(rankings, token) {
 	if (token.includes(".")) { // Token is unranked
 		index += parseInt(token.split(".")[1]);
 	}
-	if (rankings[index] == undefined) {
+	if (rankings[index] == null) {
 		throw new Error("Invalid token: " + token);
 	}
 	return index;
