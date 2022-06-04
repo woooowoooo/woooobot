@@ -1,8 +1,9 @@
 {
 	"version": 3,
-	"season": 1,
-	"round": 1,
+	"season": "Season 1",
+	"round": "Round 1",
 	"prompt": "You just got bamboozled. How do you unbamboozle yourself?",
+	"example": "Very carefully.",
 	"rDeadline": "2021-10-23 22:30:00",
 	"vDeadline": "2021-10-31 00:00:00",
 	"twists": [
