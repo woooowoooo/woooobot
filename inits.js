@@ -5,10 +5,11 @@ const {logMessage, toTimeString, toUnixTime, save} = require("./helpers.js");
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const status = require(twowPath + "status.json");
 let {currentSeason, currentRound, seasonPath, roundPath} = status;
-const {seasons, nextSeason = {}} = require(twowPath + "twowConfig.json");
+const {seasons} = require(twowPath + "twowConfig.json");
+const {nextSeason = {}, nextRound = {}} = require(twowPath + "new.json");
 // Season-specific
 const seasonConfig = require(seasonPath + "seasonConfig.json");
-const {rounds, nextRound = {}} = seasonConfig;
+const {rounds} = seasonConfig;
 const seasonContestants = require(seasonPath + "seasonContestants.json");
 // Round-specific
 const roundConfig = require(roundPath + "roundConfig.json");

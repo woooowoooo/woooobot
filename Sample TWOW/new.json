@@ -1,0 +1,9 @@
+{
+	"nextSeason": {},
+	"nextRound": {
+		"prompt": "This will be the Round 2 prompt.",
+		"example": "Example response",
+		"rDeadline": "2022-02-20",
+		"vDeadline": "2022-02-22"
+	}
+}
