@@ -11,7 +11,7 @@ const {
 	roles: {prize, supervoter, alive, dead, noRemind}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
-const {dangerZone, cutoffs} = require(seasonPath + "seasonConfig.json");
+const {cutoffs} = require(seasonPath + "seasonConfig.json");
 const {names, bookPaths} = require(seasonPath + "seasonContestants.json");
 const {drawResults} = require(seasonPath + "graphics.js");
 // Round-specific
@@ -46,7 +46,6 @@ function calculateResults() {
 	}
 	// Sort results
 	results.sort((a, b) => b.percentile - a.percentile || a.skew - b.skew); // Tiebreaker: Smaller skew is better
-	const types = dangerZone ? ["alive", "danger", "dead"] : ["alive", "dead"];
 	const responders = Object.keys(contestants.responseCount).length;
 	const placed = new Set();
 	let rank = 1;
@@ -60,10 +59,10 @@ function calculateResults() {
 			continue;
 		}
 		placed.add(result.id);
-		let type = "prize";
-		for (const i in cutoffs) {
-			if (rank > Math.round(cutoffs[i] * responders)) {
-				type = types[i];
+		let type = "dead";
+		for (const [cutoffType, cutoff] of cutoffs) {
+			if (rank <= Math.round(cutoff * responders)) {
+				type = cutoffType;
 			}
 		}
 		result.type = type;

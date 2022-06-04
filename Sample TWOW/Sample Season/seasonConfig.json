@@ -14,8 +14,11 @@
 	"sections": 5,
 	"megascreen": true,
 	"autoKeywords": true,
-	"dangerZone": true,
-	"cutoffs": [0.15, 0.60, 0.80],
+	"cutoffs": {
+		"prize": 0.15,
+		"alive": 0.6,
+		"danger": 0.8
+	},
 	"rounds": {
 		"Round 1": "Round 1/"
 	},
