@@ -102,17 +102,20 @@ function starOrdered(options, chance, separator = true, appendSpace = false) {
 function genNounPhrase(verbForm, object = false, direct = true) {
 	const singleSubs = [
 		[0.5, () => choose(determiners.singular) + " " + genAdjPhrase() + choose(nouns.singular)],
-		[0.2, () => optional(pluralDetChance, () => choose(determiners.plural), true) + genAdjPhrase() + choose(nouns.mass)], // Mass noun
-		[0.1, () => choose(nouns.proper)], // Proper noun
-		[0.1, () => pronouns[object ? "object" : "subject"][2]], // 3p pronoun
-		[0.1, () => choose(pronouns.possInd)] // "mine", "yours", "its"
+		[0.25, () => optional(pluralDetChance, () => choose(determiners.plural), true) + genAdjPhrase() + choose(nouns.mass)], // Mass noun
+		[0.15, () => choose(nouns.proper)], // Proper noun
+		[0.1, () => pronouns[object ? "object" : "subject"][2]] // 3p pronoun ("it")
 	];
 	const pluralSubs = [
 		[0.5, () => optional(pluralDetChance, () => choose(determiners.plural), true) + genAdjPhrase() + choose(nouns.plural)],
 		[0.5, () => pronouns[object ? "object" : "subject"][choose([0, 1])]] // Non-3p pronoun
 	];
-	if (verbForm === "singular" && object && direct && roll(0.2)) {
-		return pronouns.enough;
+	if (verbForm === "singular" && object && roll(0.25)) {
+		if (direct && roll(0.8)) {
+			return pronouns.enough;
+		} else {
+			return choose(pronouns.possInd);
+		}
 	}
 	return chooseWeighted(verbForm === "singular" ? singleSubs : pluralSubs);
 }
