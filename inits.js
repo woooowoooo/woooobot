@@ -1,5 +1,6 @@
 // Modules
 const fs = require("fs").promises;
+const {execSync} = require("child_process");
 const {logMessage, toTimeString, toUnixTime, save} = require("./helpers.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
@@ -76,6 +77,13 @@ exports.initSeason = async function () {
 	seasonContestants.names = {};
 	seasonContestants.bookPaths = {};
 	await save(seasonPath + "seasonContestants.json", seasonContestants);
-	// Start Round 1
-	await exports.initRound("Round 1"); // TODO: Specific changes for Round 1
+	// Build graphics.js
+	if (fs.exists(oldPath + "package.json")) {
+		await fs.copyFile(oldPath + "package.json", seasonPath + "package.json");
+		try {
+			execSync("pnpm i", {stdio: "inherit"}); // TODO: Allow npm
+		} catch (e) {
+			logMessage(`[E] Failed to install ${e}`, true);
+		}
+	}
 };
