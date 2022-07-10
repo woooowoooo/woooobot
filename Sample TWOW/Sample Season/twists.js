@@ -7,13 +7,6 @@ const twists = {
 			return response.split("").reverse().join(""); // Breaks surrogate pairs
 		}
 	},
-	base64: {
-		title: "Base 64",
-		description: "Your response will be encoded in an email-friendly:tm: manner.",
-		execute: function (response) {
-			return Buffer.from(response, "utf-8").toString("base64");
-		}
-	},
 	caesar: {
 		title: "Caesar Cipher",
 		description: "Every letter in your response will shifted through the alphabet.",
@@ -31,13 +24,6 @@ const twists = {
 			}).join("");
 		}
 	},
-	identity: {
-		title: "Identity Twist",
-		description: "Your response is not modified.",
-		execute: function (response) {
-			return response;
-		}
-	},
 	random: {
 		title: "Random Twist",
 		description: "Uses a random twist.",
@@ -51,18 +37,6 @@ const twists = {
 		description: "All occurances of a string will be replaced with another.",
 		execute: function (response, replacee = "t", replacer = "twow") {
 			return response.replaceAll(replacee, replacer);
-		}
-	},
-	scramble: {
-		title: "Scramble",
-		description: "The letters in your response will be scrambled up.",
-		execute: function (response) {
-			let chars = response.split("");
-			for (let i = 0; i < chars.length - 1; i++) {
-				let j = Math.floor(Math.random() * i);
-				[chars[i], chars[j]] = [chars[j], chars[i]];
-			}
-			return chars.join("");
 		}
 	},
 	sha256: {

@@ -18,12 +18,15 @@ const twists = optRequire(seasonPath + "twists.js");
 const {prompt, example, rDeadline, technicals: roundTechnicals = [], twists: roundTwists, joins = _j, dummies = _d} = require(roundPath + "roundConfig.json");
 const contestants = require(roundPath + "contestants.json");
 const responses = require(roundPath + "responses.json");
-// Sanity check
+// Sanity checks
 if (technicals == null && roundTechnicals.filter(tech => tech !== "noTenWord").length > 0) {
 	throw Error(`Round includes technicals ${roundTechnicals} but does not define them!`);
 }
 if (twists == null && roundTwists != null) {
 	throw Error(`Round includes twists ${roundTwists} but does not define them!`);
+}
+if (prompt == null || prompt === "") {
+	throw Error(`No prompt provided!`);
 }
 // Functions
 exports.initResponding = async function () {
@@ -31,7 +34,7 @@ exports.initResponding = async function () {
 	status.phase = "responding";
 	await save(`${twowPath}/status.json`, status);
 	const unixDeadline = toUnixTime(rDeadline);
-	await sendMessage(prompts, `<@&${aliveId}> ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)\nHere's an example response: \`${example ?? ""}\``, true);
+	await sendMessage(prompts, `<@&${aliveId}> ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)${example ? `\nHere's an example response: \`${example}\`` : ""}`, true);
 	// TODO: Send reminders
 	/* for (let reminder in reminders) {
 		const date = new Date((unixDeadline - reminders[reminder] * 3600) * 1000);
@@ -47,24 +50,26 @@ exports.logResponse = function (message) {
 	// TODO: Allow edits
 	logMessage(`Recording response by ${message.author}:\n\t${message}`);
 	const prized = contestants.prize.includes(message.author.id);
-	const alive = contestants.alive.includes(message.author.id);
-	const allowed = prized ? 3 : 2; // Temporary edit for this season
-	const isAllowed = (contestants.responseCount[message.author.id] ?? 0) < allowed;
+	const alive = prized || contestants.alive.includes(message.author.id);
+	const allowedAmount = prized ? 2 : 1;
+	const allowed = (contestants.responseCount[message.author.id] ?? 0) < allowedAmount;
 	let isDummy = false;
-	if (!prized && !alive && !joins || !isAllowed) {
+	if (!alive && !joins || !allowed) {
 		if (!dummies) {
-			if (prized || alive) {
-				return `You have already responded to the prompt!`;
-			}
-			return "Non-contestant responses are currently not accepted.";
+			return alive ? "You have already responded to the prompt!" : "Non-contestant responses are currently not accepted.";
 		}
 		isDummy = true;
 	}
-	// Default tenWords technical
+	// Default ten word technical
 	function tenWord(response) {
 		return response.split(/\s/).filter(word => /\w/.test(word)).length <= 10; // Don't count punctuation-only "words"
 	}
-	let passesTechnicals = roundTechnicals.includes("noTenWord") ? true : tenWord(message.content);
+	let passesTechnicals = true;
+	if (roundTechnicals.includes("noTenWord")) {
+		roundTechnicals.splice(roundTechnicals.indexOf("noTenWord"));
+	} else {
+		passesTechnicals = tenWord(message.content);
+	}
 	// Check other technicals
 	passesTechnicals ||= roundTechnicals.reduce((passes, name) => {
 		return passes && technicals[name].check(message.content);
@@ -87,14 +92,13 @@ exports.logResponse = function (message) {
 	}
 	responses.push(messageData);
 	// Stuff
-	if (status.currentRound === "Round 1") { // TODO: Allow rejoin rounds
-		// Do Round 1 stuff
+	if (!alive && joins) {
 		contestants.alive.push(message.author.id);
 		addRole(serverId, message.author.id, aliveId);
 	}
 	contestants.responseCount[message.author.id] ??= 0;
 	contestants.responseCount[message.author.id]++;
-	if (contestants.responseCount[message.author.id] === allowed) {
+	if (contestants.responseCount[message.author.id] === allowedAmount) {
 		addRole(serverId, message.author.id, noRemind);
 	}
 	save(`${roundPath}/responses.json`, responses);
