@@ -2,12 +2,14 @@
 const fs = require("fs");
 const {client} = require("./index.js");
 const {logging, loggingPath, sandbox, sandboxId} = require("./config.json");
-let logStream;
+let logStream = "";
 if (logging) {
 	const time = new Date();
 	const path = loggingPath + time.toISOString().substring(0, 7);
 	fs.promises.mkdir(path, {recursive: true}).then(() => {
+		let buffer = logStream;
 		logStream = fs.createWriteStream(`${path}/${exports.toTimeString(time).replace(/\s/g, "-")}.log`, {flags: "ax"});
+		logStream.write(buffer);
 	});
 }
 exports.logMessage = function (message, error = false) {
@@ -21,7 +23,11 @@ exports.logMessage = function (message, error = false) {
 		console.log(`${time} ${message}`);
 	}
 	if (logging) {
-		logStream.write(`${time} ${message}\n`);
+		if (typeof logStream === "string") {
+			logStream += `${time} ${message}\n`;
+		} else {
+			logStream.write(`${time} ${message}\n`);
+		}
 	}
 };
 // Discord.js
@@ -88,6 +94,14 @@ exports.toUnixTime = function (time) { // (Snowflake | String | null) -> Unix
 	return new Date(time + "Z").getTime() / 1000; // String -> Unix // + "Z" to prevent timezone offset
 };
 // Miscellaneous
+exports.optRequire = function (path, backup = null) {
+	try {
+		return require(path);
+	} catch {
+		exports.logMessage(`[E] Could not require the file at "${path}"`, true);
+		return backup;
+	}
+}
 exports.reload = function (path) {
 	delete require.cache[require.resolve(path)];
 	exports.logMessage(`${path} reloaded.`);

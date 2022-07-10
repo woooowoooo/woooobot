@@ -17,21 +17,16 @@ let config = require("./config.json");
 const {automatic, prefix, token, devId, botId, twowPath, lastUnread} = config; // TODO: Allow for multiple TWOWs
 const {id: serverId, roles, channels: {bots}} = require(twowPath + "twowConfig.json");
 let {seasonPath, roundPath, phase} = require(twowPath + "status.json");
-let {
-	autoDeadlines,
-	respondingPath = "./responding.js",
-	votingPath = "./voting.js",
-	resultsPath = "./results.js"
-} = require(seasonPath + "seasonConfig.json");
+let {autoDeadlines} = require(seasonPath + "seasonConfig.json");
 let {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
 // Modules
 const readline = require("readline");
-const {toTimeString, logMessage, sendMessage, toSnowflake, save, reload} = require("./helpers.js");
+const {toTimeString, logMessage, sendMessage, toSnowflake, optRequire, save, reload} = require("./helpers.js");
 const morshu = require("./morshu.js");
 let {initRound} = require("./inits.js");
-let {initResponding, logResponse} = require(respondingPath);
-let {initVoting, logVote} = require(votingPath);
-let {results} = require(resultsPath);
+let {initResponding, logResponse} = optRequire(seasonPath + "responding.js") ?? require("./responding.js");
+let {initVoting, logVote} = optRequire(seasonPath + "voting.js") ?? require("./voting.js");
+let {results} = optRequire(seasonPath + "results.js") ?? require("./results.js");
 let commands = require("./commands.js");
 // Other variables
 const stdin = process.openStdin();

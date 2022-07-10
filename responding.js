@@ -1,6 +1,6 @@
 // Modules
 // const {client} = require("./index.js");
-const {logMessage, sendMessage, addRole, getTime, toUnixTime, save} = require("./helpers.js");
+const {logMessage, sendMessage, addRole, getTime, toUnixTime, optRequire, save} = require("./helpers.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const status = require(twowPath + "status.json");
@@ -12,12 +12,19 @@ const {
 } = require(twowPath + "twowConfig.json");
 // Season-specific
 const {deadlines, reminders, joins: _j, dummies: _d} = require(seasonPath + "seasonConfig.json");
-const technicals = require(seasonPath + "technicals.js");
-const twists = require(seasonPath + "twists.js");
+const technicals = optRequire(seasonPath + "technicals.js");
+const twists = optRequire(seasonPath + "twists.js");
 // Round-specific
 const {prompt, example, rDeadline, technicals: roundTechnicals = [], twists: roundTwists, joins = _j, dummies = _d} = require(roundPath + "roundConfig.json");
 const contestants = require(roundPath + "contestants.json");
 const responses = require(roundPath + "responses.json");
+// Sanity check
+if (technicals == null && roundTechnicals.filter(tech => tech !== "noTenWord").length > 0) {
+	throw Error(`Round includes technicals ${roundTechnicals} but does not define them!`);
+}
+if (twists == null && roundTwists != null) {
+	throw Error(`Round includes twists ${roundTwists} but does not define them!`);
+}
 // Functions
 exports.initResponding = async function () {
 	logMessage("Responding period started.");
