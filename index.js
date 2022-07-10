@@ -79,7 +79,7 @@ function processMessage(message = queue.shift()) {
 	}
 }
 async function processMessageAsync(message) {
-	// Process message if I press "r"; skip on other keys
+	// Process message on "r"; skip on other keys
 	return new Promise(resolve => stdin.once("keypress", function (_, key) {
 		if (key.name === "r") {
 			logMessage("Message read");
@@ -185,7 +185,7 @@ function consoleLogger(data) {
 }
 function consoleListener(data) {
 	let text = data.toString().trim();
-	if (text.substring(0, 2) !== "//") { // Allow for dev comments
+	if (text.substring(0, 2) !== "//") { // Allow for comments
 		if (text.substring(0, prefix.length) === prefix) {
 			text = text.substring(prefix.length);
 		}

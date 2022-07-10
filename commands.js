@@ -40,21 +40,10 @@ command <requiredArg> [optionalArg]: Description <argument>.
 help: Show a welcome message.
 list: Show this command list.
 
-UNRESTRICTED:
 book (attach exactly one file): Record the attachment as your book.
 echo <message>: Repeats <message>.
 morshu [sentenceCount]: Generates <sentenceCount> amount of morshu sentences. Default amount is one sentence.
 ping [userId]: Ping <userId> if provided. Pings yourself otherwise.
-
-ADMIN-ONLY:
-phase [newPhase]: Changes round status to <newPhase>. If no argument is provided, increments the phase.
-
-DEVELOPER-ONLY:
-change <path> <key> <value>: Changes the value of <key> in <path> to <value>.
-edit <messageId> <channelId> <newMessage>: Edits the message <messageId> (in <channelId>) to <newMessage>.
-eval <command>: Runs <command>.
-reload: Reloads commands.js.
-send <id> <text>: Sends <text> to <id>.
 \`\`\``;
 		}
 	},
