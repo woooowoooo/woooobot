@@ -166,7 +166,7 @@ exports.results = async function () {
 		} else { // "alive" or "danger"
 			author.roles.remove(prize);
 		}
-		contestants[row.type !== "danger" ? row.type : "alive"].push(author);
+		contestants[row.type !== "danger" ? row.type : "alive"].push(author.id);
 	}
 	save(roundPath + "contestants.json", contestants);
 };
