@@ -53,10 +53,13 @@ exports.sendMessage = async function (destination, message, id = false) {
 	if (typeof message === "object") {
 		message = JSON.stringify(message);
 	}
-	if (destination.type === "DM") {
-		exports.logMessage(`[S] ${destination.recipient.tag}:\n	${message}`);
-	} else { // If it's not a DM it's probably a text channel.
+	if (destination.isDMBased()) { // Channel is either DM or group DM
+		exports.logMessage(`[S] ${destination.recipient?.tag ?? destination.recipients.map(user => user.tag).join(", ")}:\n	${message}`);
+	} else if (destination.isTextBased()) {
 		exports.logMessage(`[S] ${destination.guild.name}, ${destination.name}:\n	${message}`);
+	} else { // Non-text channel
+		exports.logMessage(`[S] ??? ${destination.guild?.name !== undefined ? destination.guild.name + ", " : ""}${destination.name}:\n	${message}`);
+		exports.logMessage(`[E] Not a text-based channel`, true);
 	}
 };
 exports.addRole = async function (server, user, role) {
@@ -78,7 +81,7 @@ exports.toTimeString = function (time = new Date()) { // (Unix | null) -> String
 	return time.toISOString().substring(0, 10) + " " + time.toISOString().substring(11, 19); // Date -> String
 };
 exports.toSnowflake = function (time) { // (String | Unix | null) -> Snowflake
-	if (time == undefined || typeof time === "string") { // (String | null) -> Unix -> Snowflake
+	if (time == null || typeof time === "string") { // (String | null) -> Unix -> Snowflake
 		time = Math.floor(exports.toUnixTime(time));
 	}
 	// Convert to Discord epoch
@@ -101,7 +104,7 @@ exports.optRequire = function (path, backup = null) {
 		exports.logMessage(`[E] Could not require the file at "${path}"`, true);
 		return backup;
 	}
-}
+};
 exports.reload = function (path) {
 	delete require.cache[require.resolve(path)];
 	exports.logMessage(`${path} reloaded.`);

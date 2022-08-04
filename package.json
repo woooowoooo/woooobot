@@ -1,14 +1,13 @@
 {
-  "dependencies": {
-    "discord.js": "^13.3.1"
-  },
-  "name": "woooobot",
-  "description": "Made to automate twoooowoooo.",
-  "version": "0.1.0",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/woooowoooo/woooobot.git"
-  },
-  "author": "woooowoooo",
-  "homepage": "https://github.com/woooowoooo/woooobot#readme"
+	"dependencies": {
+		"discord.js": "^14.0.1"
+	},
+	"name": "woooobot",
+	"description": "Made to automate twoooowoooo.",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/woooowoooo/woooobot.git"
+	},
+	"author": "woooowoooo",
+	"homepage": "https://github.com/woooowoooo/woooobot#readme"
 }

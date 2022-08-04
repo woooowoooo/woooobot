@@ -1,14 +1,14 @@
 // Discord.js
-const {Client, Intents} = require("discord.js");
+const {Client, GatewayIntentBits, Partials} = require("discord.js");
 const client = new Client({
 	intents: [
-		Intents.FLAGS.GUILDS,
-		Intents.FLAGS.GUILD_MEMBERS,
-		Intents.FLAGS.GUILD_MESSAGES,
-		Intents.FLAGS.DIRECT_MESSAGES
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMembers,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.DirectMessages
 	],
 	partials: [
-		"CHANNEL"
+		Partials.Channel
 	]
 });
 exports.client = client; // Client is exported so helpers.js can use it
