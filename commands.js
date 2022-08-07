@@ -184,14 +184,16 @@ ping [userId]: Ping <userId> if provided. Pings yourself otherwise.
 	},
 	ping: {
 		permLevel: "normal",
-		execute: function ({text, message: {user: {id}}}) {
-			if (text != null) {
-				if (text.substring(0,2) === "<@") { // User sends in a ping
-					return text;
-				}
-				id = text;
+		execute: function ({text, message: {author: {id}}}) {
+			let ping = `\`${text}\``; // Default text
+			if (text == null) { // No text provided
+				ping = `<@${id}>`;
+			} else if (text.test(/^<@\d+>$/)) { // One ping
+				ping = text;
+			} else if (text.test(/^\d+$/)) { // One id
+				ping = `<@${text}>`;
 			}
-			return `<@${id}>`;
+			return ping + `. Sent by <@${id}> :)`;
 		}
 	}
 };
@@ -203,5 +205,9 @@ module.exports = async function (commandName, args, message, roles) {
 	if (!hasPerms(message.author, message.guild, roles, command.permLevel)) {
 		throw new Error("You aren't allowed to use this command!");
 	}
-	return await command.execute({message, text: args});
+	const output = await command.execute({message, text: args});
+	if (hasPerms(message.author, message.guild, roles, "admin") && (output.includes("@everyone") || output.includes("@here"))) {
+		throw new Error(`You aren't allowed to ping @​${output.includes("@everyone") ? "everyone" : "here"}!`);
+	}
+	return output;
 };
