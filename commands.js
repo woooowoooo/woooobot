@@ -50,15 +50,29 @@ ping [userId]: Ping <userId> if provided. Pings yourself otherwise.
 	change: {
 		permLevel: "developer",
 		execute: async function ({text}) {
-			let [path, key, value] = text.split(" ");
-			if (path.match(/..\//)) {
+			let [path, keys, value] = text.split(" ");
+			// Get object from path
+			if (/..\//.test(path)) {
 				throw new Error("You can't edit above miniTWOW-level!");
 			}
 			path = `./${path}`;
 			let file = require(path);
-			file[key] = value;
+			// Do the change
+			let pointer = file;
+			let traverse = function (keys, value) {
+				let [key, ...rest] = keys;
+				if (rest.length === 0) {
+					pointer[key] = value;
+					return;
+				}
+				if (!(key in pointer) || typeof pointer[key] !== "object") {
+					throw new Error(`Cannot traverse into "${key}"!`);
+				}
+				traverse(rest, value);
+			};
+			traverse(keys.split("."), value);
 			await save(path, file);
-			logMessage(file);
+			logMessage(`Set ${path}:${keys} to ${value}`);
 		}
 	},
 	edit: {
@@ -188,9 +202,9 @@ ping [userId]: Ping <userId> if provided. Pings yourself otherwise.
 			let ping = `\`${text}\``; // Default text
 			if (text == null) { // No text provided
 				ping = `<@${id}>`;
-			} else if (text.test(/^<@\d+>$/)) { // One ping
+			} else if (/^<@\d+>$/.test(text)) { // One ping
 				ping = text;
-			} else if (text.test(/^\d+$/)) { // One id
+			} else if (/^\d+$/.test(text)) { // One id
 				ping = `<@${text}>`;
 			}
 			return ping + `. Sent by <@${id}> :)`;
