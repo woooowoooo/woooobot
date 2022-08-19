@@ -5,17 +5,43 @@ const FONT_STACK = "px Charter, serif";
 const HEADER_HEIGHT = 240;
 const ROW_HEIGHT = 120;
 const WIDTH = 2400;
-exports.drawScreen = async function (path, keyword, responses) {
+function drawHeader(context, title, prompt) {
+	context.fillStyle = "white";
+	context.fillRect(0, 0, WIDTH, HEADER_HEIGHT);
+	context.fillStyle = "black";
+	context.font = 40 + FONT_STACK;
+	context.textAlign = "center";
+	// Split the prompt into two lines
+	if (context.measureText(prompt).width <= WIDTH - 60) {
+		context.fillText(prompt, WIDTH / 2, 210, WIDTH - 60);
+		context.font = 120 + FONT_STACK;
+		context.fillText(title, WIDTH / 2, 130);
+	} else {
+		let line1 = [];
+		let line2 = prompt.split(" ");
+		const originalWidth = context.measureText(prompt).width;
+		// Keep line 1 longer by looping on line 2's width instead of line 1's
+		while (context.measureText(line2.join(" ")).width > originalWidth / 2) {
+			line1.push(line2.shift());
+		}
+		context.fillText(line1.join(" "), WIDTH / 2, 170, WIDTH - 60);
+		context.fillText(line2.join(" "), WIDTH / 2, 220, WIDTH - 60);
+		context.font = 100 + FONT_STACK;
+		context.fillText(title, WIDTH / 2, 110);
+	}
+}
+exports.drawScreen = async function (path, keyword, prompt, responses) {
 	// Easily change to SVG by adding `, "svg"` after `ROW_HEIGHT`
 	const canvas = createCanvas(WIDTH, HEADER_HEIGHT + ROW_HEIGHT * responses.length);
 	const context = canvas.getContext("2d");
-	// Header
+	/* Old header
 	context.fillStyle = "white";
 	context.fillRect(0, 0, WIDTH, HEADER_HEIGHT);
 	context.fillStyle = "black";
 	context.font = (HEADER_HEIGHT / 2) + FONT_STACK;
 	context.textAlign = "center";
-	context.fillText(keyword, WIDTH / 2, (HEADER_HEIGHT + context.measureText(keyword).actualBoundingBoxAscent) / 2);
+	context.fillText(keyword, WIDTH / 2, (HEADER_HEIGHT + context.measureText(keyword).actualBoundingBoxAscent) / 2); */
+	drawHeader(context, keyword, prompt);
 	// Rows
 	await responses.forEach(async (row, i) => {
 		const offset = HEADER_HEIGHT + ROW_HEIGHT * i;
@@ -36,31 +62,12 @@ exports.drawResults = async function (path, round, prompt, rankings, header = fa
 	const canvas = createCanvas(WIDTH, header + 40 + ROW_HEIGHT * rankings.length);
 	const context = canvas.getContext("2d");
 	// Header
-	context.fillStyle = "white";
-	context.fillRect(0, 0, WIDTH, header + 40);
-	context.fillStyle = "black";
 	if (header) {
-		context.font = 40 + FONT_STACK;
-		context.textAlign = "center";
-		// Split the prompt into two lines
-		if (context.measureText(prompt).width <= WIDTH - 60) {
-			context.fillText(prompt, WIDTH / 2, 210, WIDTH - 60);
-			context.font = 120 + FONT_STACK;
-			context.fillText(round + " Results", WIDTH / 2, 130);
-		} else {
-			let line1 = [];
-			let line2 = prompt.split(" ");
-			const originalWidth = context.measureText(prompt).width;
-			// Keep line 1 longer by looping on line 2's width instead of line 1's
-			while (context.measureText(line2.join(" ")).width > originalWidth / 2) {
-				line1.push(line2.shift());
-			}
-			context.fillText(line1.join(" "), WIDTH / 2, 170, WIDTH - 60);
-			context.fillText(line2.join(" "), WIDTH / 2, 220, WIDTH - 60);
-			context.font = 100 + FONT_STACK;
-			context.fillText(round + " Results", WIDTH / 2, 110);
-		}
+		drawHeader(context, round + " Results", prompt);
 	}
+	context.fillStyle = "white";
+	context.fillRect(0, header, WIDTH, 40);
+	context.fillStyle = "black";
 	context.font = 30 + FONT_STACK;
 	context.textAlign = "right";
 	context.fillText("Rank", 120, header + 30);
@@ -85,13 +92,9 @@ exports.drawResults = async function (path, round, prompt, rankings, header = fa
 	await rankings.forEach(async (ranking, i) => {
 		const offset = header + 40 + ROW_HEIGHT * i;
 		// Background
-		if (ranking.type === "dummy") {
-			context.fillStyle = "hsl(0, 0%, 90%)";
-		} else {
-			typeFreqs[ranking.type] ??= 0;
-			typeFreqs[ranking.type]++;
-			context.fillStyle = hues[ranking.type] + (80 - 10 * (typeFreqs[ranking.type] % 2)) + "%)";
-		}
+		typeFreqs[ranking.type] ??= 0;
+		typeFreqs[ranking.type]++;
+		context.fillStyle = hues[ranking.type] + (80 - 10 * (typeFreqs[ranking.type] % 2)) + "%)";
 		context.fillRect(0, offset, WIDTH, ROW_HEIGHT);
 		// Text
 		context.fillStyle = "black";
