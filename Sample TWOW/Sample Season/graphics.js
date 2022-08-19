@@ -1,4 +1,5 @@
 const fs = require("fs").promises;
+const readline = require("readline");
 const stream = require("stream");
 const {createCanvas, loadImage} = require("canvas");
 const ffmpeg = require("fluent-ffmpeg");
@@ -112,15 +113,44 @@ exports.drawResults = async function (path, round, prompt, rankings, header = fa
 	await fs.writeFile(path, canvas.toBuffer());
 	console.log("Results screen done");
 };
+// Progress bar
+const SIZE = (process.stdout.columns ?? 80) - 10;
+const SHADES = "░▒▓";
+let shade = 0;
+let line = 0;
+class ProgressBar {
+	constructor (command) {
+		readline.cursorTo(process.stdout, 0);
+		process.stdout.write(`${command}\n[${" ".repeat(SIZE)}] 0%\n`);
+		line += Math.ceil(command.length / process.stdout.columns) + 1;
+		this.bar = SHADES[shade % 3];
+		shade++;
+		this.line = line - 1;
+		this.prevProgress = 0;
+	}
+	fill(frames) {
+		const progress = Math.floor(frames / FRAMES * SIZE);
+		readline.cursorTo(process.stdout, this.prevProgress + 1);
+		readline.moveCursor(process.stdout, 0, this.line - line);
+		process.stdout.write(this.bar.repeat(progress - this.prevProgress));
+		readline.cursorTo(process.stdout, SIZE + 3);
+		process.stdout.write(`${Math.floor(frames / FRAMES * 100)}%`);
+		readline.cursorTo(process.stdout, 0);
+		readline.moveCursor(process.stdout, 0, line - this.line);
+		this.prevProgress = progress;
+	}
+}
 // Draw 1b1s
 const WIDTH_1B1S = 1920;
 const HEIGHT_1B1S = 1080;
 const FRAMES = 30;
 async function drawFrames(output) {
+	const imageBar = new ProgressBar(`Drawing pictures`);
 	const canvas = createCanvas(WIDTH_1B1S, HEIGHT_1B1S);
 	const context = canvas.getContext("2d", {alpha: false}); // This is going into a video
 	context.font = (HEIGHT_1B1S / 3) + "px Avenir, \"URW Gothic\"";
 	context.textAlign = "center";
+	let framesWritten = 0;
 	for (let frame = 0; frame < FRAMES; frame++) {
 		// HSL to RGB conversion
 		const hue = frame / FRAMES * 360;
@@ -146,8 +176,16 @@ async function drawFrames(output) {
 				output.once("drain", resolve);
 			}
 		});
+		framesWritten++;
+		imageBar.fill(framesWritten);
 	}
 	output.end();
+}
+function convertVideo(command) {
+	let videoBar;
+	command
+		.on("start", name => videoBar = new ProgressBar(name))
+		.on("progress", progress => videoBar.fill(progress.frames)).run();
 }
 exports.draw1b1s = async function () {
 	// Draw frames
@@ -156,15 +194,17 @@ exports.draw1b1s = async function () {
 	// Create lossy video
 	const lossyStream = new stream.PassThrough();
 	output.pipe(lossyStream);
-	ffmpeg()
+	const lossy = ffmpeg()
 		.input(lossyStream).fromFormat("image2pipe").inputOption("-framerate 30").videoCodec("libx264")
 		.input("../assets/goldberg.flac").audioCodec("aac").audioBitrate("192k")
-		.output(`${path}-lossy.mp4`).outputOptions(["-pix_fmt yuv420p", "-crf 17", "-tune animation", "-shortest"]).run();
+		.output(`${path}-lossy.mp4`).outputOptions(["-pix_fmt yuv420p", "-crf 17", "-tune animation", "-shortest"]);
+	convertVideo(lossy);
 	// Create lossless video
 	const losslessStream = new stream.PassThrough();
 	output.pipe(losslessStream);
-	ffmpeg()
+	const lossless = ffmpeg()
 		.input(losslessStream).fromFormat("image2pipe").inputOption("-framerate 30").videoCodec("libx265")
 		.input("../assets/goldberg.flac").audioCodec("copy")
-		.output(`${path}-lossless.mkv`).outputOptions(["-x265-params lossless=1", "-shortest"]).run();
+		.output(`${path}-lossless.mkv`).outputOptions(["-x265-params lossless=1", "-shortest"]);
+	convertVideo(lossless);
 };
