@@ -1,6 +1,7 @@
-// S1 GRAPHICS
-const {createCanvas, loadImage} = require("canvas");
 const fs = require("fs").promises;
+const stream = require("stream");
+const {createCanvas, loadImage} = require("canvas");
+const ffmpeg = require("fluent-ffmpeg");
 const FONT_STACK = "px Charter, serif";
 const HEADER_HEIGHT = 240;
 const ROW_HEIGHT = 120;
@@ -34,13 +35,6 @@ exports.drawScreen = async function (path, keyword, prompt, responses) {
 	// Easily change to SVG by adding `, "svg"` after `ROW_HEIGHT`
 	const canvas = createCanvas(WIDTH, HEADER_HEIGHT + ROW_HEIGHT * responses.length);
 	const context = canvas.getContext("2d");
-	/* Old header
-	context.fillStyle = "white";
-	context.fillRect(0, 0, WIDTH, HEADER_HEIGHT);
-	context.fillStyle = "black";
-	context.font = (HEADER_HEIGHT / 2) + FONT_STACK;
-	context.textAlign = "center";
-	context.fillText(keyword, WIDTH / 2, (HEADER_HEIGHT + context.measureText(keyword).actualBoundingBoxAscent) / 2); */
 	drawHeader(context, keyword, prompt);
 	// Rows
 	await responses.forEach(async (row, i) => {
@@ -112,9 +106,65 @@ exports.drawResults = async function (path, round, prompt, rankings, header = fa
 		context.fillText(ranking.stDev.toFixed(2) + "%", WIDTH - 330, offset + ROW_HEIGHT * 7 / 10);
 		context.fillText(ranking.skew.toFixed(2).replace("-", "–"), WIDTH - 140, offset + ROW_HEIGHT * 7 / 10);
 		context.fillText(ranking.votes, WIDTH - 20, offset + ROW_HEIGHT * 7 / 10);
-		const book = await loadImage("Sample TWOW/Sample Season/books/" + (ranking.book ?? "default-book.png"));
+		const book = await loadImage("books/" + (ranking.book ?? "default-book.png"));
 		context.drawImage(book, 120, offset, ROW_HEIGHT, ROW_HEIGHT);
 	});
 	await fs.writeFile(path, canvas.toBuffer());
 	console.log("Results screen done");
+};
+// Draw 1b1s
+const WIDTH_1B1S = 1920;
+const HEIGHT_1B1S = 1080;
+const FRAMES = 30;
+async function drawFrames(output) {
+	const canvas = createCanvas(WIDTH_1B1S, HEIGHT_1B1S);
+	const context = canvas.getContext("2d", {alpha: false}); // This is going into a video
+	context.font = (HEIGHT_1B1S / 3) + "px Avenir, \"URW Gothic\"";
+	context.textAlign = "center";
+	for (let frame = 0; frame < FRAMES; frame++) {
+		// HSL to RGB conversion
+		const hue = frame / FRAMES * 360;
+		const sat = 0.8;
+		const light = 0.5;
+		const f = n => {
+			const chroma = sat * Math.min(light, 1 - light);
+			const h = (n + hue / 30) % 12;
+			const component = Math.max(-1, Math.min(h - 3, 9 - h, 1));
+			return light - chroma * component;
+		};
+		const [R, G, B] = [f(0), f(8), f(4)];
+		// Luma calculation (rough equivalent to perceptual brightness)
+		const luma = 0.2126 * R + 0.7152 * G + 0.0722 * B;
+		context.fillStyle = `hsl(${frame * 360 / FRAMES}, 80%, ${(0.75 - luma / 2) * 100}%)`;
+		context.fillRect(0, 0, WIDTH_1B1S, HEIGHT_1B1S);
+		context.fillStyle = "white";
+		context.fillText(`Frame ${frame}`, WIDTH_1B1S / 2, (HEIGHT_1B1S + context.measureText(frame).emHeightAscent) / 2);
+		await new Promise(resolve => {
+			if (output.write(canvas.toBuffer())) {
+				resolve();
+			} else {
+				output.once("drain", resolve);
+			}
+		});
+	}
+	output.end();
+}
+exports.draw1b1s = async function () {
+	// Draw frames
+	const output = new stream.PassThrough();
+	drawFrames(output);
+	// Create lossy video
+	const lossyStream = new stream.PassThrough();
+	output.pipe(lossyStream);
+	ffmpeg()
+		.input(lossyStream).fromFormat("image2pipe").inputOption("-framerate 30").videoCodec("libx264")
+		.input("../assets/goldberg.flac").audioCodec("aac").audioBitrate("192k")
+		.output(`${path}-lossy.mp4`).outputOptions(["-pix_fmt yuv420p", "-crf 17", "-tune animation", "-shortest"]).run();
+	// Create lossless video
+	const losslessStream = new stream.PassThrough();
+	output.pipe(losslessStream);
+	ffmpeg()
+		.input(losslessStream).fromFormat("image2pipe").inputOption("-framerate 30").videoCodec("libx265")
+		.input("../assets/goldberg.flac").audioCodec("copy")
+		.output(`${path}-lossless.mkv`).outputOptions(["-x265-params lossless=1", "-shortest"]).run();
 };
