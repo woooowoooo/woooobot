@@ -7,17 +7,17 @@ const FONT_STACK = "px Charter, serif";
 const HEADER_HEIGHT = 240;
 const ROW_HEIGHT = 120;
 const WIDTH = 2400;
-function drawHeader(context, title, prompt) {
+function drawHeader(context, title, prompt, width, height) {
 	context.fillStyle = "white";
-	context.fillRect(0, 0, WIDTH, HEADER_HEIGHT);
+	context.fillRect(0, 0, width, height);
 	context.fillStyle = "black";
 	context.font = 40 + FONT_STACK;
 	context.textAlign = "center";
 	// Split the prompt into two lines
-	if (context.measureText(prompt).width <= WIDTH - 60) {
-		context.fillText(prompt, WIDTH / 2, 210, WIDTH - 60);
+	if (context.measureText(prompt).width <= width - 60) {
+		context.fillText(prompt, width / 2, height - 30, width - 60);
 		context.font = 120 + FONT_STACK;
-		context.fillText(title, WIDTH / 2, 130);
+		context.fillText(title, width / 2, height / 2 - 10);
 	} else {
 		let line1 = [];
 		let line2 = prompt.split(" ");
@@ -26,17 +26,17 @@ function drawHeader(context, title, prompt) {
 		while (context.measureText(line2.join(" ")).width > originalWidth / 2) {
 			line1.push(line2.shift());
 		}
-		context.fillText(line1.join(" "), WIDTH / 2, 170, WIDTH - 60);
-		context.fillText(line2.join(" "), WIDTH / 2, 220, WIDTH - 60);
+		context.fillText(line1.join(" "), width / 2, height - 70, width - 60);
+		context.fillText(line2.join(" "), width / 2, height - 20, width - 60);
 		context.font = 100 + FONT_STACK;
-		context.fillText(title, WIDTH / 2, 110);
+		context.fillText(title, width / 2, height / 2 - 10);
 	}
 }
 exports.drawScreen = async function (path, keyword, prompt, responses) {
 	// Easily change to SVG by adding `, "svg"` after `ROW_HEIGHT`
 	const canvas = createCanvas(WIDTH, HEADER_HEIGHT + ROW_HEIGHT * responses.length);
 	const context = canvas.getContext("2d");
-	drawHeader(context, keyword, prompt);
+	drawHeader(context, keyword, prompt, WIDTH, HEADER_HEIGHT);
 	// Rows
 	await responses.forEach(async (row, i) => {
 		const offset = HEADER_HEIGHT + ROW_HEIGHT * i;
@@ -51,6 +51,7 @@ exports.drawScreen = async function (path, keyword, prompt, responses) {
 	});
 	await fs.writeFile(path, canvas.toBuffer());
 	console.log("Voting screen done");
+	line++;
 };
 exports.drawResults = async function (path, round, prompt, rankings, header = false) {
 	header = header ? HEADER_HEIGHT : 0;
@@ -58,7 +59,7 @@ exports.drawResults = async function (path, round, prompt, rankings, header = fa
 	const context = canvas.getContext("2d");
 	// Header
 	if (header) {
-		drawHeader(context, round + " Results", prompt);
+		drawHeader(context, round + " Results", prompt, WIDTH, HEADER_HEIGHT);
 	}
 	context.fillStyle = "white";
 	context.fillRect(0, header, WIDTH, 40);
@@ -112,6 +113,7 @@ exports.drawResults = async function (path, round, prompt, rankings, header = fa
 	});
 	await fs.writeFile(path, canvas.toBuffer());
 	console.log("Results screen done");
+	line++;
 };
 // Progress bar
 const SIZE = (process.stdout.columns ?? 80) - 10;
@@ -144,12 +146,41 @@ class ProgressBar {
 const WIDTH_1B1S = 1920;
 const HEIGHT_1B1S = 1080;
 const FRAMES = 360;
-async function drawFrames(output) {
+const BOOK_MARGIN = 30;
+const BAR_HEIGHT = 180;
+const BAR_BUFFER = 60;
+const MARKER_HEIGHT = 20;
+async function drawFrames(output, round, prompt, contestant) {
 	const imageBar = new ProgressBar(`Drawing pictures`);
 	const canvas = createCanvas(WIDTH_1B1S, HEIGHT_1B1S);
-	const context = canvas.getContext("2d", {alpha: false}); // This is going into a video
-	context.font = (HEIGHT_1B1S / 3) + "px Avenir, \"URW Gothic\"";
-	context.textAlign = "center";
+	const context = canvas.getContext("2d"); // This is going into a video
+	// Draw background
+	context.fillStyle = "white";
+	context.fillRect(0, 0, WIDTH_1B1S, HEIGHT_1B1S);
+	drawHeader(context, round + " Results", prompt, WIDTH_1B1S, HEIGHT_1B1S / 4);
+	const book = await loadImage("books/" + (contestant.book ?? "default-book.png"));
+	context.drawImage(book, BOOK_MARGIN, HEIGHT_1B1S / 4, HEIGHT_1B1S / 2, HEIGHT_1B1S / 2);
+	context.fillStyle = "black";
+	context.font = 80 + FONT_STACK;
+	context.textAlign = "left";
+	const maxWidth = WIDTH_1B1S - HEIGHT_1B1S / 2 - 2 * BOOK_MARGIN;
+	context.fillText(contestant.name, BOOK_MARGIN + HEIGHT_1B1S / 2, HEIGHT_1B1S / 4 + 120, maxWidth);
+	context.font = 40 + FONT_STACK;
+	// Split the response into two lines
+	if (context.measureText(contestant.response).width <= maxWidth - 60) {
+		context.fillText(contestant.response, BOOK_MARGIN + HEIGHT_1B1S / 2, HEIGHT_1B1S / 4 + 200, maxWidth);
+	} else {
+		let line1 = [];
+		let line2 = contestant.response.split(" ");
+		const originalWidth = context.measureText(contestant.response).width;
+		// Keep line 1 longer by looping on line 2's width instead of line 1's
+		while (context.measureText(line2.join(" ")).width > originalWidth / 2) {
+			line1.push(line2.shift());
+		}
+		context.fillText(line1.join(" "), BOOK_MARGIN + HEIGHT_1B1S / 2, HEIGHT_1B1S / 4 + 200, maxWidth);
+		context.fillText(line2.join(" "), BOOK_MARGIN + HEIGHT_1B1S / 2, HEIGHT_1B1S / 4 + 250, maxWidth);
+	}
+	// Draw movement
 	let framesWritten = 0;
 	for (let frame = 0; frame < FRAMES; frame++) {
 		// HSL to RGB conversion
@@ -165,10 +196,26 @@ async function drawFrames(output) {
 		const [R, G, B] = [f(0), f(8), f(4)];
 		// Luma calculation (rough equivalent to perceptual brightness)
 		const luma = 0.2126 * R + 0.7152 * G + 0.0722 * B;
-		context.fillStyle = `hsl(${frame * 360 / FRAMES}, 80%, ${(0.75 - luma / 2) * 100}%)`;
-		context.fillRect(0, 0, WIDTH_1B1S, HEIGHT_1B1S);
+		// Rectangles
 		context.fillStyle = "white";
-		context.fillText(`Frame ${frame}`, WIDTH_1B1S / 2, (HEIGHT_1B1S + context.measureText(frame).emHeightAscent) / 2);
+		context.fillRect(0, HEIGHT_1B1S - BAR_HEIGHT - BAR_BUFFER - MARKER_HEIGHT, WIDTH_1B1S, BAR_HEIGHT + 2 * MARKER_HEIGHT);
+		context.fillStyle = "silver";
+		context.fillRect(0, HEIGHT_1B1S - BAR_HEIGHT - BAR_BUFFER, WIDTH_1B1S, BAR_HEIGHT);
+		context.fillStyle = `hsla(${frame * 360 / FRAMES}, 100%, ${(0.7 - luma / 2) * 100}%, 0.15)`;
+		let x = Math.max(Math.round((1 - frame / (FRAMES - 1)) * WIDTH_1B1S), contestant.percentile / 100 * WIDTH_1B1S);
+		context.fillRect(0, HEIGHT_1B1S - BAR_HEIGHT - BAR_BUFFER, x, BAR_HEIGHT);
+		// Markers
+		context.fillStyle = "black";
+		context.font = 20 + FONT_STACK;
+		context.textAlign = "center";
+		for (let markerPercent = 0.1; markerPercent <= 0.9; markerPercent += 0.1) {
+			let percentX = Math.round(markerPercent * WIDTH_1B1S);
+			context.fillRect(percentX, HEIGHT_1B1S - BAR_HEIGHT - BAR_BUFFER - MARKER_HEIGHT / 2, 2, BAR_HEIGHT + MARKER_HEIGHT);
+			context.fillText(` ${Math.round(markerPercent * 100)}%`, percentX, HEIGHT_1B1S - BAR_BUFFER + MARKER_HEIGHT + 20);
+		}
+		context.fillStyle = `hsl(${frame * 360 / FRAMES}, 90%, ${(0.7 - luma / 2) * 100}%)`;
+		context.fillRect(x, HEIGHT_1B1S - BAR_HEIGHT - BAR_BUFFER - MARKER_HEIGHT, 5, BAR_HEIGHT + 2 * MARKER_HEIGHT);
+		// Save to stream
 		await new Promise(resolve => {
 			if (output.write(canvas.toBuffer())) {
 				resolve();
@@ -187,10 +234,10 @@ function convertVideo(command) {
 		.on("start", name => videoBar = new ProgressBar(name))
 		.on("progress", progress => videoBar.fill(progress.frames)).run();
 }
-exports.draw1b1s = async function (path) {
+exports.draw1b1s = async function (path, round, prompt, contestant) {
 	// Draw frames
 	const output = new stream.PassThrough();
-	drawFrames(output);
+	drawFrames(output, round, prompt, contestant);
 	// Create lossy video
 	const lossyStream = new stream.PassThrough();
 	output.pipe(lossyStream);
@@ -209,7 +256,7 @@ exports.draw1b1s = async function (path) {
 	convertVideo(lossless);
 };
 // Examples
-exports.drawScreen("voting-test.png", "SCREENTEST", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Assuming that Darrest is not efficiently utilizing fireworks to do so, how does he actually carefully formulate his legendary elongated and grandiloquent responses?", [
+exports.drawScreen("voting-test.png", "KEYWORD", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Assuming that Darrest is not efficiently utilizing fireworks to do so, how does he actually carefully formulate his legendary elongated and grandiloquent responses?", [
 	["É", "Hi I'm Barry Scott! Bang and the éclair is gone"],
 	["☹", "Efficiently utilizing fireworks, Darrest carefully formulates elongated and grandiloquent responses."],
 	["M", "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM"],
@@ -221,7 +268,7 @@ exports.drawScreen("voting-test.png", "SCREENTEST", "Lorem ipsum dolor sit amet,
 	["↺", "I'm immortal in time loops! I'm immortal in time loops!"],
 	["—", "\"For the record, I'm not a copilot.\" — Copilot, given \"F\""],
 ]);
-exports.drawResults("results-test.png", "Graphics Test", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Assuming that Darrest is not efficiently utilizing fireworks to do so, how does he actually carefully formulate his legendary elongated and grandiloquent responses?", [
+exports.drawResults("results-test.png", "Test Round", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Assuming that Darrest is not efficiently utilizing fireworks to do so, how does he actually carefully formulate his legendary elongated and grandiloquent responses?", [
 	{
 		type: "prize",
 		rank: 1,
@@ -282,7 +329,7 @@ exports.drawResults("results-test.png", "Graphics Test", "Lorem ipsum dolor sit 
 		rank: 6,
 		book: "woooowoooo.png",
 		name: "Super Idol 的笑容都没你的甜",
-		response: "我小时候很喜欢去麦当劳吃饭。那时候，我最近的麦当劳的价钱有点儿便宜。但是，他们今年涨价了！我有点儿生气。",
+		response: "我小时候很喜欢去麦当劳吃饭。那时候，我最近的麦当劳的价钱有点儿便宜。但是，他们去年涨价了！",
 		percentile: 43.21,
 		stDev: 2.58,
 		skew: 0.17,
@@ -333,4 +380,10 @@ exports.drawResults("results-test.png", "Graphics Test", "Lorem ipsum dolor sit 
 		votes: 29
 	}
 ], true);
-exports.draw1b1s("1b1-test");
+exports.draw1b1s("1b1-test", "Test Round", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Assuming that Darrest is not efficiently utilizing fireworks to do so, how does he actually carefully formulate his legendary elongated and grandiloquent responses?", {
+	book: null,
+	name: "Darrest (probably)",
+	response: "Efficiently utilizing fireworks, Darrest carefully formulates elongated and grandiloquent responses.",
+	percentile: 85.32,
+	stDev: 17.78
+});
