@@ -117,6 +117,8 @@ client.once("ready", async function () {
 			queue.push(message);
 		}
 	};
+	// Sort queue by time
+	queue.sort((a, b) => a.createdAt - b.createdAt);
 	// Act on unread messages
 	if (!automatic) {
 		stdin.removeListener("data", consoleListener);
