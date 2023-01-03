@@ -16,6 +16,11 @@ const seasonContestants = require(seasonPath + "seasonContestants.json");
 const roundConfig = require(roundPath + "roundConfig.json");
 const contestants = require(roundPath + "contestants.json");
 exports.initRound = async function (newRoundName) {
+	// If final round
+	if (contestants.prize.length + contestants.alive.length <= 1) {
+		logMessage("No rounds needed, starting new season");
+		await exports.initSeason();
+	}
 	// Start new round
 	currentRound = newRoundName ?? Object.keys(rounds)[Object.keys(rounds).indexOf(currentRound) + 1];
 	if (currentRound == null) {
@@ -53,7 +58,7 @@ exports.initRound = async function (newRoundName) {
 		screenResponses: {}
 	});
 };
-exports.initSeason = async function () {
+exports.initSeason = async function () { // Export unused, kept for consistency
 	// Start new season
 	const oldPath = seasonPath;
 	const seasonNames = Object.keys(seasons);
