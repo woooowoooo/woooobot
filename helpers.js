@@ -34,7 +34,7 @@ exports.logMessage = function (message, error = false) {
 exports.resolveChannel = async function (id) {
 	try {
 		return await client.channels.fetch(id);
-	} catch {
+	} catch { // Error message (Cannot read properties of undefined (reading 'includes') is still logged
 		const user = await client.users.fetch(id);
 		return await user.createDM();
 	}

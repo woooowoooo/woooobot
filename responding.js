@@ -1,6 +1,6 @@
 // Modules
 // const {client} = require("./index.js");
-const {logMessage, sendMessage, addRole, getTime, toUnixTime, optRequire, save} = require("./helpers.js");
+const {logMessage, sendMessage, addRole, toTimeString, toUnixTime, optRequire, save} = require("./helpers.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const status = require(twowPath + "status.json");
@@ -38,7 +38,7 @@ exports.initResponding = async function () {
 	// TODO: Send reminders
 	/* for (let reminder in reminders) {
 		const date = new Date((unixDeadline - reminders[reminder] * 3600) * 1000);
-		if (date.getTime() > Date.now()) {
+		if (date.toTimeString() > Date.now()) {
 			const reminderBotTime = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}-${date.toISOString().substring(11, 19)}`;
 			// TODO: Non-hardcoded bot channel
 			sendMessage(bots[3], `$r <#${remindersId}> ${reminderBotTime} <@&${aliveId}> You have ${reminder} left to respond to the prompt!`, true);
@@ -81,7 +81,7 @@ exports.logResponse = function (message) {
 	let messageData = {
 		id: message.id,
 		author: message.author.id,
-		time: getTime(message.createdAt),
+		time: toTimeString(message.createdAt),
 		text: message.content,
 		dummy: isDummy
 	};
