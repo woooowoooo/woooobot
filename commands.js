@@ -43,7 +43,7 @@ list: Show this command list.
 book (attach exactly one file): Record the attachment as your book.
 echo <message>: Repeats <message>.
 morshu [sentenceCount]: Generates <sentenceCount> amount of morshu sentences. Default amount is one sentence.
-ping [userId]: Ping <userId> if provided. Pings yourself otherwise.
+ping: Pings yourself.
 \`\`\``;
 		}
 	},
@@ -198,16 +198,8 @@ ping [userId]: Ping <userId> if provided. Pings yourself otherwise.
 	},
 	ping: {
 		permLevel: "normal",
-		execute: function ({text, message: {author: {id}}}) {
-			let ping = `\`${text}\``; // Default text
-			if (text == null) { // No text provided
-				ping = `<@${id}>`;
-			} else if (/^<@\d+>$/.test(text)) { // One ping
-				ping = text;
-			} else if (/^\d+$/.test(text)) { // One id
-				ping = `<@${text}>`;
-			}
-			return ping + `. Sent by <@${id}> :)`;
+		execute: function ({message: {author: {id}}}) {
+			return `<@${id}> :)`;
 		}
 	}
 };
