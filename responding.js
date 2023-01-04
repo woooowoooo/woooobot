@@ -12,6 +12,7 @@ const {
 } = require(twowPath + "twowConfig.json");
 // Season-specific
 const {deadlines, reminders, joins: _j, dummies: _d} = require(seasonPath + "seasonConfig.json");
+const seasonContestants = require(seasonPath + "seasonContestants.json");
 const technicals = optRequire(seasonPath + "technicals.js");
 const twists = optRequire(seasonPath + "twists.js");
 // Round-specific
@@ -93,6 +94,7 @@ exports.logResponse = function (message) {
 	responses.push(messageData);
 	// Stuff
 	if (!alive && joins) {
+		seasonContestants.names[message.author.id] = message.author.username;
 		contestants.alive.push(message.author.id);
 		addRole(serverId, message.author.id, aliveId);
 		addRole(serverId, message.author.id, respondingPing);
@@ -105,6 +107,7 @@ exports.logResponse = function (message) {
 		addRole(serverId, message.author.id, noRemind);
 		removeRole(serverId, message.author.id, remind);
 	}
+	save(`${seasonPath}/seasonContestants.json`, seasonContestants);
 	save(`${roundPath}/responses.json`, responses);
 	save(`${roundPath}/contestants.json`, contestants);
 	return `Your response (\`${message}\`) has been recorded${isDummy ? " as a dummy. **This means that its placement in results does not matter.**" : "."} Your response is response #${responses.length}`;
