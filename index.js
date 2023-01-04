@@ -32,6 +32,7 @@ let commands = require("./commands.js");
 // Other variables
 const stdin = process.openStdin();
 const queue = [];
+let processing = false;
 let me;
 // Process messages
 function readMessage(message, readTime = false, queued = queue.length > 0) {
@@ -91,6 +92,27 @@ async function processMessageAsync(message) {
 		resolve();
 	}));
 }
+async function processQueue() {
+	// Act on unread messages
+	processing = true;
+	if (!automatic) {
+		stdin.removeListener("data", consoleListener);
+		stdin.removeListener("data", consoleLogger);
+		stdin.setRawMode(true);
+		readline.emitKeypressEvents(process.stdin);
+	}
+	while (queue.length > 0) {
+		const message = queue.shift();
+		readMessage(message, true, false);
+		automatic ? processMessage(message) : await processMessageAsync(message);
+	}
+	if (!automatic) {
+		stdin.setRawMode(false);
+		stdin.on("data", consoleListener);
+		stdin.on("data", consoleLogger);
+	}
+	processing = false;
+}
 // Event handling
 process.on("uncaughtException", e => logMessage(`[E] ${e}\nStack trace is below:\n${e.stack}`, true));
 client.once("ready", async function () {
@@ -120,23 +142,7 @@ client.once("ready", async function () {
 	};
 	// Sort queue by time
 	queue.sort((a, b) => a.createdAt - b.createdAt);
-	// Act on unread messages
-	if (!automatic) {
-		stdin.removeListener("data", consoleListener);
-		stdin.removeListener("data", consoleLogger);
-		stdin.setRawMode(true);
-		readline.emitKeypressEvents(process.stdin);
-	}
-	while (queue.length > 0) {
-		const message = queue.shift();
-		readMessage(message, true, false);
-		automatic ? processMessage(message) : await processMessageAsync(message);
-	}
-	if (!automatic) {
-		stdin.setRawMode(false);
-		stdin.on("data", consoleListener);
-		stdin.on("data", consoleLogger);
-	}
+	await processQueue();
 	// Update last checked time
 	config.lastUnread = toSnowflake();
 	await save("./config.json", config);
@@ -165,20 +171,9 @@ client.on("messageCreate", async function (message) {
 		return;
 	}
 	readMessage(message);
-	if (queue.push(message) > 1) {
-		// TODO: Fix queue
-		return;
-	}
-	if (automatic) {
-		processMessage();
-	} else {
-		stdin.removeListener("data", consoleListener);
-		stdin.removeListener("data", consoleLogger);
-		stdin.setRawMode(true);
-		await processMessageAsync();
-		stdin.setRawMode(false);
-		stdin.on("data", consoleListener);
-		stdin.on("data", consoleLogger);
+	queue.push(message);
+	if (!processing) {
+		await processQueue();
 	}
 });
 client.login(token);
