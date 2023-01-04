@@ -1,13 +1,13 @@
 // Modules
 // const {client} = require("./index.js");
-const {logMessage, sendMessage, addRole, toTimeString, toUnixTime, optRequire, save} = require("./helpers.js");
+const {logMessage, sendMessage, addRole, removeRole, toTimeString, toUnixTime, optRequire, save} = require("./helpers.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const status = require(twowPath + "status.json");
 const {seasonPath, roundPath} = status;
 const {
 	id: serverId,
-	roles: {alive: aliveId, noRemind},
+	roles: {alive: aliveId, noRemind, remind, respondingPing, votingPing, resultsPing},
 	channels: {bots, prompts, reminders: remindersId}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
@@ -95,11 +95,15 @@ exports.logResponse = function (message) {
 	if (!alive && joins) {
 		contestants.alive.push(message.author.id);
 		addRole(serverId, message.author.id, aliveId);
+		addRole(serverId, message.author.id, respondingPing);
+		addRole(serverId, message.author.id, votingPing);
+		addRole(serverId, message.author.id, resultsPing);
 	}
 	contestants.responseCount[message.author.id] ??= 0;
 	contestants.responseCount[message.author.id]++;
 	if (contestants.responseCount[message.author.id] === allowedAmount) {
 		addRole(serverId, message.author.id, noRemind);
+		removeRole(serverId, message.author.id, remind);
 	}
 	save(`${roundPath}/responses.json`, responses);
 	save(`${roundPath}/contestants.json`, contestants);

@@ -73,6 +73,17 @@ exports.addRole = async function (server, user, role) {
 		logMessage(`[E] Failed to add role ${role} to ${user} in ${server.name}`, true);
 	}
 };
+exports.removeRole = async function (server, user, role) {
+	if (typeof server === "string") {
+		server = await client.guilds.fetch(server);
+	}
+	try {
+		const member = await server.members.fetch(user);
+		member.roles.remove(role);
+	} catch {
+		logMessage(`[E] Failed to remove role ${role} to ${user} in ${server.name}`, true);
+	}
+};
 // Time
 exports.toTimeString = function (time = new Date()) { // (Unix | null) -> String // ISO8601 without T and timezone
 	if (typeof time === "number") { // Unix -> Date -> String
