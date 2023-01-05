@@ -4,7 +4,9 @@ const {logMessage, sendMessage, addRole, removeRole, toTimeString, toUnixTime, s
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const status = require(twowPath + "status.json");
-const {currentRound, seasonPath, roundPath} = status;
+const {currentRound: currentRegularRound, currentVotingRound, seasonPath, roundPath: regularRoundPath, votingRoundPath, phase} = status;
+const currentRound = phase === "both" ? currentVotingRound : currentRegularRound;
+const roundPath = phase === "both" ? votingRoundPath : regularRoundPath;
 const {
 	id: serverId,
 	roles: {supervoter, votingRemind},
@@ -88,8 +90,6 @@ async function createSection(responses, sizes, sectWord) {
 }
 exports.initVoting = async function () {
 	logMessage("Voting period started.");
-	status.phase = "voting";
-	await save(`${twowPath}/status.json`, status);
 	const unixDeadline = toUnixTime(vDeadline);
 	await sendMessage(voting, `@everyone ${currentRound}\nVote to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)`, true);
 	// Create voting

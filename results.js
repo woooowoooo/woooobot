@@ -4,7 +4,9 @@ const {logMessage, sendMessage, save} = require("./helpers.js");
 const {generate: morshu} = require("./morshu.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
-const {currentRound, seasonPath, roundPath} = require(twowPath + "status.json");
+const {currentRound: currentRegularRound, currentVotingRound, seasonPath, roundPath: regularRoundPath, votingRoundPath, phase} = require(twowPath + "status.json");
+const currentRound = phase === "both" ? currentVotingRound : currentRegularRound;
+const roundPath = phase === "both" ? votingRoundPath : regularRoundPath;
 const {
 	id: serverId,
 	channels: {results: resultsId},

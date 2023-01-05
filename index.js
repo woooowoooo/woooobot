@@ -73,9 +73,10 @@ function processMessage(message = queue.shift()) {
 		parseCommands(message.content.substring(prefix.length), message);
 	} else if (message.guild == null && message.author.id !== devId) {
 		// Act on non-command direct messages
-		if (phase === "responding") {
+		let isVote = /\[.*\]/.test(message.content);
+		if (phase === "responding" || phase === "both" && !isVote) {
 			sendMessage(message.author.dmChannel, logResponse(message));
-		} else if (phase === "voting") {
+		} else if (phase === "voting" || phase === "both") {
 			sendMessage(message.author.dmChannel, logVote(message));
 		}
 	}
@@ -127,7 +128,7 @@ client.once("ready", async function () {
 	const server = await client.guilds.fetch(serverId);
 	const botRole = await server.roles.fetch(roles.bot);
 	const members = (await server.members.fetch()).filter(m => m.id !== devId && !m.roles.cache.has(botRole.id));
-	// Queue unread DMs
+	// Queue and process unread DMs
 	for (const [_, member] of members) {
 		const dms = await member.createDM().catch(() => logMessage(`[E] Failed to create DM to ${member.user.tag}`, true));
 		if (dms == null) {
@@ -140,17 +141,16 @@ client.once("ready", async function () {
 			queue.push(message);
 		}
 	};
-	// Sort queue by time
-	queue.sort((a, b) => a.createdAt - b.createdAt);
+	queue.sort((a, b) => a.createdAt - b.createdAt); // Sort queue by time
 	await processQueue();
 	// Update last checked time
 	config.lastUnread = toSnowflake();
 	await save("./config.json", config);
 	// Start new phase
 	if (autoDeadlines) {
-		if (phase === "responding" && toTimeString() > rDeadline) {
+		if ((phase === "responding" || phase === "both") && toTimeString() > rDeadline) {
 			await initVoting();
-		} else if (phase === "voting" && toTimeString() > vDeadline) {
+		} else if ((phase === "voting" || phase === "both") && toTimeString() > vDeadline) {
 			await results();
 			await initRound();
 			({roundPath} = reload(twowPath + "status.json"));
