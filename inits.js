@@ -83,12 +83,10 @@ exports.initSeason = async function () { // Export unused, kept for consistency
 	seasonContestants.bookPaths = {};
 	await save(seasonPath + "seasonContestants.json", seasonContestants);
 	// Build graphics.js
-	if (fs.exists(oldPath + "package.json")) {
+	try {
 		await fs.copyFile(oldPath + "package.json", seasonPath + "package.json");
-		try {
-			execSync("pnpm i", {stdio: "inherit"}); // TODO: Allow npm
-		} catch (e) {
-			logMessage(`[E] Failed to install ${e}`, true);
-		}
+		execSync("pnpm i", {stdio: "inherit"}); // TODO: Allow npm // TODO: Change working directory
+	} catch (e) {
+		logMessage(e.code === "ENOENT" ? "No package.json to install" : `[E] Failed to install ${e}`, e.code !== "ENOENT");
 	}
 };
