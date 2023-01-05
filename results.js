@@ -8,7 +8,7 @@ const {currentRound, seasonPath, roundPath} = require(twowPath + "status.json");
 const {
 	id: serverId,
 	channels: {results: resultsId},
-	roles: {prize, supervoter, alive, dead, noRemind}
+	roles: {prize, supervoter, alive, dead, votingRemind}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
 const {cutoffs} = require(seasonPath + "seasonConfig.json");
@@ -152,10 +152,11 @@ exports.results = async function () {
 	contestants.prize = [];
 	contestants.alive = [];
 	contestants.dead = [];
-	// Assign roles
+	// Remove voting phase roles
 	const twow = await client.guilds.fetch(serverId);
 	(await twow.roles.fetch(supervoter)).members.forEach(member => member.roles.remove(supervoter));
-	(await twow.roles.fetch(noRemind)).members.forEach(member => member.roles.remove(noRemind));
+	(await twow.roles.fetch(votingRemind)).members.forEach(member => member.roles.remove(votingRemind));
+	// Update living state and roles
 	for (const row of rankings.filter(row => row.type !== "drp" && row.type !== "dummy")) {
 		const author = await twow.members.fetch(row.id);
 		if (row.type === "dead") {

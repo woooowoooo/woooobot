@@ -1,13 +1,13 @@
 // Modules
 // const {client} = require("./index.js");
-const {logMessage, sendMessage, addRole, toTimeString, toUnixTime, save} = require("./helpers.js");
+const {logMessage, sendMessage, addRole, removeRole, toTimeString, toUnixTime, save} = require("./helpers.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const status = require(twowPath + "status.json");
 const {currentRound, seasonPath, roundPath} = status;
 const {
 	id: serverId,
-	roles: {supervoter, noRemind},
+	roles: {supervoter, votingRemind},
 	channels: {bots, voting, reminders: remindersId}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
@@ -118,7 +118,7 @@ exports.initVoting = async function () {
 	}
 	save(roundPath + "contestants.json", contestants);
 	// TODO: Send reminders
-	(await twow.roles.fetch(noRemind)).members.forEach(member => member.roles.remove(noRemind));
+	(await twow.roles.fetch(respondingRemind)).members.forEach(member => member.roles.remove(respondingRemind));
 	/* for (let reminder in reminders) {
 		const date = new Date((unixDeadline - reminders[reminder] * 3600) * 1000);
 		if (date.getTime() > Date.now()) {
@@ -188,7 +188,7 @@ exports.logVote = function (message) {
 	if (Object.keys(votes[message.author.id].screens).length === sectionScreens[section]) {
 		votes[message.author.id].supervote = true;
 		addRole(serverId, message.author.id, supervoter);
-		addRole(serverId, message.author.id, noRemind);
+		removeRole(serverId, message.author.id, votingRemind);
 	}
 	// TODO: Add more stats
 	save(roundPath + "votes.json", votes);

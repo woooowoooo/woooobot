@@ -7,7 +7,7 @@ const status = require(twowPath + "status.json");
 const {seasonPath, roundPath} = status;
 const {
 	id: serverId,
-	roles: {alive: aliveId, noRemind, remind, respondingPing, votingPing, resultsPing},
+	roles: {alive: aliveId, respondingRemind, respondingPing, votingPing, resultsPing},
 	channels: {bots, prompts, reminders: remindersId}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
@@ -104,8 +104,7 @@ exports.logResponse = function (message) {
 	contestants.responseCount[message.author.id] ??= 0;
 	contestants.responseCount[message.author.id]++;
 	if (contestants.responseCount[message.author.id] === allowedAmount) {
-		addRole(serverId, message.author.id, noRemind);
-		removeRole(serverId, message.author.id, remind);
+		removeRole(serverId, message.author.id, respondingRemind);
 	}
 	save(`${seasonPath}/seasonContestants.json`, seasonContestants);
 	save(`${roundPath}/responses.json`, responses);
