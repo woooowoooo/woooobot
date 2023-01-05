@@ -60,7 +60,7 @@ function calculateResults() {
 		}
 		placed.add(result.id);
 		let type = "dead";
-		for (const [cutoffType, cutoff] of cutoffs) {
+		for (const [cutoffType, cutoff] of Object.entries(cutoffs)) {
 			if (rank <= Math.round(cutoff * responders)) {
 				type = cutoffType;
 			}
