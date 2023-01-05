@@ -45,7 +45,7 @@ function partitionResponses(responseAmount) {
 	screenSizes[i] = responseAmount;
 	return screenSizes;
 }
-async function createScreen(responses, keyword, section) {
+async function createScreen(responses, keyword, section, textScreen = false) {
 	let rows = new Map();
 	let ids = new Map();
 	// Create text screen
@@ -68,7 +68,7 @@ async function createScreen(responses, keyword, section) {
 	const path = `${roundPath}/screens/${keyword}.png`;
 	await drawScreen(path, keyword, prompt, Array.from(rows.entries()));
 	await sendMessage(voting, {
-		content: screen, // For easy voter.js input
+		content: textScreen ? screen : null, // For easy voter.js input
 		files: [{
 			attachment: path,
 			name: keyword + ".png"
@@ -100,7 +100,8 @@ exports.initVoting = async function () {
 		await createSection([...responses], screenSizes, sectWord);
 	}
 	if (megascreen) {
-		await createScreen(responses, "MEGA", "MEGA");
+		sectionScreens["MEGA"] = 1;
+		await createScreen(responses, "MEGA", "MEGA", true);
 	}
 	await save(roundPath + "screens.json", screens);
 	// DNP non-responders
