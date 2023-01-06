@@ -212,7 +212,7 @@ module.exports = async function (commandName, args, message, roles) {
 		throw new Error("You aren't allowed to use this command!");
 	}
 	const output = await command.execute({message, text: args});
-	if (hasPerms(message.author, message.guild, roles, "admin") && (output.includes("@everyone") || output.includes("@here"))) {
+	if (message.guild != null && hasPerms(message.author, message.guild, roles, "admin") && (output.includes("@everyone") || output.includes("@here"))) {
 		throw new Error(`You aren't allowed to ping @​${output.includes("@everyone") ? "everyone" : "here"}!`);
 	}
 	return output;
