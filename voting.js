@@ -25,26 +25,27 @@ const screens = require(roundPath + "screens.json");
 const {screenSections, screenResponses, sectionScreens} = screens;
 // Functions
 function partitionResponses(responseAmount) {
-	const MIN = 7;
-	const MAX = (2 * MIN - 1);
-	const IDEAL = Math.floor((MAX + MIN) / 2);
-	// Trivial cases
-	if (responseAmount <= MAX) {
+	const MIN = 8;
+	const IDEAL = 10;
+	// Trivial case
+	if (responseAmount < 2 * MIN) {
 		return [responseAmount];
 	}
-	if (responseAmount >= IDEAL * (IDEAL - 1)) { // Special case of the Chicken McNugget theorem
-		let screenSizes = Array(Math.floor(responseAmount / IDEAL));
-		return screenSizes.fill(IDEAL).fill(IDEAL + 1, 0, responseAmount % IDEAL);
+	// General case
+	// Determine if less or more screens is closer to the ideal
+	let lessScreens = Math.floor(responseAmount / IDEAL);
+	let lessScreensSize = responseAmount / lessScreens;
+	let moreScreens = Math.ceil(responseAmount / IDEAL);
+	let moreScreensSize = responseAmount / moreScreens;
+	let betterAmount = lessScreensSize - IDEAL < IDEAL - moreScreensSize ? lessScreens : moreScreens;
+	if (responseAmount / betterAmount < MIN) {
+		betterAmount = lessScreens;
 	}
-	// TODO: General case
-	let screenSizes = [];
-	let i = 0;
-	while (responseAmount > IDEAL) {
-		screenSizes[i] = IDEAL;
-		responseAmount -= IDEAL;
-		i++;
-	}
-	screenSizes[i] = responseAmount;
+	let betterSize = responseAmount / betterAmount;
+	// Partition
+	let screenSizes = Array(betterAmount);
+	screenSizes.fill(Math.floor(betterSize));
+	screenSizes.fill(Math.ceil(betterSize), 0, responseAmount % betterAmount);
 	return screenSizes;
 }
 async function createScreen(responses, keyword, section, textScreen = false) {
