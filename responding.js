@@ -73,7 +73,7 @@ exports.logResponse = function (message) {
 		passesTechnicals = tenWord(message.content);
 	}
 	// Check other technicals
-	passesTechnicals ||= roundTechnicals.reduce((passes, name) => {
+	passesTechnicals &&= roundTechnicals.reduce((passes, name) => {
 		return passes && technicals[name].check(message.content);
 	}, true);
 	if (!passesTechnicals) {
