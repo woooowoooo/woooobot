@@ -37,7 +37,7 @@ function partitionResponses(responseAmount) {
 	let lessScreensSize = responseAmount / lessScreens;
 	let moreScreens = Math.ceil(responseAmount / IDEAL);
 	let moreScreensSize = responseAmount / moreScreens;
-	let betterAmount = lessScreensSize - IDEAL < IDEAL - moreScreensSize ? lessScreens : moreScreens;
+	let betterAmount = lessScreensSize - IDEAL <= IDEAL - moreScreensSize ? lessScreens : moreScreens;
 	if (responseAmount / betterAmount < MIN) {
 		betterAmount = lessScreens;
 	}
