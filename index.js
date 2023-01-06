@@ -22,12 +22,12 @@ let {autoDeadlines} = require(seasonPath + "seasonConfig.json");
 let {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
 // Modules
 const readline = require("readline");
-const {toTimeString, logMessage, sendMessage, toSnowflake, optRequire, save, reload} = require("./helpers.js");
+const {toTimeString, logMessage, sendMessage, toSnowflake, defaultRequire, save, reload} = require("./helpers.js");
 const morshu = require("./morshu.js");
 let {initRound} = require("./inits.js");
-let {initResponding, logResponse} = optRequire(seasonPath + "responding.js") ?? require("./responding.js");
-let {initVoting, logVote} = optRequire(seasonPath + "voting.js") ?? require("./voting.js");
-let {results} = optRequire(seasonPath + "results.js") ?? require("./results.js");
+let {initResponding, logResponse} = defaultRequire(seasonPath + "responding.js", "./responding.js");
+let {initVoting, logVote} = defaultRequire(seasonPath + "voting.js", "./voting.js");
+let {results} = defaultRequire(seasonPath + "results.js", "./results.js");
 let commands = require("./commands.js");
 // Other variables
 const stdin = process.openStdin();

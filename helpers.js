@@ -108,6 +108,17 @@ exports.toUnixTime = function (time) { // (Snowflake | String | null) -> Unix
 	return new Date(time + "Z").getTime() / 1000; // String -> Unix // + "Z" to prevent timezone offset
 };
 // Miscellaneous
+exports.defaultRequire = function (path, defaultPath) {
+	try {
+		let cool = require(path);
+		let uncool = require(defaultPath);
+		return Object.assign({}, uncool, cool);
+	} catch (e) {
+		// exports.logMessage(`[E] Could not require the file at "${path}"`, true);
+		exports.logMessage(e, true);
+		return require(defaultPath);
+	}
+};
 exports.optRequire = function (path, backup = null) {
 	try {
 		return require(path);

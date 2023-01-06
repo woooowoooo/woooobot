@@ -1,6 +1,6 @@
 // Modules
 // const {client} = require("./index.js");
-const {logMessage, sendMessage, addRole, removeRole, toTimeString, toUnixTime, save} = require("./helpers.js");
+const {logMessage, sendMessage, addRole, removeRole, toTimeString, toUnixTime, defaultRequire, save} = require("./helpers.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const status = require(twowPath + "status.json");
@@ -13,11 +13,11 @@ const {
 	channels: {bots, voting, reminders: remindersId}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
-const {reminders, autoKeywords, sections: _s, megascreen: _m} = require(seasonPath + "seasonConfig.json");
+const {perpetualClone, reminders, autoKeywords} = require(seasonPath + "seasonConfig.json");
 const {drawScreen} = require(seasonPath + "graphics.js");
 // Round-specific
-// TODO: Find a better way to do destructuring assignment with a collective default value
-const {prompt, vDeadline, keywords, sections = _s, megascreen = _m} = require(roundPath + "roundConfig.json");
+const {prompt, vDeadline, keywords} = require(roundPath + "roundConfig.json");
+const {sections, megascreen} = defaultRequire(seasonPath + "seasonConfig.json", roundPath + "roundConfig.json");
 const contestants = require(roundPath + "contestants.json");
 const responses = require(roundPath + "responses.json");
 const votes = require(roundPath + "votes.json");

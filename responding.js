@@ -1,6 +1,6 @@
 // Modules
 // const {client} = require("./index.js");
-const {logMessage, sendMessage, addRole, removeRole, toTimeString, toUnixTime, optRequire, save} = require("./helpers.js");
+const {logMessage, sendMessage, addRole, removeRole, toTimeString, toUnixTime, defaultRequire, optRequire, save} = require("./helpers.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const status = require(twowPath + "status.json");
@@ -11,12 +11,13 @@ const {
 	channels: {bots, prompts, reminders: remindersId}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
-const {deadlines, reminders, joins: _j, dummies: _d} = require(seasonPath + "seasonConfig.json");
+const {perpetualClone, deadlines, reminders} = require(seasonPath + "seasonConfig.json");
 const seasonContestants = require(seasonPath + "seasonContestants.json");
 const technicals = optRequire(seasonPath + "technicals.js");
 const twists = optRequire(seasonPath + "twists.js");
 // Round-specific
-const {prompt, example, rDeadline, technicals: roundTechnicals = [], twists: roundTwists, joins = _j, dummies = _d} = require(roundPath + "roundConfig.json");
+const {prompt, example, rDeadline, technicals: roundTechnicals = [], twists: roundTwists} = require(roundPath + "roundConfig.json");
+const {joins, dummies} = defaultRequire(seasonPath + "seasonConfig.json", roundPath + "roundConfig.json");
 const contestants = require(roundPath + "contestants.json");
 const responses = require(roundPath + "responses.json");
 // Sanity checks
