@@ -108,6 +108,20 @@ exports.toUnixTime = function (time) { // (Snowflake | String | null) -> Unix
 	return new Date(time + "Z").getTime() / 1000; // String -> Unix // + "Z" to prevent timezone offset
 };
 // Miscellaneous
+exports.getPaths = function (seasonPath) {
+	const paths = {
+		respondingPath: "./responding.js",
+		votingPath: "./voting.js",
+		resultsPath: "./results.js",
+		initsPath: "./inits.js"
+	};
+	for (const key of Object.keys(paths)) {
+		if (fs.existsSync(seasonPath + paths[key])) {
+			paths[key] = seasonPath + paths[key];
+		}
+	}
+	return paths;
+};
 exports.defaultRequire = function (path, defaultPath) {
 	try {
 		let cool = require(path);

@@ -22,13 +22,15 @@ let {autoDeadlines} = require(seasonPath + "seasonConfig.json");
 let {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
 // Modules
 const readline = require("readline");
-const {toTimeString, logMessage, sendMessage, toSnowflake, defaultRequire, save, reload} = require("./helpers.js");
+const {toTimeString, logMessage, sendMessage, toSnowflake, getPaths, save, reload} = require("./helpers.js");
 const morshu = require("./morshu.js");
-let {initRound} = require("./inits.js");
-let {initResponding, logResponse} = defaultRequire(seasonPath + "responding.js", "./responding.js");
-let {initVoting, logVote} = defaultRequire(seasonPath + "voting.js", "./voting.js");
-let {results} = defaultRequire(seasonPath + "results.js", "./results.js");
 let commands = require("./commands.js");
+// Possibly season-specific modules
+let {respondingPath, votingPath, resultsPath, initsPath} = getPaths(seasonPath);
+let {initResponding, logResponse} = require(respondingPath);
+let {initVoting, logVote} = require(votingPath);
+let {results} = require(resultsPath);
+let {initRound} = require(initsPath);
 // Other variables
 const stdin = process.openStdin();
 const queue = [];
@@ -148,19 +150,20 @@ client.once("ready", async function () {
 	await save("./config.json", config);
 	// Start new phase
 	if (autoDeadlines) {
-		if ((phase === "responding" || phase === "both") && toTimeString() > rDeadline) {
-			await initVoting();
-		} else if ((phase === "voting" || phase === "both") && toTimeString() > vDeadline) {
+		if ((phase === "voting" || phase === "both") && toTimeString() > vDeadline) {
 			await results();
 			await initRound();
 			({roundPath} = reload(twowPath + "status.json"));
 			({rDeadline, vDeadline} = reload(roundPath + "roundConfig.json"));
-			({initRound} = reload("./inits.js"));
 			({initResponding, logResponse} = reload(respondingPath));
 			({initVoting, logVote} = reload(votingPath));
 			({results} = reload(resultsPath));
+			({initRound} = reload(initsPath));
 			await initResponding();
 			({phase} = reload(twowPath + "status.json"));
+		}
+		if ((phase === "responding" || phase === "both") && toTimeString() > rDeadline) {
+			await initVoting();
 		}
 	}
 });

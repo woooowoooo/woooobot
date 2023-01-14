@@ -1,6 +1,6 @@
 const {get} = require("https");
 const {createWriteStream} = require("fs");
-const {logMessage, sendMessage, reload, save} = require("./helpers.js");
+const {logMessage, sendMessage, getPaths, reload, save} = require("./helpers.js");
 const {prefix, devId, twowPath} = require("./config.json");
 const hasPerms = function (user, server, roles, permLevel) {
 	if (user.id === devId) {
@@ -115,11 +115,7 @@ ping: Pings yourself.
 		permLevel: "admin",
 		execute: async function ({text: phase}) {
 			let {seasonPath, roundPath} = require(twowPath + "status.json");
-			let {
-				respondingPath = "./responding.js",
-				votingPath = "./voting.js",
-				resultsPath = "./results.js"
-			} = require(seasonPath + "seasonConfig.json");
+			let {respondingPath, votingPath, resultsPath, initsPath} = getPaths(seasonPath);
 			if (phase === "responding") {
 				await require(respondingPath).initResponding();
 			} else if (phase === "voting") {
@@ -127,18 +123,14 @@ ping: Pings yourself.
 			} else if (phase === "results") {
 				await require(resultsPath).results();
 			} else if (phase === "newRound") {
-				await require("./inits.js").initRound();
+				await require(initsPath).initRound();
 				({seasonPath, roundPath} = reload(twowPath + "status.json"));
-				({
-					respondingPath = "./responding.js",
-					votingPath = "./voting.js",
-					resultsPath = "./results.js"
-				} = reload(seasonPath + "seasonConfig.json"));
+				reload(seasonPath + "seasonConfig.json");
 				reload(roundPath + "roundConfig.json");
-				reload("./inits.js");
 				reload(respondingPath);
 				reload(votingPath);
 				reload(resultsPath);
+				reload(initsPath);
 			}
 			reload(twowPath + "status.json");
 		}
