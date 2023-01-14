@@ -187,6 +187,7 @@ exports.logVote = function (message) {
 		time: toTimeString(message.createdAt),
 		text: message.content
 	});
+	// Remove supervoters from reminders
 	if (Object.keys(votes[message.author.id].screens).length === sectionScreens[section]) {
 		votes[message.author.id].supervote = true;
 		addRole(serverId, message.author.id, supervoter);

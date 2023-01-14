@@ -47,6 +47,20 @@ exports.initResponding = async function () {
 		}
 	}; */
 };
+function tenWord(response) {
+	return response.split(/\s/).filter(word => /\w/.test(word)).length <= 10; // Don't count punctuation-only "words"
+}
+function checkTechnicals(response) {
+	if (!roundTechnicals.includes("noTenWord") && !tenWord(response)) {
+		return "tenWord";
+	}
+	for (let tech of roundTechnicals) {
+		if (tech !== "noTenWord" && technicals[tech].check(response) === false) {
+			return tech;
+		}
+	}
+	return null;
+}
 exports.logResponse = function (message) {
 	// Reject extra responses and determine dummies
 	// TODO: Allow edits
@@ -62,22 +76,10 @@ exports.logResponse = function (message) {
 		}
 		isDummy = true;
 	}
-	// Default ten word technical
-	function tenWord(response) {
-		return response.split(/\s/).filter(word => /\w/.test(word)).length <= 10; // Don't count punctuation-only "words"
-	}
-	let passesTechnicals = true;
-	if (roundTechnicals.includes("noTenWord")) {
-		roundTechnicals.splice(roundTechnicals.indexOf("noTenWord"));
-	} else {
-		passesTechnicals = tenWord(message.content);
-	}
-	// Check other technicals
-	passesTechnicals &&= roundTechnicals.reduce((passes, name) => {
-		return passes && technicals[name].check(message.content);
-	}, true);
-	if (!passesTechnicals) {
-		return `Your response (\`${message}\`) failed a technical.\nIt has not been recorded; please submit a response that follows all technicals.`;
+	// Check technicals
+	const failedTechnical = checkTechnicals(message.content);
+	if (failedTechnical !== null) {
+		return `Your response (\`${message}\`) failed the technical "${technicals[failedTechnical].title}".\nIt has not been recorded; please submit a response that follows all technicals.`;
 	}
 	// Build response object
 	let messageData = {
@@ -93,7 +95,7 @@ exports.logResponse = function (message) {
 		}, message.content);
 	}
 	responses.push(messageData);
-	// Stuff
+	// Initialize first-time responders
 	if (!alive && joins) {
 		seasonContestants.names[message.author.id] = message.author.username;
 		contestants.alive.push(message.author.id);
@@ -102,6 +104,7 @@ exports.logResponse = function (message) {
 		addRole(serverId, message.author.id, votingPing);
 		addRole(serverId, message.author.id, resultsPing);
 	}
+	// Remove responders from reminders
 	contestants.responseCount[message.author.id] ??= 0;
 	contestants.responseCount[message.author.id]++;
 	if (contestants.responseCount[message.author.id] === allowedAmount) {
