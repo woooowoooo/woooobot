@@ -54,11 +54,14 @@ function tenWord(response) {
 }
 function checkTechnicals(response) {
 	if (!roundTechnicals.includes("noTenWord") && !tenWord(response)) {
-		return "tenWord";
+		return "Ten Words of Wisdom";
+	}
+	if (response == null || response === "") {
+		return "Don't Have An Empty Response Challenge";
 	}
 	for (let tech of roundTechnicals) {
 		if (tech !== "noTenWord" && technicals[tech].check(response) === false) {
-			return tech;
+			return technicals[tech].title;
 		}
 	}
 	return null;
@@ -81,7 +84,7 @@ exports.logResponse = function (message) {
 	// Check technicals
 	const failedTechnical = checkTechnicals(message.content);
 	if (failedTechnical !== null) {
-		return `Your response (\`${message}\`) failed the technical "${technicals[failedTechnical].title}".\nIt has not been recorded; please submit a response that follows all technicals.`;
+		return `Your response (\`${message}\`) failed the technical "${failedTechnical}".\nIt has not been recorded; please submit a response that follows all technicals.`;
 	}
 	// Build response object
 	let messageData = {
