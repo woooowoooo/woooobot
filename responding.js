@@ -11,7 +11,7 @@ const {
 	channels: {bots, prompts, reminders: remindersId}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
-const {perpetualClone, deadlines, reminders} = require(seasonPath + "seasonConfig.json");
+const {deadlines, reminders} = require(seasonPath + "seasonConfig.json");
 const seasonContestants = require(seasonPath + "seasonContestants.json");
 const technicals = optRequire(seasonPath + "technicals.js");
 const twists = optRequire(seasonPath + "twists.js");

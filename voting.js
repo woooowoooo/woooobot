@@ -13,7 +13,7 @@ const {
 	channels: {bots, voting, reminders: remindersId}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
-const {perpetualClone, reminders, autoKeywords} = require(seasonPath + "seasonConfig.json");
+const {reminders, autoKeywords} = require(seasonPath + "seasonConfig.json");
 const {drawScreen} = require(seasonPath + "graphics.js");
 // Round-specific
 const {prompt, vDeadline, keywords} = require(roundPath + "roundConfig.json");
