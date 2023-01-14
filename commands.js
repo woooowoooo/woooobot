@@ -197,7 +197,7 @@ ping: Pings yourself.
 };
 module.exports = async function (commandName, args, message, roles) {
 	if (!(commandName in commands)) {
-		throw new Error(`There isn't a command named "${commandName}"!`);
+		throw new Error(`That isn't a valid command"!`);
 	}
 	const command = commands[commandName];
 	if (!hasPerms(message.author, message.guild, roles, command.permLevel)) {
