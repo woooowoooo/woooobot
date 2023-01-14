@@ -1,5 +1,5 @@
 // Modules
-// const {client} = require("./index.js");
+const {client} = require("./index.js");
 const {logMessage, sendMessage, addRole, removeRole, toTimeString, toUnixTime, defaultRequire, save} = require("./helpers.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
@@ -9,7 +9,7 @@ const currentRound = phase === "both" ? currentVotingRound : currentRegularRound
 const roundPath = phase === "both" ? votingRoundPath : regularRoundPath;
 const {
 	id: serverId,
-	roles: {supervoter, votingRemind},
+	roles: {supervoter, votingRemind, votingPing},
 	channels: {bots, voting, reminders: remindersId}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
@@ -92,7 +92,7 @@ async function createSection(responses, sizes, sectWord) {
 exports.initVoting = async function () {
 	logMessage("Voting period started.");
 	const unixDeadline = toUnixTime(vDeadline);
-	await sendMessage(voting, `@everyone ${currentRound}\nVote to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)`, true);
+	await sendMessage(voting, `<@&${votingPing}> ${currentRound}\nVote to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)`, true);
 	// Create voting
 	logMessage(prompt);
 	const screenSizes = partitionResponses(responses.length);

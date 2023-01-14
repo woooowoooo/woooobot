@@ -36,7 +36,7 @@ exports.initResponding = async function () {
 	// status.phase = "responding";
 	// await save(`${twowPath}/status.json`, status);
 	const unixDeadline = toUnixTime(rDeadline);
-	await sendMessage(prompts, `<@&${aliveId}> ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)${example ? `\nHere's an example response: \`${example}\`` : ""}`, true);
+	await sendMessage(prompts, `<@&${joins ? respondingPing : aliveId}> ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)${example ? `\nHere's an example response: \`${example}\`` : ""}`, true);
 	// TODO: Send reminders
 	/* for (let reminder in reminders) {
 		const date = new Date((unixDeadline - reminders[reminder] * 3600) * 1000);
