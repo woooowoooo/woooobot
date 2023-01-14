@@ -91,6 +91,10 @@ async function createSection(responses, sizes, sectWord) {
 }
 exports.initVoting = async function () {
 	logMessage("Voting period started.");
+	if (status.phase !== "both") {
+		status.phase = "voting";
+		await save(`${twowPath}/status.json`, status);
+	}
 	const unixDeadline = toUnixTime(vDeadline);
 	await sendMessage(voting, `<@&${votingPing}> ${currentRound}\nVote to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)`, true);
 	// Create voting

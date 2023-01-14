@@ -33,8 +33,10 @@ if (prompt == null || prompt === "") {
 // Functions
 exports.initResponding = async function () {
 	logMessage("Responding period started.");
-	// status.phase = "responding";
-	// await save(`${twowPath}/status.json`, status);
+	if (status.phase !== "both") {
+		status.phase = "responding";
+		await save(`${twowPath}/status.json`, status);
+	}
 	const unixDeadline = toUnixTime(rDeadline);
 	await sendMessage(prompts, `<@&${joins ? respondingPing : aliveId}> ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)${example ? `\nHere's an example response: \`${example}\`` : ""}`, true);
 	// TODO: Send reminders

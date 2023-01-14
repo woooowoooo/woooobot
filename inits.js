@@ -1,5 +1,5 @@
 // Modules
-const fs = require("fs").promises;
+const fs = require("fs/promises");
 const {execSync} = require("child_process");
 const {logMessage, toTimeString, toUnixTime, save} = require("./helpers.js");
 // Data
@@ -58,7 +58,7 @@ exports.initRound = async function (newRoundName) {
 		screenResponses: {}
 	});
 };
-exports.initSeason = async function () { // Export unused, kept for consistency
+async function initSeason() {
 	// Start new season
 	const oldPath = seasonPath;
 	const seasonNames = Object.keys(seasons);
