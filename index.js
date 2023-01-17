@@ -84,16 +84,22 @@ function processMessage(message = queue.shift()) {
 	}
 }
 async function processMessageAsync(message) {
-	// Process message on "r"; skip on other keys
-	return new Promise(resolve => stdin.once("keypress", function (_, key) {
-		if (key.name === "r") {
-			logMessage("Message read");
-			processMessage(message);
-		} else {
-			logMessage("Message skipped");
-		}
-		resolve();
-	}));
+	// Process message on "Ctrl + R"; skip on "Ctrl + S"
+	return new Promise(resolve => {
+		const fullListener = (_, key) => {
+			if (key.ctrl && key.name === "r") {
+				logMessage("Message read");
+				processMessage(message);
+				stdin.removeListener("keypress", fullListener);
+				resolve();
+			} else if (key.ctrl && key.name === "s") {
+				logMessage("Message skipped");
+				stdin.removeListener("keypress", fullListener);
+				resolve();
+			}
+		};
+		stdin.on("keypress", fullListener);
+	});
 }
 async function processQueue() {
 	// Act on unread messages
