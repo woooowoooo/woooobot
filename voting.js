@@ -78,11 +78,15 @@ async function createScreen(responses, keyword, section, textScreen = false) {
 		}]
 	}, true);
 }
-async function createSection(responses, sizes, sectWord) {
-	for (let i = 0; i < responses.length; i++) { // Randomize response array
+function scramble(array) {
+	const copy = [...array];
+	for (let i = 0; i < copy.length; i++) { // Randomize response array
 		const j = Math.floor(Math.random() * i);
-		[responses[i], responses[j]] = [responses[j], responses[i]];
+		[copy[i], copy[j]] = [copy[j], copy[i]];
 	}
+	return copy;
+}
+async function createSection(responses, sizes, sectWord) {
 	for (let i = 0; i < sizes.length; i++) {
 		const keyword = autoKeywords ? `${sectWord}-${i + 1}` : keywords[sectWord][i];
 		await createScreen(responses.splice(0, sizes[i]), keyword, sectWord);
@@ -102,11 +106,11 @@ exports.initVoting = async function () {
 	const screenSizes = partitionResponses(responses.length);
 	for (let i = 0; i < sections; i++) {
 		const sectWord = autoKeywords ? (i + 1).toString() : Object.keys(keywords)[i];
-		await createSection([...responses], screenSizes, sectWord);
+		await createSection(scramble(responses), screenSizes, sectWord);
 	}
 	if (megascreen) {
 		sectionScreens["MEGA"] = 1;
-		await createScreen(responses, "MEGA", "MEGA", true);
+		await createScreen(scramble(responses), "MEGA", "MEGA", true);
 	}
 	await save(roundPath + "screens.json", screens);
 	// DNP non-responders
