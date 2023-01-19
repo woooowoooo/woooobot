@@ -48,7 +48,7 @@ exports.sendMessage = async function (destination, message, id = false) {
 	if ((message.content?.length ?? message.length ?? 0) > 2000) {
 		throw new Error("Message is too long!");
 	}
-	await destination.send(message);
+	const sentMessage = await destination.send(message);
 	// Log message
 	if (typeof message === "object") {
 		message = JSON.stringify(message);
@@ -61,6 +61,7 @@ exports.sendMessage = async function (destination, message, id = false) {
 		exports.logMessage(`[S] ??? ${destination.guild?.name !== undefined ? destination.guild.name + ", " : ""}${destination.name}:\n	${message}`);
 		exports.logMessage(`[E] Not a text-based channel`, true);
 	}
+	return sentMessage;
 };
 exports.addRole = async function (server, user, role) {
 	if (typeof server === "string") {

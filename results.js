@@ -9,7 +9,7 @@ const currentRound = phase === "both" ? currentVotingRound : currentRegularRound
 const roundPath = phase === "both" ? votingRoundPath : regularRoundPath;
 const {
 	id: serverId,
-	channels: {results: resultsId},
+	channels: {results: resultsId, leaderboards},
 	roles: {prize, supervoter, alive, dead, votingRemind}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
@@ -114,7 +114,7 @@ function selectEntries(rankings, line) {
 }
 exports.results = async function () {
 	logMessage("Results started.");
-	await sendMessage(resultsId, `@everyone ${currentRound} Results`, true);
+	const resultsMessage = await sendMessage(resultsId, `@everyone ${currentRound} Results`, true);
 	const rankings = calculateResults();
 	await drawResults(`${roundPath}results/leaderboard.png`, currentRound, prompt, rankings, true);
 	// Reveal results
@@ -146,6 +146,15 @@ exports.results = async function () {
 			name: "leaderboard.png"
 		}]
 	}, true);
+	if (leaderboards != null) {
+		await sendMessage(leaderboards, {
+			content: `${currentVotingRound}: ${resultsMessage.url}`,
+			files: [{
+				attachment: `${votingRoundPath}results/leaderboard.png`,
+				name: "leaderboard.png"
+			}]
+		}, true);
+	}
 	// Spoiler wall
 	for (let _ = 0; _ < 50; _++) {
 		await sendMessage(resultsId, morshu(1), true);
