@@ -1,6 +1,5 @@
 const {get} = require("https");
 const {createWriteStream} = require("fs");
-const {logMessage, sendMessage, getPaths, reload, save} = require("./helpers.js");
 const {prefix, devId, twowPath} = require("./config.json");
 const hasPerms = function (user, server, roles, permLevel) {
 	if (user.id === devId) {
@@ -88,6 +87,7 @@ ping: Pings yourself.
 			await msg.edit(newMessage.join(" ")).catch(() => {
 				throw new Error("Message not editable!");
 			});
+			return "Message edited!";
 		}
 	},
 	eval: {
@@ -108,6 +108,9 @@ ping: Pings yourself.
 		execute: async function ({text}) {
 			let [channelId, ...message] = text.split(" ");
 			channelId = channelId.match(/^<(#|@|@!)(?<id>\d+)>$/)?.groups.id ?? channelId;
+			if (!/\d+/.test(channelId)) {
+				throw new Error("Invalid channel ID!");
+			}
 			sendMessage(channelId, message.join(" "), true);
 		}
 	},
@@ -197,7 +200,7 @@ ping: Pings yourself.
 };
 module.exports = async function (commandName, args, message, roles) {
 	if (!(commandName in commands)) {
-		throw new Error(`That isn't a valid command"!`);
+		throw new Error(`That isn't a valid command!`);
 	}
 	const command = commands[commandName];
 	if (!hasPerms(message.author, message.guild, roles, command.permLevel)) {

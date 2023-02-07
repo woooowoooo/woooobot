@@ -137,6 +137,7 @@ client.once("ready", async function () {
 	const botRole = await server.roles.fetch(roles.bot);
 	const members = (await server.members.fetch()).filter(m => m.id !== devId && !m.roles.cache.has(botRole.id));
 	// Queue and process unread DMs
+	processing = true;
 	for (const [_, member] of members) {
 		const dms = await member.createDM().catch(() => logMessage(`[E] Failed to create DM to ${member.user.tag}`, true));
 		if (dms == null) {
