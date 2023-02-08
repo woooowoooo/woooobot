@@ -44,6 +44,12 @@ exports.initRound = async function (newRoundName) {
 		rDeadline: toTimeString(toUnixTime(roundConfig.vDeadline) + seasonConfig.deadlines[0] * 86400),
 		vDeadline: toTimeString(toUnixTime(roundConfig.rDeadline) + seasonConfig.deadlines[1] * 86400)
 	}, nextRound);
+	if (nextRound.remove != null) {
+		for (const key of nextRound.remove) {
+			delete roundConfig[key];
+		}
+		delete nextRound.remove;
+	}
 	await save(roundPath + "roundConfig.json", roundConfig);
 	contestants.responseCount = {};
 	contestants.dead = [];
