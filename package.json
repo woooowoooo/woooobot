@@ -1,6 +1,7 @@
 {
 	"dependencies": {
-		"discord.js": "^14.0.1"
+		"discord.js": "^14.0.1",
+		"sentiment": "^5.0.2"
 	},
 	"name": "woooobot",
 	"description": "Made to automate twoooowoooo.",
