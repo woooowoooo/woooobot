@@ -10,17 +10,17 @@ function listSeasonContestants() {
 	}
 }
 function listStatistics() {
-	console.log(`Username\tRank\tScore\tStandard Deviation\tSkew\tVerbosity\tSentiment`)
+	console.log(`Username|Rank|Score|Standard Deviation|Skew|Verbosity|Sentiment`)
 	for (let roundPath of Object.values(rounds)) {
 		const results = require(seasonPath + roundPath + "results.json")
 		for (let contestant of results) {
-			console.log(contestant.name + "\t" 
-			+ contestant.rank + "\t" 
+			console.log(contestant.name + "|" 
+			+ contestant.rank + "|" 
 			+ contestant.percentile 
-			+ "\t" + contestant.stDev 
-			+ "\t" + contestant.skew 
-			+ "\t" + contestant.response.length 
-			+ "\t" + sentiment.analyze(contestant.response).score)
+			+ "|" + contestant.stDev 
+			+ "|" + contestant.skew 
+			+ "|" + contestant.response.length 
+			+ "|" + sentiment.analyze(contestant.response).score)
 		};
 	}
 }
