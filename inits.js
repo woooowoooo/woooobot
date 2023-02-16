@@ -48,7 +48,7 @@ exports.initRound = async function (newRoundName) {
 		for (const key of nextRound.remove) {
 			delete roundConfig[key];
 		}
-		delete nextRound.remove;
+		delete roundConfig.remove;
 	}
 	await save(roundPath + "roundConfig.json", roundConfig);
 	contestants.responseCount = {};
