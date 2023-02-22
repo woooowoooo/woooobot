@@ -7,6 +7,13 @@ function listSeasonContestants() {
 		console.log(name);
 	}
 }
+function listRoundContestants(round) {
+	const {names} = require(seasonPath + "seasonContestants.json");
+	const {responseCount} = require(seasonPath + rounds[round] + "contestants.json");
+	for (let id of Object.keys(responseCount)) {
+		console.log(names[id]);
+	}
+}
 function listPrompts() {
 	for (let roundPath of Object.values(rounds)) {
 		const {prompt} = require(seasonPath + roundPath + "roundConfig.json");
