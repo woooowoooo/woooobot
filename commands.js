@@ -1,6 +1,6 @@
 const {get} = require("https");
 const {createWriteStream} = require("fs");
-const {logMessage, sendMessage, toUnixTime, getPaths, reload, save} = require("./helpers.js");
+const {logMessage, sendMessage, toSnowflake, toUnixTime, getPaths, reload, save} = require("./helpers.js");
 const {prefix, devId, twowPath} = require("./config.json");
 const hasPerms = function (user, server, roles, permLevel) {
 	if (user.id === devId) {
@@ -144,7 +144,7 @@ ping: Pings yourself.
 		execute: async function ({text}) {
 			const [userId, messageId, ...vote] = text.split(" ");
 			const message = {
-				id: messageId,
+				id: toSnowflake(messageId),
 				content: vote.join(" "),
 				createdAt: toUnixTime(messageId),
 				author: {

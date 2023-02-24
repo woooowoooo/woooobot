@@ -86,27 +86,63 @@ exports.removeRole = async function (server, user, role) {
 	}
 };
 // Time
-exports.toTimeString = function (time = new Date()) { // (Unix | null) -> String // ISO8601 without T and timezone
-	if (typeof time === "number") { // Unix -> Date -> String
-		time = new Date(time * 1000);
+function getTimeType(time) {
+	if (time == null) {
+		return null;
 	}
-	return time.toISOString().substring(0, 10) + " " + time.toISOString().substring(11, 19); // Date -> String
+	if (time instanceof Date) {
+		return "Date";
+	}
+	if (typeof time === "string" && time[10] === " ") {
+		return "String";
+	}
+	numberTime = BigInt(time);
+	if (numberTime > (1420070400000n << 22n)) {
+		return "Snowflake";
+	}
+	return "Unix";
+}
+// TimeString means ISO8601 without T and timezone
+exports.toTimeString = function (time = new Date()) { // (Snowflake | String | Unix | null) -> String
+	switch (getTimeType(time)) {
+		case "String":
+			return time;
+		case "Snowflake":
+			time = exports.toUnixTime(time); // Fallthrough
+		case "Unix":
+			time = new Date(time * 1000); // Fallthrough
+		case "Date":
+			return time.toISOString().substring(0, 10) + " " + time.toISOString().substring(11, 19);
+		default:
+			throw new Error("Invalid time");
+	}
 };
-exports.toSnowflake = function (time) { // (String | Unix | null) -> Snowflake
-	if (time == null || typeof time === "string") { // (String | null) -> Unix -> Snowflake
-		time = Math.floor(exports.toUnixTime(time));
+exports.toSnowflake = function (time) { // (Snowflake | String | Unix | null) -> Snowflake
+	switch (getTimeType(time)) {
+		case "Snowflake":
+			return time;
+		case "String":
+		case null:
+			time = exports.toUnixTime(time); // Fallthrough
+		case "Unix":
+			return (BigInt(time - 1420070400) * 1000n << 22n).toString();
+		default:
+			throw new Error("Invalid time");
 	}
-	// Convert to Discord epoch
-	return (BigInt(time - 1420070400) * 1000n << 22n).toString(); // Unix -> Snowflake
 };
-exports.toUnixTime = function (time) { // (Snowflake | String | null) -> Unix
-	if (time == null) { // null -> Unix
-		return Date.now() / 1000;
+exports.toUnixTime = function (time) { // (Snowflake | String | Unix | null) -> Unix
+	switch (getTimeType(time)) {
+		case "Snowflake":
+			return Number((BigInt(time) >> 22n) / 1000n + 1420070400n);
+		case "String":
+			return Math.floor(new Date(time + "Z").getTime() / 1000); // "Z" to prevent timezone offset
+		case "Unix":
+			return time;
+		case null:
+			return Math.floor(Date.now() / 1000);
+		default:
+			throw new Error("Invalid time");
 	}
-	if (typeof time === "string" && time[10] !== " ") { // Snowflake -> Unix
-		return Number((BigInt(time) >> 22n) / 1000n + 1420070400n);
-	}
-	return new Date(time + "Z").getTime() / 1000; // String -> Unix // + "Z" to prevent timezone offset
 };
 // Miscellaneous
 exports.getPaths = function (seasonPath) {
