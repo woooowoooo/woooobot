@@ -84,18 +84,22 @@ function processMessage(message = queue.shift()) {
 	}
 }
 async function processMessageAsync(message) {
-	// Process message on "Ctrl + R"; skip on "Ctrl + S"
 	return new Promise(resolve => {
 		const fullListener = (_, key) => {
 			if (key.ctrl && key.name === "r") {
+				// Ctrl + R: Process message
 				logMessage("Message read");
 				processMessage(message);
 				stdin.removeListener("keypress", fullListener);
 				resolve();
 			} else if (key.ctrl && key.name === "s") {
+				// Ctrl + S: Skip message
 				logMessage("Message skipped");
 				stdin.removeListener("keypress", fullListener);
 				resolve();
+			} else if (key.ctrl && key.name === "c") {
+				// Ctrl + C: Exit
+				process.exit();
 			}
 		};
 		stdin.on("keypress", fullListener);
@@ -144,8 +148,8 @@ client.once("ready", async function () {
 			continue;
 		}
 		logMessage(`DM to ${member.user.tag} created.`);
-		const messages = await dms.messages.fetch();
-		for (const [_, message] of messages.filter((m, s) => m.author.id !== botId && BigInt(s) > BigInt(lastUnread))) {
+		const messages = await dms.messages.fetch({after: lastUnread});
+		for (const [_, message] of messages.filter(m => m.author.id !== botId)) {
 			readMessage(message, true, true);
 			queue.push(message);
 		}
