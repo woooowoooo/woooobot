@@ -163,7 +163,7 @@ ping: Pings yourself.
 				throw new Error("Your message does not contain exactly one file attachment!");
 			}
 			const attachment = attachments.values().next().value;
-			const firstBook = (contestants[user.id] == null);
+			const firstBook = (contestants.bookPaths[user.id] == null);
 			contestants.bookPaths[user.id] ??= `${user.username}.${attachments.first().name.split(".").at(-1)}`;
 			await save(seasonPath + "seasonContestants.json", contestants);
 			const book = createWriteStream(`${seasonPath}books/${contestants.bookPaths[user.id]}`);
