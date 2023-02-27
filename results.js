@@ -114,9 +114,9 @@ function selectEntries(rankings, line) {
 }
 exports.results = async function () {
 	logMessage("Results started.");
-	const resultsMessage = await sendMessage(resultsId, `@everyone ${currentRound} Results`, true);
 	const rankings = calculateResults();
 	await drawResults(`${roundPath}results/leaderboard.png`, currentRound, prompt, rankings, true);
+	const resultsMessage = await sendMessage(resultsId, `@everyone ${currentRound} Results`, true);
 	// Reveal results
 	let slide = 1;
 	let moreSlides = true;
