@@ -93,7 +93,7 @@ function getTimeType(time) {
 	if (time instanceof Date) {
 		return "Date";
 	}
-	if (typeof time === "string" && time[10] === " ") {
+	if (typeof time === "string" && time[10] === " " || time[10] === "T") {
 		return "String";
 	}
 	numberTime = BigInt(time);
