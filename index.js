@@ -118,6 +118,9 @@ async function processQueue() {
 		const message = queue.shift();
 		readMessage(message, true, false);
 		automatic ? processMessage(message) : await processMessageAsync(message);
+		// Update last checked time
+		config.lastUnread = toSnowflake(message.id);
+		await save("./config.json", config);
 	}
 	if (!automatic) {
 		stdin.setRawMode(false);
@@ -156,9 +159,6 @@ client.once("ready", async function () {
 	};
 	queue.sort((a, b) => a.createdAt - b.createdAt); // Sort queue by time
 	await processQueue();
-	// Update last checked time
-	config.lastUnread = toSnowflake();
-	await save("./config.json", config);
 	// Start new phase
 	if (autoDeadlines) {
 		if ((phase === "voting" || phase === "both") && toTimeString() > vDeadline) {
@@ -179,8 +179,6 @@ client.once("ready", async function () {
 	}
 });
 client.on("messageCreate", async function (message) {
-	config.lastUnread = toSnowflake();
-	await save("./config.json", config);
 	if (message.author.id === botId || message.guild != null && !bots.includes(message.channel.id)) { // Ignore irrelevant messages
 		return;
 	}
@@ -201,9 +199,10 @@ function consoleListener(data) {
 		if (text.substring(0, prefix.length) === prefix) {
 			text = text.substring(prefix.length);
 		}
-		parseCommands(text, {
+		parseCommands(text, { // Flesh this out
 			author: me,
-			channel: me.dmChannel
+			channel: me.dmChannel,
+			createdAt: new Date()
 		});
 	}
 }

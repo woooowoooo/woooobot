@@ -96,14 +96,14 @@ function getTimeType(time) {
 	if (typeof time === "string" && time[10] === " " || time[10] === "T") {
 		return "String";
 	}
-	numberTime = BigInt(time);
-	if (numberTime > (1420070400000n << 22n)) {
+	const numberTime = BigInt(time);
+	if (numberTime > (86400000n << 22n)) { // 1 day after Discord epoch
 		return "Snowflake";
 	}
 	return "Unix";
 }
 // TimeString means ISO8601 without T and timezone
-exports.toTimeString = function (time = new Date()) { // (Snowflake | String | Unix | null) -> String
+exports.toTimeString = function (time = new Date()) { // (Date | Snowflake | String | Unix | null) -> String
 	switch (getTimeType(time)) {
 		case "String":
 			return time;
