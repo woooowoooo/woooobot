@@ -75,18 +75,18 @@ ping: Pings yourself.
 			logMessage(`Set ${path}:${keys} to ${value}`);
 		}
 	},
-	edit: {
+	editmsg: {
 		permLevel: "developer",
 		execute: async function ({text, message}) {
 			const [channelId, messageId, ...newMessage] = text.split(" ");
-			const channel = await message.guild.channels.fetch(channelId).catch(() => {
-				throw new Error("Channel not in this server!");
+			const channel = await message.guild.channels.fetch(channelId).catch(e => {
+				throw new Error("Could not fetch channel in specified server! " + e);
 			});
-			const msg = await channel.messages.fetch(messageId).catch(() => {
-				throw new Error("Message not in specified channel!");
+			const msg = await channel.messages.fetch(messageId).catch(e => {
+				throw new Error("Could not fetch message from specified channel! " + e);
 			});
-			await msg.edit(newMessage.join(" ")).catch(() => {
-				throw new Error("Message not editable!");
+			await msg.edit(newMessage.join(" ")).catch(e => {
+				throw new Error("Message not editable! " + e);
 			});
 			return "Message edited!";
 		}
@@ -151,7 +151,7 @@ ping: Pings yourself.
 					id: userId
 				},
 			};
-			require("./voting.js").logVote(message);
+			return require("./voting.js").logVote(message);
 		}
 	},
 	book: {
