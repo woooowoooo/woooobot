@@ -59,6 +59,9 @@ function checkTechnicals(response) {
 	if (response == null || response === "") {
 		return "Don't Have An Empty Response Challenge";
 	}
+	if (response.includes("```")) {
+		return "Don't Try To Game The System Challenge";
+	}
 	for (let tech of roundTechnicals) {
 		if (tech !== "noTenWord" && technicals[tech].check(response) === false) {
 			return technicals[tech].title;
