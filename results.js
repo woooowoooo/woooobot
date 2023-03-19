@@ -76,14 +76,18 @@ function calculateResults() {
 }
 // Present results
 const stdin = process.openStdin();
-async function sendSlide(path, rankings, header) {
+async function sendSlide(path, rankings, header, comment) {
 	await drawResults(`${roundPath}results/${path}`, currentRound, prompt, rankings, header);
-	await sendMessage(resultsId, {
+	const slideMessage = {
 		files: [{
 			attachment: `${roundPath}results/${path}`,
 			name: path
 		}]
-	}, true);
+	};
+	if (comment != null) {
+		slideMessage.content = comment;
+	}
+	await sendMessage(resultsId, slideMessage, true);
 }
 function findEntry(rankings, token) {
 	let index = rankings.findIndex(row => row.rank === parseInt(token));
@@ -124,13 +128,14 @@ async function results() {
 	stdin.removeListener("data", consoleListener);
 	while (moreSlides) {
 		moreSlides = await new Promise(resolve => stdin.once("data", async input => {
-			const line = input.toString().trim().split(" ");
-			if (line[0] === "end") {
+			const line = input.toString().trim();
+			if (line === "end") {
 				resolve(false);
 			}
 			try { // Only send slide and increment if input is valid
-				const selection = selectEntries(rankings, line);
-				await sendSlide(`slide${slide}.png`, selection, (slide === 1));
+				const [selection, comment] = line.split("; ");
+				const entries = selectEntries(rankings, selection.split(" "));
+				await sendSlide(`slide${slide}.png`, entries, (slide === 1), comment);
 				slide++;
 			} catch (e) {
 				logMessage(`[E] ${e}`, true);
