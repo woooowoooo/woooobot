@@ -112,7 +112,7 @@ function selectEntries(rankings, line) {
 	}
 	return selection;
 }
-exports.results = async function () {
+async function results() {
 	logMessage("Results started.");
 	const rankings = calculateResults();
 	await drawResults(`${roundPath}results/leaderboard.png`, currentRound, prompt, rankings, true);
@@ -182,3 +182,4 @@ exports.results = async function () {
 	}
 	save(roundPath + "contestants.json", contestants);
 };
+Object.assign(exports, {selectEntries, results});

@@ -93,7 +93,7 @@ async function createSection(responses, sizes, sectWord) {
 	}
 	sectionScreens[sectWord] = sizes.length;
 }
-exports.initVoting = async function () {
+async function initVoting() {
 	logMessage("Voting period started.");
 	if (status.phase !== "both") {
 		status.phase = "voting";
@@ -138,7 +138,7 @@ exports.initVoting = async function () {
 		}
 	}; */
 };
-exports.logVote = function (message) {
+function logVote(message) {
 	logMessage(`Recording vote by ${message.author}:\n\t${message}`);
 	const voteFull = Array.from(message.content.matchAll(/\[([^\s[\]]+) ([^\s[\]]+)\]/g));
 	if (voteFull.length === 0) {
@@ -205,3 +205,4 @@ exports.logVote = function (message) {
 	save(roundPath + "votes.json", votes);
 	return `Your vote has been recorded:\n\`\`\`${voteFull.map(matches => matches[0]).join("\n")}\`\`\`${votes[message.author.id].supervote ? "Thank you for supervoting!" : ""}`;
 };
+Object.assign(exports, {partitionResponses, scramble, initVoting, logVote});

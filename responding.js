@@ -31,7 +31,7 @@ if (prompt == null || prompt === "") {
 	throw Error(`No prompt provided!`);
 }
 // Functions
-exports.initResponding = async function () {
+async function initResponding() {
 	logMessage("Responding period started.");
 	if (status.phase !== "both") {
 		status.phase = "responding";
@@ -69,7 +69,7 @@ function checkTechnicals(response) {
 	}
 	return null;
 }
-exports.logResponse = function (message) {
+function logResponse(message) {
 	// Reject extra responses and determine dummies
 	// TODO: Allow edits
 	logMessage(`Recording response by ${message.author}:\n\t${message}`);
@@ -123,3 +123,4 @@ exports.logResponse = function (message) {
 	save(`${roundPath}/contestants.json`, contestants);
 	return `Your response (\`${message}\`) has been recorded${isDummy ? " as a dummy. **This means that its placement in results does not matter.**" : "."} Your response is response #${responses.length}`;
 };
+Object.assign(exports, {initResponding, checkTechnicals, logResponse});
