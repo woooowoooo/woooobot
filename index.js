@@ -84,14 +84,18 @@ function processMessage(message = queue.shift()) {
 	}
 }
 async function processMessageAsync(message) {
-	return new Promise(resolve => {
+	return new Promise((resolve, reject) => {
 		const fullListener = (_, key) => {
 			if (key.ctrl && key.name === "r") {
 				// Ctrl + R: Process message
 				logMessage("Message read");
-				processMessage(message);
-				stdin.removeListener("keypress", fullListener);
-				resolve();
+				try {
+					processMessage(message);
+					stdin.removeListener("keypress", fullListener);
+					resolve();
+				} catch (e) {
+					reject(e);
+				}
 			} else if (key.ctrl && key.name === "s") {
 				// Ctrl + S: Skip message
 				logMessage("Message skipped");
@@ -99,6 +103,7 @@ async function processMessageAsync(message) {
 				resolve();
 			} else if (key.ctrl && key.name === "c") {
 				// Ctrl + C: Exit
+				logMessage("Ending woooobot…");
 				process.exit();
 			}
 		};
