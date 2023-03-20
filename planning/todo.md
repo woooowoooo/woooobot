@@ -11,12 +11,10 @@
 - Fix voting breaking with a lot of responses
 
 # Annoyances
-- Fix queue ordering being wonky
 - Replace `new.json` with `queue.json`
 - Remove `pnpm.lock`, `node_modules`, and other symlinks from unison
 - Change "could not require" messages to be opt-in, i.e. show "required" messages instead
 - Change default new round name to increment any number found in the previous round's name
-- Make graphics not look funky after 10,000 points
 - Add a way to use `send` with a username
 - Clarify vote rejection messages
 	- On partially bad votes, accept the good screens
@@ -30,13 +28,12 @@ It is your **2nd** and this round's **13th** submitted response.
 You may send **0** more responses.
 Send `wb edit 2 [edited response]` to edit this response.
 
-- Allow contestants to edit their name
-
 # EndlessTWOW-specific things
 - Automatic point assigning before results
 	- Fix point assignment afterwards
 		- Make it stay even if someone responds after results
 - LCH in results
+- Make graphics not look funky after 10,000 points
 
 # New Things
 - Multiple TWOWs
@@ -46,12 +43,11 @@ Send `wb edit 2 [edited response]` to edit this response.
 - Automatic asking for vote justification
 - Online vote checker tool
 - Change display name command
-- Send reaction roles message on first response
 
 ## Results
 - "Watching SampleTWOW Season 1 Round 1 Results" feature
-- Comments on a results entry
 - Open leaderboard in new window
+- Send ping with `start`
 
 ## 1b1s
 - Generate input
