@@ -192,6 +192,17 @@ ping: Pings yourself.
 			return require("./morshu.js").generate(sentences);
 		}
 	},
+	name: {
+		permLevel: "normal",
+		execute: async function ({text: newName, message: {author: {id}}}) {
+			const {seasonPath} = require(twowPath + "status.json");
+			const contestants = require(seasonPath + "seasonContestants.json");
+			const oldName = contestants.names[id];
+			contestants.names[id] = newName;
+			await save(seasonPath + "seasonContestants.json", contestants);
+			return `Name changed from \`${oldName}\` to \`${newName}\`!`;
+		}
+	},
 	ping: {
 		permLevel: "normal",
 		execute: function ({message: {author: {id}}}) {
