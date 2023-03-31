@@ -148,8 +148,10 @@ ping: Pings yourself.
 				content: vote.join(" "),
 				createdAt: toUnixTime(messageId),
 				author: {
-					id: userId
+					id: userId,
+					toString: () => userId,
 				},
+				toString: () => vote.join(" "),
 			};
 			return require("./voting.js").logVote(message);
 		}
