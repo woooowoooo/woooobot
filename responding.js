@@ -2,7 +2,7 @@
 // const {client} = require("./index.js");
 const {logMessage, sendMessage, addRole, removeRole, toTimeString, toUnixTime, defaultRequire, optRequire, save} = require("./helpers.js");
 // Data
-const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
+const {botId, twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const status = require(twowPath + "status.json");
 const {seasonPath, roundPath} = status;
 const {
@@ -38,7 +38,19 @@ async function initResponding() {
 		await save(`${twowPath}/status.json`, status);
 	}
 	const unixDeadline = toUnixTime(rDeadline);
-	await sendMessage(prompts, `<@&${joins ? respondingPing : aliveId}> ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@814748906046226442> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)${example ? `\nHere's an example response: \`${example}\`` : ""}`, true);
+	let message = `<@&${joins ? respondingPing : aliveId}> ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@${botId}> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)`;
+	if (example != null) {
+		message += `\nHere's an example response: \`${example}\``;
+	}
+	if (roundTechnicals.length > 0) {
+		message += `\n\n**Technical${roundTechnicals.length > 1 ? "s" : ""}**:`;
+		for (let tech of roundTechnicals) {
+			if (tech !== "noTenWord") {
+				message += `\n${technicals[tech].title}: ${technicals[tech].description}`;
+			}
+		}
+	}
+	await sendMessage(prompts, message, true);
 	// TODO: Send reminders
 	/* for (let reminder in reminders) {
 		const date = new Date((unixDeadline - reminders[reminder] * 3600) * 1000);
