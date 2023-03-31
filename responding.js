@@ -44,10 +44,16 @@ async function initResponding() {
 	}
 	if (roundTechnicals.length > 0) {
 		message += `\n\n**Technical${roundTechnicals.length > 1 ? "s" : ""}**:`;
-		for (let tech of roundTechnicals) {
+		for (const tech of roundTechnicals) {
 			if (tech !== "noTenWord") {
 				message += `\n${technicals[tech].title}: ${technicals[tech].description}`;
 			}
+		}
+	}
+	if (roundTwists != null && roundTwists.length > 0) {
+		message += `\n\n**Twist${roundTwists.length > 1 ? "s" : ""}**:`;
+		for (const twist of roundTwists) {
+			message += `\n${twists[twist].title}: ${twists[twist].description}`;
 		}
 	}
 	await sendMessage(prompts, message, true);
