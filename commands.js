@@ -195,6 +195,9 @@ ping: Pings yourself.
 	name: {
 		permLevel: "normal",
 		execute: async function ({text: newName, message: {author: {id}}}) {
+			if (newName == null) {
+				throw new Error("New display name is missing!");
+			}
 			const {seasonPath} = require(twowPath + "status.json");
 			const contestants = require(seasonPath + "seasonContestants.json");
 			const oldName = contestants.names[id];
