@@ -4,7 +4,7 @@ const twists = {
 		title: "sdrawkcaB",
 		description: "Your response will be flipped horizontally.",
 		execute: function (response) {
-			return response.split("").reverse().join(""); // Breaks surrogate pairs
+			return response.split(/(?:)/u).reverse().join("");
 		}
 	},
 	caesar: {
