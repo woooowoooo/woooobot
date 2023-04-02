@@ -87,7 +87,7 @@ function checkTechnicals(response) {
 	}
 	return null;
 }
-function logResponse(message) {
+async function logResponse(message) {
 	// Reject extra responses and determine dummies
 	// TODO: Allow edits
 	logMessage(`Recording response by ${message.author}:\n\t${message}`);
@@ -116,12 +116,18 @@ function logResponse(message) {
 		dummy: isDummy
 	};
 	if (roundTwists != null) {
-		messageData.twist = roundTwists.reduce((message, name) => {
-			return twists[name].execute(message);
-		}, message.content);
+		let twistResult = message.content;
+		for (const twist of roundTwists) {
+			twistResult = await twists[twist].execute(twistResult);
+		}
+		messageData.twist = twistResult;
 	}
 	responses.push(messageData);
-	// Initialize first-time responders
+	// Initialize first-time responders, build reply
+	let reply = `Your response (\`${message}\`) has been recorded${message.twist != null ? ` as \`${message.twist}\`` : ""}.`;
+	if (isDummy) {
+		reply += " **It is a dummy response, which means that its placement in results does not matter.**";
+	}
 	if (!alive && joins) {
 		seasonContestants.names[message.author.id] = message.author.username;
 		contestants.alive.push(message.author.id);
@@ -130,6 +136,7 @@ function logResponse(message) {
 		addRole(serverId, message.author.id, votingPing);
 		addRole(serverId, message.author.id, resultsPing);
 	}
+	reply += ` It is this round's **${ordinal(responses.length)}** submitted response.`;
 	// Remove responders from reminders
 	contestants.responseCount[message.author.id] ??= 0;
 	contestants.responseCount[message.author.id]++;
@@ -139,6 +146,6 @@ function logResponse(message) {
 	save(`${seasonPath}/seasonContestants.json`, seasonContestants);
 	save(`${roundPath}/responses.json`, responses);
 	save(`${roundPath}/contestants.json`, contestants);
-	return `Your response (\`${message}\`) has been recorded${isDummy ? " as a dummy. **This means that its placement in results does not matter.**" : "."} Your response is response #${responses.length}`;
+	return reply;
 };
 Object.assign(exports, {initResponding, checkTechnicals, logResponse});

@@ -77,7 +77,7 @@ function processMessage(message = queue.shift()) {
 		// Act on non-command direct messages
 		let isVote = /\[.*\]/.test(message.content);
 		if (phase === "responding" || phase === "both" && !isVote) {
-			sendMessage(message.author.dmChannel, logResponse(message));
+			logResponse(message).then(reply => sendMessage(message.author.dmChannel, reply));
 		} else if (phase === "voting" || phase === "both") {
 			sendMessage(message.author.dmChannel, logVote(message));
 		}
