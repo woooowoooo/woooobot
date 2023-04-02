@@ -144,7 +144,7 @@ exports.toUnixTime = function (time) { // (Snowflake | String | Unix | null) -> 
 			throw new Error("Invalid time");
 	}
 };
-// Miscellaneous
+// Require
 exports.getPaths = function (seasonPath) {
 	const paths = {
 		respondingPath: "./responding.js",
@@ -185,4 +185,13 @@ exports.reload = function (path) {
 };
 exports.save = async function (path, content) {
 	await fs.promises.writeFile(path, JSON.stringify(content, null, "\t"));
+};
+// Miscellanous
+exports.scramble = function (array) {
+	const copy = [...array];
+	for (let i = 0; i < copy.length; i++) { // Randomize response array
+		const j = Math.floor(Math.random() * i);
+		[copy[i], copy[j]] = [copy[j], copy[i]];
+	}
+	return copy;
 };

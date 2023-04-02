@@ -1,6 +1,6 @@
 // Modules
 const {client} = require("./index.js");
-const {logMessage, sendMessage, addRole, removeRole, toTimeString, toUnixTime, defaultRequire, save} = require("./helpers.js");
+const {logMessage, sendMessage, addRole, removeRole, toTimeString, toUnixTime, defaultRequire, save, scramble} = require("./helpers.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const status = require(twowPath + "status.json");
@@ -84,14 +84,6 @@ async function createScreen(responses, keyword, section, textScreen = false) {
 		content: textScreen && screen.length < 2000 ? screen : null, // For easy voter.js input
 		files: files
 	}, true);
-}
-function scramble(array) {
-	const copy = [...array];
-	for (let i = 0; i < copy.length; i++) { // Randomize response array
-		const j = Math.floor(Math.random() * i);
-		[copy[i], copy[j]] = [copy[j], copy[i]];
-	}
-	return copy;
 }
 async function createSection(responses, sizes, sectWord) {
 	for (let i = 0; i < sizes.length; i++) {
@@ -212,4 +204,4 @@ function logVote(message) {
 	save(roundPath + "votes.json", votes);
 	return `Your vote has been recorded:\n\`\`\`${voteFull.map(matches => matches[0]).join("\n")}\`\`\`${votes[message.author.id].supervote ? "Thank you for supervoting!" : ""}`;
 };
-Object.assign(exports, {partitionResponses, scramble, initVoting, logVote});
+Object.assign(exports, {partitionResponses, initVoting, logVote});
