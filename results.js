@@ -35,11 +35,13 @@ function calculateResults() {
 		const stDev = mean(ratings, rating => (rating - average) ** 2) ** 0.5; // StDevP
 		const skew = mean(ratings, rating => (rating - average) ** 3) / stDev ** 3;
 		results.push({
+			rank: undefined,
 			dummy: response.dummy,
 			book: bookPaths[response.author],
 			id: response.author,
 			name: names[response.author],
 			response: response.text,
+			twist: response.twist, // Will be undefined if no twist; this is intended
 			percentile: Math.round(average * 1e10) / 1e8, // Avoid ranking by rounding error
 			stDev: Math.round(stDev * 1e10) / 1e8,
 			skew: Math.round(skew * 1e8) / 1e8,
