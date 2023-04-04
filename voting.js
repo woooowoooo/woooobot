@@ -9,7 +9,7 @@ const currentRound = phase === "both" ? currentVotingRound : currentRegularRound
 const roundPath = phase === "both" ? votingRoundPath : regularRoundPath;
 const {
 	id: serverId,
-	roles: {supervoter, votingRemind, votingPing},
+	roles: {supervoter, votingRemindPing, votingPing},
 	channels: {bots, voting, reminders: remindersId}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
@@ -198,7 +198,7 @@ function logVote(message) {
 	if (Object.keys(votes[message.author.id].screens).length === sectionScreens[section]) {
 		votes[message.author.id].supervote = true;
 		addRole(serverId, message.author.id, supervoter);
-		removeRole(serverId, message.author.id, votingRemind);
+		removeRole(serverId, message.author.id, votingRemindPing);
 	}
 	// TODO: Add more stats
 	save(roundPath + "votes.json", votes);
