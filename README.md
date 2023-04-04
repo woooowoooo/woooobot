@@ -1,7 +1,7 @@
 # woooobot
-Made to automate twoooowoooo.
+Made to automate twoooowoooo. Currently used to automate EndlessTWOW.
 
-**DOCS LAST UPDATED ON 2022-07-10**
+**DOCS LAST UPDATED ON 2023-04-02**
 
 ## Commands
 Example table entry:
@@ -12,23 +12,26 @@ Example table entry:
 ### Unrestricted
 | Command | Description |
 | --- | --- |
-| `help` | Show a welcome message. |
-| `list` | Show this command list. |
-| `book` (attach exactly one file) | Record the attachment as your book. |
+| `help` | Shows a welcome message. |
+| `list` | Shows this command list. |
+| `book` (attach exactly one file) | Records the attachment as your book. |
 | `echo <message>` | Repeats `<message>`. |
+| `edit [responseNumber] <message>` | Edits your response. You must specify a `<responseNumber>` if you have submitted multiple responses. |
 | `morshu [wordCount]` | Generates `<wordCount>` amount of morshu words. Default amount is 10 words. |
-| `ping [userId]` | Ping `<userId>` if provided. Pings yourself otherwise. |
+| `name <newName>` | Changes your season's display name to `<newName>`. |
+| `ping` | Pings yourself. |
 
 ### Admin-only
 | Command | Description |
 | --- | --- |
 | `phase [newPhase]` | Changes round status to `<newPhase>`. If no argument is provided, increments the phase. |
+| `vote <userId> <messageId> <vote>` | Records `<vote>` as `<userId>`'s vote, sent as message `<messageId>`. `<messageId>` may be in the form of a time string, but the space between the date and the time must be replaced with `T`. |
 
 ### Developer-only
 | Command | Description |
 | --- | --- |
 | `change <path> <key> <value>` | Changes the value of `<key>` in `<path>` to `<value>`. |
-| `edit <messageId> <channelId> <newMessage>` | Edits the message `<messageId>` (in `<channelId>`) to `<newMessage>`. |
+| `editmsg <messageId> <channelId> <newMessage>` | Edits the message `<messageId>` (in `<channelId>`) to `<newMessage>`. |
 | `eval <command>` | Runs `<command>`. |
 | `reload` | Reloads commands.js. |
 | `send <id> <text>` | Sends `<text>` to `<id>`. |
@@ -86,7 +89,7 @@ Channels include `bots` (an array of bot channels), `prompts`, `voting`, `result
 
 ### Seasons
 Season names and paths should be specified in the TWOW's `twowConfig.json`.
-To use custom responding (or voting, results, technicals, or twists) for a season, put a `responding.js` (or `voting.js`, `results.js`, `technicals.js`, or `twists.js`) in the season folder.
+To use custom responding (or voting, etc.) for a season, put a `responding.js` (or `voting.js`, etc.) in the season folder.
 Season folders consist of the following:
 - Rounds
 - `books` folder
@@ -96,6 +99,7 @@ Season folders consist of the following:
 - (Optional) `responding.js`
 - (Optional) `voting.js`
 - (Optional) `results.js`
+- (Optional) `inits.js`
 - (Optional) `technicals.js`
 - (Optional) `twists.js`
 
@@ -143,26 +147,39 @@ Round folders consist of the following:
 
 ## Round structure
 Each round consists of two phases: responding and voting.
+There is a special phase called "both" that allows for simultaneous responding and voting.
 Results happen after the voting phase concludes.
 If `autoDeadlines` in `seasonConfig.json` is set to true, these phases will be incremented automatically, following the `rDeadline` and `vDeadline` set in `roundConfig.json`.
 `rDeadline` and `vDeadline` are automatically generated following the configured `deadlines` in `seasonConfig.json`, but can be manually configured.
 
 ### Responding
+When the responding phase begins, the bot will post the prompt in the prompts channel.
 
 #### Technicals
+A "technical" is a rule that must be followed when responding to a prompt.
+Responses that do not follow the technical are not recorded.
 By default, a ten word limit technical is imposed on responses.
 To cancel this behavior, add `noTenWord` to the list of technicals to be used in `roundConfig.json`.
 All technicals that are not the ten word limit inherent in the definition of TWOW must be defined in `technicals.js` in the season folder.
 An example `technicals.js` can be found [in the sample season](Sample%20TWOW/Sample%20Season/technicals.js).
 
 #### Twists
-**Currently, twists are slightly broken.**
+A "twist" in the context of woooobot is defined as a function that modifies a response when it is recorded.
+Note that woooobot uses a narrow definition of twist.
 All twists must be defined in `twists.js` in the season folder.
 An example `twists.js` can be found [in the sample season](Sample%20TWOW/Sample%20Season/twists.js).
 
 ### Voting
+When the voting phase begins, the bot will send all voting screens as separate images to the voting channel.
+If `megascreen` is enabled, a screen that contains every response in the round will be made.
+A text version of the megascreen will be also be sent to facilitate use of https://voter.figgyc.uk/.
 
-### Results CLI
+### Results
+When results begins, first the leaderboard will be created.
+Then, the results CLI will activate.
+After results are finished with `end`, the bot will post the full leaderboard (generated at the beginning) in the results channel, as well as in the leaderboard channel if a `leaderboards` channel id is defined in `twowConfig.json`.
+
+#### CLI
 Examples:
 - `1 4 6` would show the responses in ranks 1, 4, and 6
 - `5.1` would show the first unranked response after rank 5
