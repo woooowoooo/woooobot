@@ -8,7 +8,6 @@
 		- Removing the console command listener would be sad
 	- Some responses are not being recorded
 - Fix "roles added" messages appearing early
-- Fix voting breaking with a lot of responses
 
 # Annoyances
 - Replace `new.json` with `queue.json`
@@ -21,6 +20,7 @@
 - Add message id to logs
 - Add both username and user id to logs
 - Check book attachment extension before saving
+- Save large .txt megascreens
 
 ## Editing
 Your response, `apsdijf` has been recorded.
@@ -42,7 +42,9 @@ Send `wb edit 2 [edited response]` to edit this response.
 - VoteLink™
 - Automatic asking for vote justification
 - Online vote checker tool
-- Change display name command
+- Dry run of a command
+- Slash commands (maybe)
+- Use a database (maybe)
 
 ## Results
 - "Watching SampleTWOW Season 1 Round 1 Results" feature
@@ -79,3 +81,6 @@ Send `wb edit 2 [edited response]` to edit this response.
 - Pause queue recording
 	- Partially solved by changing the hotkey to Ctrl + R instead of R
 	- Functional Ctrl+C
+- Allow CLI arguments to take multiple words
+	- Quotes? Will have to cook the arguments
+	- Imagine like a proper shell with options and stuff
