@@ -8,6 +8,7 @@
 		- Removing the console command listener would be sad
 	- Some responses are not being recorded
 - Fix "roles added" messages appearing early
+- Refresh all files after results and after `newRound`
 
 # Annoyances
 - Replace `new.json` with `queue.json`
@@ -21,12 +22,8 @@
 - Add both username and user id to logs
 - Check book attachment extension before saving
 - Save large .txt megascreens
-
-## Editing
-Your response, `apsdijf` has been recorded.
-It is your **2nd** and this round's **13th** submitted response.
-You may send **0** more responses.
-Send `wb edit 2 [edited response]` to edit this response.
+- [Add book message to first response message](behavior.md#first-response-message)
+- Add points to supervoters who did not respond
 
 # EndlessTWOW-specific things
 - Automatic point assigning before results
@@ -34,6 +31,10 @@ Send `wb edit 2 [edited response]` to edit this response.
 		- Make it stay even if someone responds after results
 - LCH in results
 - Make graphics not look funky after 10,000 points
+- Add nickname width limit
+- Re-implement dummies
+- Implement editing responses [(see behavior.md)](behavior.md#editing-behavior)
+- Implement balance
 
 # New Things
 - Multiple TWOWs
@@ -70,9 +71,6 @@ Send `wb edit 2 [edited response]` to edit this response.
 	- `reblessed` looks like `blessed` but not dead! Only took an hour to find it
 - Use a library for the graphics progress bars
 	- Progress bar for queue processing and mass role assignment/removal
-
-![Concept](concept-tui.png)
-
 - More ways to process messages
 	- Send message to message author feature
 	- Inbox channel
