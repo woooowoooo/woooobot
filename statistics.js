@@ -24,3 +24,4 @@ function listPrompts() {
 		}
 	}
 }
+Object.assign(exports, {showContestants, listSeasonContestants, listRoundContestants, listPrompts});

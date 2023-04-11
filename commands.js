@@ -213,6 +213,22 @@ ping: Pings yourself.
 		execute: function ({message: {author: {id}}}) {
 			return `<@${id}> :)`;
 		}
+	},
+	stat: {
+		permLevel: "normal",
+		execute: async function ({text: statName}) {
+			const stats = require("./statistics.js");
+			if (statName == null) {
+				throw new Error("Statistic name is missing!");
+			}
+			if (statName === "list") {
+				return `Available statistics: \`\`\`${Object.keys(stats).join("\n")}\`\`\``;
+			}
+			if (!(statName in stats)) {
+				throw new Error(`Invalid statistic!`);
+			}
+			return stats[statName]();
+		}
 	}
 };
 module.exports = async function (commandName, args, message, roles) {
