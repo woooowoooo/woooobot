@@ -1,5 +1,6 @@
 const {twowPath} = require("./config.json");
 const {seasonPath} = require(twowPath + "status.json");
+const {seasons} = require(twowPath + "twowConfig.json");
 const {rounds} = require(seasonPath + "seasonConfig.json");
 function listSeasonContestants() {
 	const {names} = require(seasonPath + "seasonContestants.json");
@@ -15,8 +16,11 @@ function listRoundContestants(round) {
 	}
 }
 function listPrompts() {
-	for (let roundPath of Object.values(rounds)) {
-		const {prompt} = require(seasonPath + roundPath + "roundConfig.json");
-		console.log(prompt);
+	for (let seasonPatha of Object.values(seasons)) {
+		const {rounds} = require(twowPath + seasonPatha + "seasonConfig.json");
+		for (let roundPath of Object.values(rounds)) {
+			const {prompt} = require(twowPath + seasonPatha + roundPath + "roundConfig.json");
+			console.log(prompt);
+		}
 	}
 }
