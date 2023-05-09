@@ -42,7 +42,7 @@ exports.initRound = async function (newRoundName) {
 		round: currentRound,
 		prompt: "",
 		rDeadline: toTimeString(toUnixTime(roundConfig.vDeadline) + seasonConfig.deadlines[0] * 86400),
-		vDeadline: toTimeString(toUnixTime(roundConfig.rDeadline) + seasonConfig.deadlines[1] * 86400)
+		vDeadline: toTimeString(toUnixTime(roundConfig.vDeadline) + (seasonConfig.deadlines[0] + seasonConfig.deadlines[1]) * 86400)
 	}, nextRound);
 	if (nextRound.remove != null) {
 		if (typeof nextRound.remove === "string") {
