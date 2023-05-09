@@ -45,8 +45,12 @@ exports.initRound = async function (newRoundName) {
 		vDeadline: toTimeString(toUnixTime(roundConfig.rDeadline) + seasonConfig.deadlines[1] * 86400)
 	}, nextRound);
 	if (nextRound.remove != null) {
-		for (const key of nextRound.remove) {
-			delete roundConfig[key];
+		if (typeof nextRound.remove === "string") {
+			delete roundConfig[nextRound.remove];
+		} else {
+			for (const key of nextRound.remove) {
+				delete roundConfig[key];
+			}
 		}
 		delete roundConfig.remove;
 	}
