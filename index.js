@@ -38,7 +38,7 @@ let processing = false;
 let me;
 // Process messages
 function readMessage(message, readTime = false, queued = queue.length > 0) {
-	let header = message.author.tag;
+	let header = `(${message.id}) ${message.author.tag} (${message.author.id})`;
 	if (message.guild != null) {
 		header += ` in ${message.guild.name}, #${message.channel.name}`;
 	}
