@@ -2,29 +2,42 @@
 const fs = require("fs");
 const {client} = require("./index.js");
 const {logging, loggingPath, sandbox, sandboxId} = require("./config.json");
-let logStream = "";
+let buffer = "\n" + "─".repeat(50) + "\n\n";
+let logStream = null;
+let currentDay = "";
 if (logging) {
 	const time = new Date();
+	makeLogFile(time).then(() => logStream.write(buffer));
+}
+function makeLogFile(time) {
 	const path = loggingPath + time.toISOString().substring(0, 7);
-	fs.promises.mkdir(path, {recursive: true}).then(() => {
-		let buffer = logStream;
-		logStream = fs.createWriteStream(`${path}/${exports.toTimeString(time).replace(/\s/g, "-")}.log`, {flags: "ax"});
-		logStream.write(buffer);
+	return fs.promises.mkdir(path, {recursive: true}).then(() => {
+		const timeString = exports.toTimeString(time);
+		currentDay = timeString.substring(0, 10);
+		logStream = fs.createWriteStream(`${path}/${currentDay}.log`, {flags: "a"});
 	});
 }
 exports.logMessage = function (message, error = false) {
 	if (Array.isArray(message)) {
 		message = message.join("\n\t");
 	}
-	const time = exports.toTimeString();
+	const timeDate = new Date();
+	const time = exports.toTimeString(timeDate);
+	// Log message to console
 	if (error) {
 		console.error(`${time} ${message}`);
 	} else {
 		console.log(`${time} ${message}`);
 	}
+	// Do file stuff
 	if (logging) {
-		if (typeof logStream === "string") {
-			logStream += `${time} ${message}\n`;
+		// If day has changed, create new log file
+		if (time.substring(0, 10) !== currentDay) {
+			makeLogFile(timeDate);
+		}
+		// Log message to file or to buffer if log file is not ready
+		if (logStream == null) {
+			buffer += `${time} ${message}\n`;
 		} else {
 			logStream.write(`${time} ${message}\n`);
 		}
