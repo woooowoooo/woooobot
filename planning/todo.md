@@ -7,7 +7,6 @@
 	- Stop the bot from treating results screen inputs as commands
 		- Removing the console command listener would be sad
 	- Some responses are not being recorded
-- Fix "roles added" messages appearing early
 - Refresh all files after results and after `newRound`
 
 # Annoyances
@@ -18,12 +17,12 @@
 - Add a way to use `send` with a username
 - Clarify vote rejection messages
 	- On partially bad votes, accept the good screens
-- Add message id to logs
-- Add both username and user id to logs
 - Check book attachment extension before saving
 - Save large .txt megascreens
 - [Add book message to first response message](behavior.md#first-response-message)
 - Add points to supervoters who did not respond
+- Return reply to `stat` command
+- Remove notification roles if people remove the corresponding ping role
 
 # EndlessTWOW-specific things
 - Automatic point assigning before results
@@ -31,7 +30,6 @@
 		- Make it stay even if someone responds after results
 - LCH in results
 - Make graphics not look funky after 10,000 points
-- Add nickname width limit
 - Re-implement dummies
 - Implement editing responses [(see behavior.md)](behavior.md#editing-behavior)
 - Implement balance
@@ -49,7 +47,6 @@
 
 ## Results
 - "Watching SampleTWOW Season 1 Round 1 Results" feature
-- Open leaderboard in new window
 - Send ping with `start`
 
 ## 1b1s
