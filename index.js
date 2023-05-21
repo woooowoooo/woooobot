@@ -84,6 +84,7 @@ function processMessage(message = queue.shift()) {
 	}
 }
 async function processMessageAsync(message) {
+	process.stdout.write("\u0007"); // Bell
 	return new Promise((resolve, reject) => {
 		const fullListener = (_, key) => {
 			if (key.ctrl && key.name === "r") {
