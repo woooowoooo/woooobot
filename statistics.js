@@ -21,8 +21,35 @@ function listPrompts() {
 function listContestants(round) {
 	const {names} = require(seasonPath + "seasonContestants.json");
 	const {responseCount} = require(seasonPath + rounds[round] + "contestants.json");
-	for (let id of Object.keys(responseCount)) {
+	for (const id of Object.keys(responseCount)) {
 		console.log(names[id]);
 	}
 }
-Object.assign(exports, {showContestants, listSeasonContestants, listRoundContestants, listPrompts});
+function listVoters(round) {
+	const {names} = require(seasonPath + "seasonContestants.json");
+	const votes = require(seasonPath + rounds[round] + "votes.json");
+	for (const id of Object.keys(votes)) {
+		console.log(names[id]);
+	}
+}
+function listSupervoters(round) {
+	const {names} = require(seasonPath + "seasonContestants.json");
+	const votes = require(seasonPath + rounds[round] + "votes.json");
+	for (const [id, vote] of Object.entries(votes)) {
+		if (vote.supervote) {
+			console.log(names[id]);
+		}
+	}
+}
+function calculateVPR(round) {
+	const responses = require(seasonPath + rounds[round] + "responses.json");
+	let responseVotes = 0;
+	for (const response of responses) {
+		responseVotes += response.ratings ?? 0;
+	}
+	return responseVotes / responses.length;
+}
+Object.assign(exports, {
+	listSeasonContestants, listPrompts,
+	listContestants, listVoters, listSupervoters, calculateVPR
+});
