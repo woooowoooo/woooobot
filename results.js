@@ -163,9 +163,11 @@ async function results() {
 		}, true);
 	}
 	// Spoiler wall
-	for (let _ = 0; _ < 50; _++) {
+	for (let _ = 0; _ < 49; _++) {
 		await sendMessage(resultsId, morshu(1), true);
 	}
+	// Link to beginning of results
+	await sendMessage(resultsId, resultsMessage.url, true);
 	// Reset contestants.json
 	contestants.prize = [];
 	contestants.alive = [];
