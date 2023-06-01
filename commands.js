@@ -216,8 +216,9 @@ ping: Pings yourself.
 	},
 	stat: {
 		permLevel: "normal",
-		execute: async function ({text: statName}) {
+		execute: async function ({text}) {
 			const stats = require("./statistics.js");
+			const [statName, ...args] = text.split(" ");
 			if (statName == null) {
 				throw new Error("Statistic name is missing!");
 			}
@@ -227,7 +228,7 @@ ping: Pings yourself.
 			if (!(statName in stats)) {
 				throw new Error(`Invalid statistic!`);
 			}
-			return stats[statName]();
+			return stats[statName](...args);
 		}
 	}
 };
