@@ -23,6 +23,8 @@
 - Add points to supervoters who did not respond
 - Return reply to `stat` command
 - Remove notification roles if people remove the corresponding ping role
+- Give actual names to `stat` command stuff
+- [Add function that splits command text into arguments](behavior.md#function-that-splits-text-into-arguments)
 
 # EndlessTWOW-specific things
 - Automatic point assigning before results
@@ -56,8 +58,6 @@
 - NR, SR
 - Participants per round
 	- Number of participants in a round
-- Voters per round
-	- VPR of a round
 - Score and points earned per round
 - How ranks change over time in a round
 - All of someone's placements
