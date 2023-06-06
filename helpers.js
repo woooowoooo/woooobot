@@ -52,14 +52,25 @@ exports.resolveChannel = async function (id) {
 		return await user.createDM();
 	}
 };
-exports.sendMessage = async function (destination, message, id = false) {
+exports.sendMessage = async function (destination, message, id = false, longMessageName) {
 	if (sandbox) {
 		destination = await exports.resolveChannel(sandboxId);
 	} else if (id) {
 		destination = await exports.resolveChannel(destination);
 	}
 	if ((message.content?.length ?? message.length ?? 0) > 2000) {
-		throw new Error("Message is too long!");
+		// Convert message contents to text file
+		if (typeof message !== "object") {
+			message = {content: message};
+		}
+		if (message.files == null) {
+			message.files = [];
+		}
+		message.files.unshift({
+			attachment: Buffer.from(message.content ?? message),
+			name: longMessageName ?? "message.txt"
+		});
+		message.content = null;
 	}
 	const sentMessage = await destination.send(message);
 	// Log message

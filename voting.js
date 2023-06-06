@@ -70,20 +70,13 @@ async function createScreen(responses, keyword, section, textScreen = false) {
 	// Draw and send screen
 	const path = `${roundPath}/screens/${keyword}.png`;
 	await drawScreen(path, keyword, prompt, Array.from(rows.entries()));
-	const files = [{
-		attachment: path,
-		name: keyword + ".png"
-	}];
-	if (textScreen && screen.length >= 2000) {
-		files.unshift({
-			attachment: Buffer.from(screen),
-			name: keyword + ".txt"
-		});
-	}
 	await sendMessage(voting, {
-		content: textScreen && screen.length < 2000 ? screen : null, // For easy voter.js input
-		files: files
-	}, true);
+		content: textScreen ? screen : null, // For easy voter.js input
+		files: [{
+			attachment: path,
+			name: keyword + ".png"
+		}]
+	}, true, keyword + ".txt");
 }
 async function createSection(responses, sizes, sectWord) {
 	for (let i = 0; i < sizes.length; i++) {
