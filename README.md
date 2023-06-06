@@ -1,7 +1,7 @@
 # woooobot
 Made to automate twoooowoooo. Currently used to automate EndlessTWOW.
 
-**DOCS LAST UPDATED ON 2023-04-02**
+**DOCS LAST UPDATED ON 2023-06-06**
 
 ## Commands
 Example table entry:
@@ -34,6 +34,7 @@ Example table entry:
 | `change <path> <key> <value>` | Changes the value of `<key>` in `<path>` to `<value>`. |
 | `editmsg <messageId> <channelId> <newMessage>` | Edits the message `<messageId>` (in `<channelId>`) to `<newMessage>`. |
 | `eval <command>` | Runs `<command>`. |
+| `log [date]` | Returns the log file for `<date>` (today if unspecified). |
 | `reload` | Reloads commands.js. |
 | `send <id> <text>` | Sends `<text>` to `<id>`. |
 

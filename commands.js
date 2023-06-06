@@ -1,6 +1,7 @@
 const {get} = require("https");
 const {createWriteStream} = require("fs");
-const {logMessage, sendMessage, toSnowflake, toUnixTime, getPaths, reload, save} = require("./helpers.js");
+const {readFile} = require("fs/promises");
+const {logMessage, sendMessage, toTimeString, toSnowflake, toUnixTime, getPaths, reload, save} = require("./helpers.js");
 const {prefix, devId, twowPath} = require("./config.json");
 const hasPerms = function (user, server, roles, permLevel) {
 	if (user.id === devId) {
@@ -102,6 +103,16 @@ ${list}\`\`\``;
 				eval(code);
 			} catch (e) {
 				throw new EvalError(`Invalid input command(s):\n	${code}\n	${e}`);
+			}
+		}
+	},
+	log: {
+		permLevel: "developer",
+		execute: async function ({text: date = toTimeString().slice(0, 10)}) {
+			try {
+				return await readFile(`./logs/${date.slice(0, 7)}/${date}.log`);
+			} catch {
+				throw new Error("No log found!");
 			}
 		}
 	},
