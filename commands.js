@@ -229,7 +229,11 @@ ${list}\`\`\``;
 				throw new Error("Statistic name is missing!");
 			}
 			if (statName === "list") {
-				return `Available statistics: \`\`\`${Object.keys(stats).join("\n")}\`\`\``;
+				let list = "";
+				for (const [name, {description}] of Object.entries(stats)) {
+					list += `${name}: ${description}\n`;
+				}
+				return `Available statistics: \`\`\`${list}\`\`\``;
 			}
 			if (!(statName in stats)) {
 				throw new Error(`Invalid statistic!`);

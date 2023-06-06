@@ -5,6 +5,7 @@ const {rounds} = require(seasonPath + "seasonConfig.json");
 // Season-wide
 const stats = {
 	listSeasonContestants: {
+		description: "List all season contestants",
 		execute: function () {
 			const {names} = require(seasonPath + "seasonContestants.json");
 			for (let name of Object.values(names)) {
@@ -13,6 +14,7 @@ const stats = {
 		}
 	},
 	listPrompts: {
+		description: "List all prompts in all seasons",
 		execute: function () {
 			for (let seasonPath of Object.values(seasons)) {
 				const {rounds} = require(twowPath + seasonPath + "seasonConfig.json");
@@ -25,6 +27,7 @@ const stats = {
 	},
 	// Round-specific
 	listContestants: {
+		description: "List all contestants in a round",
 		execute: function (round) {
 			const {names} = require(seasonPath + "seasonContestants.json");
 			const {responseCount} = require(seasonPath + rounds[round] + "contestants.json");
@@ -34,12 +37,14 @@ const stats = {
 		}
 	},
 	calculateContestants: {
+		description: "Calculate the number of contestants in a round",
 		execute: function (round) {
 			const responses = require(seasonPath + rounds[round] + "responses.json");
 			return responses.length;
 		}
 	},
 	listResponses: {
+		description: "List all responses in a round",
 		execute: function (round) {
 			const responses = require(seasonPath + rounds[round] + "responses.json");
 			for (const response of responses) {
@@ -48,6 +53,7 @@ const stats = {
 		}
 	},
 	listVoters: {
+		description: "List all voters in a round",
 		execute: function (round) {
 			const {names} = require(seasonPath + "seasonContestants.json");
 			const votes = require(seasonPath + rounds[round] + "votes.json");
@@ -57,6 +63,7 @@ const stats = {
 		}
 	},
 	listSupervoters: {
+		description: "List all supervoters in a round",
 		execute: function (round) {
 			const {names} = require(seasonPath + "seasonContestants.json");
 			const votes = require(seasonPath + rounds[round] + "votes.json");
@@ -68,6 +75,7 @@ const stats = {
 		}
 	},
 	calculateVPR: {
+		description: "Calculate the average number of votes per response in a round",
 		execute: function (round) {
 			const responses = require(seasonPath + rounds[round] + "responses.json");
 			let responseVotes = 0;
