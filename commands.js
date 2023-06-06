@@ -34,7 +34,7 @@ Use \`${prefix} list\` to list all available commands.`;
 		description: "list: Show this command list.",
 		execute: function () {
 			let list = "";
-			for (const command of Object.entries(commands)) {
+			for (const command of Object.values(commands)) {
 				if (command.permLevel === "normal") {
 					list += command.description + "\n";
 				}
