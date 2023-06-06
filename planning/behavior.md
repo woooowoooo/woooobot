@@ -27,3 +27,9 @@ Send `wb edit 2 [edited response]` to edit this response.
 Takes in text and the number of arguments.
 It would split by space unless there are a pair of double quotes except for the last argument which takes in the rest.
 Example: `foo "bar bar" baz quz` for 3 args would be ["foo", "bar bar", "baz quz"]
+
+# Stats
+Store stats someplace?
+Stat permission system would be like commands kinda
+Specify whether stats apply to rounds, seasons, or twows and for individuals or everyone
+There could be like a complex system for specifying what stat over what rounds or seasons or whatnot to show

@@ -33,6 +33,20 @@ const stats = {
 			}
 		}
 	},
+	calculateContestants: {
+		execute: function (round) {
+			const responses = require(seasonPath + rounds[round] + "responses.json");
+			return responses.length;
+		}
+	},
+	listResponses: {
+		execute: function (round) {
+			const responses = require(seasonPath + rounds[round] + "responses.json");
+			for (const response of responses) {
+				console.log(response.text);
+			}
+		}
+	},
 	listVoters: {
 		execute: function (round) {
 			const {names} = require(seasonPath + "seasonContestants.json");

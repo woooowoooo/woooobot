@@ -56,8 +56,6 @@
 
 ## Statistics
 - Permission system
-- Participants per round
-	- Number of participants in a round
 - Leaderboard change over votes in a round
 
 ### Individual
