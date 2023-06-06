@@ -55,13 +55,15 @@
 - Generate input
 
 ## Statistics
-- NR, SR
+- Permission system
 - Participants per round
 	- Number of participants in a round
+- Leaderboard change over votes in a round
+
+### Individual
+- NR, SR
 - Score and points earned per round
-- How ranks change over time in a round
-- All of someone's placements
-- Everyone's ranks throughout the season
+- Placements in each round
 
 ## TUI
 - Using `blessed` maybe?

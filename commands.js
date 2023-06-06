@@ -221,7 +221,7 @@ ${list}\`\`\``;
 		}
 	},
 	stat: {
-		permLevel: "normal",
+		permLevel: "developer", // Haven't figured out stat permissions yet
 		execute: async function ({text}) {
 			const stats = require("./statistics.js");
 			const [statName, ...args] = text.split(" ");
@@ -234,7 +234,7 @@ ${list}\`\`\``;
 			if (!(statName in stats)) {
 				throw new Error(`Invalid statistic!`);
 			}
-			return stats[statName](...args);
+			return stats[statName].execute(...args);
 		}
 	}
 };
