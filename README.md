@@ -17,9 +17,10 @@ Example table entry:
 | `book` (attach exactly one file) | Records the attachment as your book. |
 | `echo <message>` | Repeats `<message>`. |
 | `edit [responseNumber] <message>` | Edits your response. You must specify a `<responseNumber>` if you have submitted multiple responses. |
-| `morshu [wordCount]` | Generates `<wordCount>` amount of morshu words. Default amount is 10 words. |
-| `name <newName>` | Changes your season's display name to `<newName>`. |
+| `morshu [sentenceCount]` | Generates `<sentenceCount>` (one if unspecified) amount of morshu sentences. |
+| `name <newName>` | Changes the name displayed during results for the current season to `<newName>`. |
 | `ping` | Pings yourself. |
+| `stat <statName> [possible arguments]` | It's complicated (docs don't exist yet) |
 
 ### Admin-only
 | Command | Description |

@@ -20,6 +20,7 @@ const hasPerms = function (user, server, roles, permLevel) {
 const commands = {
 	help: {
 		permLevel: "normal",
+		description: "help: Show a welcome message.",
 		execute: function () {
 			return `Welcome to woooobot.
 woooobot was made to automate twoooowoooo.
@@ -30,21 +31,21 @@ Use \`${prefix} list\` to list all available commands.`;
 	},
 	list: {
 		permLevel: "normal",
+		description: "list: Show this command list.",
 		execute: function () {
+			let list = "";
+			for (const command of Object.entries(commands)) {
+				if (command.permLevel === "normal") {
+					list += command.description + "\n";
+				}
+			}
 			return `\`\`\`ldif
 # Here are the current available commands:
 
 # Example list entry:
 command <requiredArg> [optionalArg]: Description <argument>.
 
-help: Show a welcome message.
-list: Show this command list.
-
-book (attach exactly one file): Record the attachment as your book.
-echo <message>: Repeats <message>.
-morshu [sentenceCount]: Generates <sentenceCount> amount of morshu sentences. Default amount is one sentence.
-ping: Pings yourself.
-\`\`\``;
+${list}\`\`\``;
 		}
 	},
 	change: {
@@ -158,6 +159,7 @@ ping: Pings yourself.
 	},
 	book: {
 		permLevel: "normal",
+		description: "book (attach exactly one file): Record the attachment as your book.",
 		execute: async function ({message: {author: user, attachments}}) {
 			const {seasonPath} = require(twowPath + "status.json");
 			const contestants = require(seasonPath + "seasonContestants.json");
@@ -178,6 +180,7 @@ ping: Pings yourself.
 	},
 	echo: {
 		permLevel: "normal",
+		description: "echo <message>: Repeats <message>.",
 		execute: function ({text}) {
 			if (text == null) {
 				throw new Error("\"message\" is missing!");
@@ -187,6 +190,7 @@ ping: Pings yourself.
 	},
 	morshu: {
 		permLevel: "normal",
+		description: "morshu [sentenceCount]: Generates <sentenceCount> (one if unspecified) amount of morshu sentences.",
 		execute: function ({text: sentences = 1}) {
 			if (isNaN(parseInt(sentences)) || sentences <= 0) {
 				throw new Error(`"${sentences}" is not a positive integer!`);
@@ -196,6 +200,7 @@ ping: Pings yourself.
 	},
 	name: {
 		permLevel: "normal",
+		description: "name <newName>: Changes the name displayed during results for the current season to `<newName>`.",
 		execute: async function ({text: newName, message: {author: {id}}}) {
 			if (newName == null) {
 				throw new Error("New display name is missing!");
@@ -210,6 +215,7 @@ ping: Pings yourself.
 	},
 	ping: {
 		permLevel: "normal",
+		description: "ping: Pings yourself.",
 		execute: function ({message: {author: {id}}}) {
 			return `<@${id}> :)`;
 		}
