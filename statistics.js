@@ -39,8 +39,8 @@ const stats = {
 	calculateContestants: {
 		description: "Calculate the number of contestants in a round",
 		execute: function (round) {
-			const responses = require(seasonPath + rounds[round] + "responses.json");
-			return responses.length;
+			const {responseCount} = require(seasonPath + rounds[round] + "contestants.json");
+			return Object.keys(responseCount).length;
 		}
 	},
 	listResponses: {
@@ -50,6 +50,13 @@ const stats = {
 			for (const response of responses) {
 				console.log(response.text);
 			}
+		}
+	},
+	calculateResponses: {
+		description: "Calculate the number of responses in a round",
+		execute: function (round) {
+			const responses = require(seasonPath + rounds[round] + "responses.json");
+			return responses.length;
 		}
 	},
 	listVoters: {
