@@ -8,6 +8,7 @@
 		- Removing the console command listener would be sad
 	- Some responses are not being recorded
 - Refresh all files after results and after `newRound`
+- Fix `parseArgs` dying on escaped quotes
 
 # Annoyances
 - Replace `new.json` with `queue.json`
@@ -20,13 +21,11 @@
 - Check book attachment extension before saving
 - Save large .txt megascreens
 - [Add book message to first response message](behavior.md#first-response-message)
-- Add points to supervoters who did not respond
 - Return reply to `stat` command
 - Remove notification roles if people remove the corresponding ping role
-- Give actual names to `stat` command stuff
-- [Add function that splits command text into arguments](behavior.md#function-that-splits-text-into-arguments)
 
 # EndlessTWOW-specific things
+- Add points to supervoters who did not respond
 - Automatic point assigning before results
 	- Fix point assignment afterwards
 		- Make it stay even if someone responds after results
@@ -55,6 +54,7 @@
 - Generate input
 
 ## Statistics
+- Give actual names to stat commands
 - Permission system
 - Leaderboard change over votes in a round
 

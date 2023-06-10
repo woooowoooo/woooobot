@@ -211,6 +211,21 @@ exports.save = async function (path, content) {
 	await fs.promises.writeFile(path, JSON.stringify(content, null, "\t"));
 };
 // Miscellanous
+exports.parseArgs = function (text, amount) { // Split a string into arguments
+	const regex = /(?<=\s|^)(?:"(?<quoted>[^"]+)"|(?<unquoted>\S+))(?=\s|$)/g; // Either double quotes or non-whitespace, separated by whitespace
+	const args = [];
+	// Add arguments (not using `matchAll` so quotes don't get removed at the end)
+	while (args.length < amount - 1) {
+		const groups = regex.exec(text)?.groups;
+		if (groups == null) { //  Nothing left
+			return args;
+		}
+		args.push(groups.unquoted ?? groups.quoted); // Matches are guaranteed to be one of the two
+	}
+	// Push rest of the string as final argument
+	args.push(text.substring(regex.lastIndex).trim());
+	return args;
+};
 exports.scramble = function (array) {
 	const copy = [...array];
 	for (let i = 0; i < copy.length; i++) { // Randomize response array

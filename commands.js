@@ -1,7 +1,7 @@
 const {get} = require("https");
 const {createWriteStream} = require("fs");
 const {readFile} = require("fs/promises");
-const {logMessage, sendMessage, toTimeString, toSnowflake, toUnixTime, getPaths, reload, save} = require("./helpers.js");
+const {logMessage, sendMessage, toTimeString, toSnowflake, toUnixTime, getPaths, reload, save, parseArgs} = require("./helpers.js");
 const {prefix, devId, twowPath} = require("./config.json");
 const hasPerms = function (user, server, roles, permLevel) {
 	if (user.id === devId) {
@@ -20,8 +20,9 @@ const hasPerms = function (user, server, roles, permLevel) {
 };
 const commands = {
 	help: {
-		permLevel: "normal",
+		arguments: [],
 		description: "help: Show a welcome message.",
+		permLevel: "normal",
 		execute: function () {
 			return `Welcome to woooobot.
 woooobot was made to automate twoooowoooo.
@@ -31,8 +32,9 @@ Use \`${prefix} list\` to list all available commands.`;
 		}
 	},
 	list: {
-		permLevel: "normal",
+		arguments: [],
 		description: "list: Show this command list.",
+		permLevel: "normal",
 		execute: function () {
 			let list = "";
 			for (const command of Object.values(commands)) {
@@ -50,9 +52,9 @@ ${list}\`\`\``;
 		}
 	},
 	change: {
+		arguments: ["<path>", "<keys>", "<value>"],
 		permLevel: "developer",
-		execute: async function ({text}) {
-			let [path, keys, value] = text.split(" ");
+		execute: async function ({args: [path, keys, value]}) {
 			// Get object from path
 			if (/..\//.test(path)) {
 				throw new Error("You can't edit above miniTWOW-level!");
@@ -78,9 +80,9 @@ ${list}\`\`\``;
 		}
 	},
 	editmsg: {
+		arguments: ["<channelId>", "<messageId>", "<newMessage>"],
 		permLevel: "developer",
-		execute: async function ({text, message}) {
-			const [channelId, messageId, ...newMessage] = text.split(" ");
+		execute: async function ({args: [channelId, messageId, newMessage], message}) {
 			const channel = await message.guild.channels.fetch(channelId).catch(e => {
 				throw new Error("Could not fetch channel in specified server! " + e);
 			});
@@ -94,8 +96,9 @@ ${list}\`\`\``;
 		}
 	},
 	eval: {
+		arguments: ["<code>"],
 		permLevel: "developer",
-		execute: function ({text: code}) {
+		execute: function ({args: [code]}) {
 			try {
 				const singleLine = code.match(/^(`+)(?<code>.*)\1$/s)?.groups.code;
 				const multiLine = code.match(/^(`{3,})(?:js|javascript)?\n(?<code>.*)\n\1$/s)?.groups.code;
@@ -107,8 +110,9 @@ ${list}\`\`\``;
 		}
 	},
 	log: {
+		arguments: ["[date]"],
 		permLevel: "developer",
-		execute: async function ({text: date = toTimeString().slice(0, 10)}) {
+		execute: async function ({args: [date = toTimeString().slice(0, 10)]}) {
 			try {
 				return await readFile(`./logs/${date.slice(0, 7)}/${date}.log`);
 			} catch {
@@ -117,9 +121,9 @@ ${list}\`\`\``;
 		}
 	},
 	send: {
+		arguments: ["<channelId>", "<message>"],
 		permLevel: "developer",
-		execute: async function ({text}) {
-			let [channelId, ...message] = text.split(" ");
+		execute: async function ({args: [channelId, message]}) {
 			channelId = channelId.match(/^<(#|@|@!)(?<id>\d+)>$/)?.groups.id ?? channelId;
 			if (!/\d+/.test(channelId)) {
 				throw new Error("Invalid channel ID!");
@@ -128,8 +132,9 @@ ${list}\`\`\``;
 		}
 	},
 	phase: {
+		arguments: ["<phase>"],
 		permLevel: "admin",
-		execute: async function ({text: phase}) {
+		execute: async function ({args: [phase]}) {
 			let {seasonPath, roundPath} = require(twowPath + "status.json");
 			let {respondingPath, votingPath, resultsPath, initsPath} = getPaths(seasonPath);
 			if (phase === "responding") {
@@ -152,9 +157,9 @@ ${list}\`\`\``;
 		}
 	},
 	vote: {
+		arguments: ["<userId>", "<messageId>", "<vote>"],
 		permLevel: "admin",
-		execute: async function ({text}) {
-			const [userId, messageId, ...vote] = text.split(" ");
+		execute: async function ({args: [userId, messageId, vote]}) {
 			const message = {
 				id: toSnowflake(messageId),
 				content: vote.join(" "),
@@ -169,8 +174,9 @@ ${list}\`\`\``;
 		}
 	},
 	book: {
-		permLevel: "normal",
+		arguments: ["(attach exactly one file)"],
 		description: "book (attach exactly one file): Record the attachment as your book.",
+		permLevel: "normal",
 		execute: async function ({message: {author: user, attachments}}) {
 			const {seasonPath} = require(twowPath + "status.json");
 			const contestants = require(seasonPath + "seasonContestants.json");
@@ -190,19 +196,22 @@ ${list}\`\`\``;
 		}
 	},
 	echo: {
-		permLevel: "normal",
+		arguments: ["<message>"],
 		description: "echo <message>: Repeats <message>.",
-		execute: function ({text}) {
+		permLevel: "normal",
+		execute: function ({args: [text]}) {
 			if (text == null) {
 				throw new Error("\"message\" is missing!");
 			}
 			return text;
 		}
 	},
-	morshu: {
 		permLevel: "normal",
+	morshu: {
+		arguments: ["[sentenceCount]"],
 		description: "morshu [sentenceCount]: Generates <sentenceCount> (one if unspecified) amount of morshu sentences.",
-		execute: function ({text: sentences = 1}) {
+		permLevel: "normal",
+		execute: function ({args: [sentences = 1]}) {
 			if (isNaN(parseInt(sentences)) || sentences <= 0) {
 				throw new Error(`"${sentences}" is not a positive integer!`);
 			}
@@ -210,9 +219,10 @@ ${list}\`\`\``;
 		}
 	},
 	name: {
-		permLevel: "normal",
+		arguments: ["<newName>"],
 		description: "name <newName>: Changes the name displayed during results for the current season to `<newName>`.",
-		execute: async function ({text: newName, message: {author: {id}}}) {
+		permLevel: "normal",
+		execute: async function ({args: [newName], message: {author: {id}}}) {
 			if (newName == null) {
 				throw new Error("New display name is missing!");
 			}
@@ -225,17 +235,19 @@ ${list}\`\`\``;
 		}
 	},
 	ping: {
-		permLevel: "normal",
+		arguments: [],
 		description: "ping: Pings yourself.",
+		permLevel: "normal",
 		execute: function ({message: {author: {id}}}) {
 			return `<@${id}> :)`;
 		}
 	},
 	stat: {
+		arguments: ["<statName>", "[statArgs]"],
+		description: "UNFINISHED",
 		permLevel: "normal",
-		execute: async function ({text, message, roles}) {
+		execute: async function ({args: [statName, statArgs], message, roles}) {
 			const stats = require("./statistics.js");
-			const [statName, ...args] = text.split(" ");
 			if (statName == null) {
 				throw new Error("Statistic name is missing!");
 			}
@@ -257,7 +269,7 @@ ${list}\`\`\``;
 				throw new Error("You aren't allowed to see this statistic!");
 			}
 			// Execute statistic command
-			return stat.execute(...args);
+			return stat.execute(...statArgs);
 		}
 	}
 };
@@ -269,7 +281,8 @@ module.exports = async function (commandName, args, message, roles) {
 	if (!hasPerms(message.author, message.guild, roles, command.permLevel)) {
 		throw new Error("You aren't allowed to use this command!");
 	}
-	const output = await command.execute({message, text: args});
+	const argArray = parseArgs(args, command.arguments.length);
+	const output = await command.execute({message, args: argArray, roles}); // I really don't like exposing `roles`, TODO: Rework `stats`
 	if (message.guild != null && hasPerms(message.author, message.guild, roles, "admin") && (output.includes("@everyone") || output.includes("@here"))) {
 		throw new Error(`You aren't allowed to ping @​${output.includes("@everyone") ? "everyone" : "here"}!`);
 	}
