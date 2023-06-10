@@ -6,6 +6,8 @@ const {rounds} = require(seasonPath + "seasonConfig.json");
 const stats = {
 	listSeasonContestants: {
 		description: "List all season contestants",
+		permLevel: "normal",
+		range: "season",
 		execute: function () {
 			const {names} = require(seasonPath + "seasonContestants.json");
 			for (let name of Object.values(names)) {
@@ -15,6 +17,8 @@ const stats = {
 	},
 	listPrompts: {
 		description: "List all prompts in all seasons",
+		permLevel: "normal",
+		range: "twow", // TODO: Reduce to round level once range system is implemented
 		execute: function () {
 			for (let seasonPath of Object.values(seasons)) {
 				const {rounds} = require(twowPath + seasonPath + "seasonConfig.json");
@@ -28,6 +32,8 @@ const stats = {
 	// Round-specific
 	listContestants: {
 		description: "List all contestants in a round",
+		permLevel: "normal",
+		range: "round",
 		execute: function (round) {
 			const {names} = require(seasonPath + "seasonContestants.json");
 			const {responseCount} = require(seasonPath + rounds[round] + "contestants.json");
@@ -38,6 +44,8 @@ const stats = {
 	},
 	calculateContestants: {
 		description: "Calculate the number of contestants in a round",
+		permLevel: "normal",
+		range: "round",
 		execute: function (round) {
 			const {responseCount} = require(seasonPath + rounds[round] + "contestants.json");
 			return Object.keys(responseCount).length;
@@ -45,6 +53,8 @@ const stats = {
 	},
 	listResponses: {
 		description: "List all responses in a round",
+		permLevel: "admin",
+		range: "round",
 		execute: function (round) {
 			const responses = require(seasonPath + rounds[round] + "responses.json");
 			for (const response of responses) {
@@ -54,6 +64,8 @@ const stats = {
 	},
 	calculateResponses: {
 		description: "Calculate the number of responses in a round",
+		permLevel: "normal",
+		range: "round",
 		execute: function (round) {
 			const responses = require(seasonPath + rounds[round] + "responses.json");
 			return responses.length;
@@ -61,6 +73,8 @@ const stats = {
 	},
 	listVoters: {
 		description: "List all voters in a round",
+		permLevel: "normal",
+		range: "round",
 		execute: function (round) {
 			const {names} = require(seasonPath + "seasonContestants.json");
 			const votes = require(seasonPath + rounds[round] + "votes.json");
@@ -71,6 +85,8 @@ const stats = {
 	},
 	listSupervoters: {
 		description: "List all supervoters in a round",
+		permLevel: "normal",
+		range: "round",
 		execute: function (round) {
 			const {names} = require(seasonPath + "seasonContestants.json");
 			const votes = require(seasonPath + rounds[round] + "votes.json");
@@ -83,6 +99,8 @@ const stats = {
 	},
 	calculateVPR: {
 		description: "Calculate the average number of votes per response in a round",
+		permLevel: "normal",
+		range: "round",
 		execute: function (round) {
 			const responses = require(seasonPath + rounds[round] + "responses.json");
 			let responseVotes = 0;

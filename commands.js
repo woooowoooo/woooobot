@@ -232,13 +232,14 @@ ${list}\`\`\``;
 		}
 	},
 	stat: {
-		permLevel: "developer", // Haven't figured out stat permissions yet
-		execute: async function ({text}) {
+		permLevel: "normal",
+		execute: async function ({text, message, roles}) {
 			const stats = require("./statistics.js");
 			const [statName, ...args] = text.split(" ");
 			if (statName == null) {
 				throw new Error("Statistic name is missing!");
 			}
+			// Special stat: list all statistics
 			if (statName === "list") {
 				let list = "";
 				for (const [name, {description}] of Object.entries(stats)) {
@@ -246,10 +247,17 @@ ${list}\`\`\``;
 				}
 				return `Available statistics: \`\`\`${list}\`\`\``;
 			}
+			// Check if statistic exists
 			if (!(statName in stats)) {
 				throw new Error(`Invalid statistic!`);
 			}
-			return stats[statName].execute(...args);
+			const stat = stats[statName];
+			// Check permissions
+			if (!hasPerms(message.author, message.guild, roles, stat.permLevel)) {
+				throw new Error("You aren't allowed to see this statistic!");
+			}
+			// Execute statistic command
+			return stat.execute(...args);
 		}
 	}
 };
