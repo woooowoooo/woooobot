@@ -9,13 +9,12 @@ if (logging) {
 	const time = new Date();
 	makeLogFile(time).then(() => logStream.write(buffer));
 }
-function makeLogFile(time) {
+async function makeLogFile(time) {
 	const path = loggingPath + time.toISOString().substring(0, 7);
-	return fs.promises.mkdir(path, {recursive: true}).then(() => {
-		const timeString = exports.toTimeString(time);
-		currentDay = timeString.substring(0, 10);
-		logStream = fs.createWriteStream(`${path}/${currentDay}.log`, {flags: "a"});
-	});
+	await fs.promises.mkdir(path, {recursive: true});
+	const timeString = exports.toTimeString(time);
+	currentDay = timeString.substring(0, 10);
+	logStream = fs.createWriteStream(`${path}/${currentDay}.log`, {flags: "a"});
 }
 exports.logMessage = function (message, error = false) {
 	if (Array.isArray(message)) {
