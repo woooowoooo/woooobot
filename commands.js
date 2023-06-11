@@ -21,7 +21,7 @@ const hasPerms = function (user, server, roles, permLevel) {
 const commands = {
 	help: {
 		arguments: [],
-		description: "help: Show a welcome message.",
+		description: "Show a welcome message.",
 		permLevel: "normal",
 		execute: function () {
 			return `Welcome to woooobot.
@@ -33,13 +33,13 @@ Use \`${prefix} list\` to list all available commands.`;
 	},
 	list: {
 		arguments: [],
-		description: "list: Show this command list.",
+		description: "Show this command list.",
 		permLevel: "normal",
 		execute: function () {
 			let list = "";
-			for (const command of Object.values(commands)) {
+			for (const [name, command] of Object.entries(commands)) {
 				if (command.permLevel === "normal") {
-					list += command.description + "\n";
+					list += `${name} ${command.arguments.join(" ")}: ${command.description}\n`;
 				}
 			}
 			return `\`\`\`ldif
@@ -175,7 +175,7 @@ ${list}\`\`\``;
 	},
 	book: {
 		arguments: ["(attach exactly one file)"],
-		description: "book (attach exactly one file): Record the attachment as your book.",
+		description: "Record the attachment as your book.",
 		permLevel: "normal",
 		execute: async function ({message: {author: user, attachments}}) {
 			const {seasonPath} = require(twowPath + "status.json");
@@ -197,7 +197,7 @@ ${list}\`\`\``;
 	},
 	echo: {
 		arguments: ["<message>"],
-		description: "echo <message>: Repeats <message>.",
+		description: "Repeats <message>.",
 		permLevel: "normal",
 		execute: function ({args: [text]}) {
 			if (text == null) {
@@ -209,7 +209,7 @@ ${list}\`\`\``;
 		permLevel: "normal",
 	morshu: {
 		arguments: ["[sentenceCount]"],
-		description: "morshu [sentenceCount]: Generates <sentenceCount> (one if unspecified) amount of morshu sentences.",
+		description: "Generates <sentenceCount> (one if unspecified) amount of morshu sentences.",
 		permLevel: "normal",
 		execute: function ({args: [sentences = 1]}) {
 			if (isNaN(parseInt(sentences)) || sentences <= 0) {
@@ -220,7 +220,7 @@ ${list}\`\`\``;
 	},
 	name: {
 		arguments: ["<newName>"],
-		description: "name <newName>: Changes the name displayed during results for the current season to `<newName>`.",
+		description: "Changes the name displayed during results for the current season to `<newName>`.",
 		permLevel: "normal",
 		execute: async function ({args: [newName], message: {author: {id}}}) {
 			if (newName == null) {
@@ -236,7 +236,7 @@ ${list}\`\`\``;
 	},
 	ping: {
 		arguments: [],
-		description: "ping: Pings yourself.",
+		description: "Pings yourself.",
 		permLevel: "normal",
 		execute: function ({message: {author: {id}}}) {
 			return `<@${id}> :)`;
