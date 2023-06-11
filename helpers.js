@@ -213,6 +213,9 @@ exports.save = async function (path, content) {
 exports.parseArgs = function (text, amount) { // Split a string into arguments
 	const regex = /(?<=\s|^)(?:"(?<quoted>[^"]+)"|(?<unquoted>\S+))(?=\s|$)/g; // Either double quotes or non-whitespace, separated by whitespace
 	const args = [];
+	if (text === "" || amount === 0) {
+		return args;
+	}
 	// Add arguments (not using `matchAll` so quotes don't get removed at the end)
 	while (args.length < amount - 1) {
 		const groups = regex.exec(text)?.groups;

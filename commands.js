@@ -89,7 +89,7 @@ ${list}\`\`\``;
 			const msg = await channel.messages.fetch(messageId).catch(e => {
 				throw new Error("Could not fetch message from specified channel! " + e);
 			});
-			await msg.edit(newMessage.join(" ")).catch(e => {
+			await msg.edit(newMessage).catch(e => {
 				throw new Error("Message not editable! " + e);
 			});
 			return "Message edited!";
@@ -128,7 +128,7 @@ ${list}\`\`\``;
 			if (!/\d+/.test(channelId)) {
 				throw new Error("Invalid channel ID!");
 			}
-			sendMessage(channelId, message.join(" "), true);
+			sendMessage(channelId, message, true);
 		}
 	},
 	phase: {
@@ -162,13 +162,13 @@ ${list}\`\`\``;
 		execute: async function ({args: [userId, messageId, vote]}) {
 			const message = {
 				id: toSnowflake(messageId),
-				content: vote.join(" "),
+				content: vote,
 				createdAt: toUnixTime(messageId),
 				author: {
 					id: userId,
 					toString: () => userId,
 				},
-				toString: () => vote.join(" "),
+				toString: () => vote,
 			};
 			return require("./voting.js").logVote(message);
 		}
@@ -273,7 +273,7 @@ ${list}\`\`\``;
 		}
 	}
 };
-module.exports = async function (commandName, args, message, roles) {
+module.exports = async function (commandName, argText, message, roles) {
 	if (!(commandName in commands)) {
 		throw new Error(`That isn't a valid command!`);
 	}
@@ -281,8 +281,8 @@ module.exports = async function (commandName, args, message, roles) {
 	if (!hasPerms(message.author, message.guild, roles, command.permLevel)) {
 		throw new Error("You aren't allowed to use this command!");
 	}
-	const argArray = parseArgs(args, command.arguments.length);
-	const output = await command.execute({message, args: argArray, roles}); // I really don't like exposing `roles`, TODO: Rework `stats`
+	const args = parseArgs(argText, command.arguments.length);
+	const output = await command.execute({message, args, roles}); // I really don't like exposing `roles`, TODO: Rework `stats`
 	if (message.guild != null && hasPerms(message.author, message.guild, roles, "admin") && (output.includes("@everyone") || output.includes("@here"))) {
 		throw new Error(`You aren't allowed to ping @​${output.includes("@everyone") ? "everyone" : "here"}!`);
 	}

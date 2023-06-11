@@ -49,8 +49,7 @@ function readMessage(message, readTime = false, queued = queue.length > 0) {
 }
 function parseCommands(text, message) {
 	const command = text.split(" ", 1)[0];
-	// Default parameters only act on "undefined" and not an empty string.
-	const args = text.substring(command.length + 1) || undefined;
+	const argText = text.substring(command.length + 1);
 	// Reload commands
 	if (command === "reload" && message.author.id === devId) {
 		commands = reload("./commands.js");
@@ -58,7 +57,7 @@ function parseCommands(text, message) {
 		return;
 	}
 	// Execute other commands
-	commands(command, args, message, roles).then(reply => {
+	commands(command, argText, message, roles).then(reply => {
 		if (reply != null) {
 			sendMessage(message.channel, reply);
 		}
