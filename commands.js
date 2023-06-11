@@ -269,7 +269,7 @@ ${list}\`\`\``;
 				throw new Error("You aren't allowed to see this statistic!");
 			}
 			// Execute statistic command
-			return stat.execute(...statArgs);
+			return stat.execute(statArgs);
 		}
 	}
 };
