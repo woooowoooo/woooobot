@@ -15,18 +15,14 @@ const stats = {
 			}
 		}
 	},
-	listPrompts: {
-		description: "List all prompts in all seasons",
+	// Round-specific
+	prompt: {
+		description: "Return round prompt",
 		permLevel: "normal",
-		range: "twow", // TODO: Reduce to round level once range system is implemented
-		execute: function () {
-			for (let seasonPath of Object.values(seasons)) {
-				const {rounds} = require(twowPath + seasonPath + "seasonConfig.json");
-				for (let roundPath of Object.values(rounds)) {
-					const {prompt} = require(twowPath + seasonPath + roundPath + "roundConfig.json");
-					console.log(prompt);
-				}
-			}
+		range: "round",
+		execute: function (round) {
+			const {prompt} = require(seasonPath + rounds[round] + "roundConfig.json");
+			return prompt;
 		}
 	},
 	// Round-specific
