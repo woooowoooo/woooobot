@@ -39,7 +39,7 @@ Use \`${prefix} list\` to list all available commands.`;
 			let list = "";
 			for (const [name, command] of Object.entries(commands)) {
 				if (command.permLevel === "normal") {
-					list += `${name} ${command.arguments.join(" ")}: ${command.description}\n`;
+					list += `${name}${command.arguments.length > 0 ? ` ${command.arguments.join(" ")}` : ""}: ${command.description}\n`;
 				}
 			}
 			return `\`\`\`ldif
@@ -269,7 +269,7 @@ ${list}\`\`\``;
 				throw new Error("You aren't allowed to see this statistic!");
 			}
 			// Execute statistic command
-			return stat.execute(statArgs);
+			return stat.execute(statArgs).toString();
 		}
 	}
 };
