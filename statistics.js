@@ -4,6 +4,19 @@ const {seasons} = require(twowPath + "twowConfig.json");
 const {rounds} = require(seasonPath + "seasonConfig.json");
 // Season-wide
 const stats = {
+	list: {
+		description: "List all statistics",
+		permLevel: "normal",
+		range: undefined, // TODO: Work this out
+		execute: function () {
+			let list = "";
+			for (const [name, {description}] of Object.entries(stats)) {
+				list += `${name}: ${description}\n`;
+			}
+			return `Available statistics: \`\`\`${list}\`\`\``;
+		}
+	},
+	// Season-specific
 	listSeasonContestants: {
 		description: "List all season contestants",
 		permLevel: "normal",

@@ -247,18 +247,10 @@ ${list}\`\`\``;
 		permLevel: "normal",
 		execute: async function ({args: [statName, statArgs], message, roles}) {
 			const stats = require("./statistics.js");
+			// Check if statistic exists
 			if (statName == null) {
 				throw new Error("Statistic name is missing!");
 			}
-			// Special stat: list all statistics
-			if (statName === "list") {
-				let list = "";
-				for (const [name, {description}] of Object.entries(stats)) {
-					list += `${name}: ${description}\n`;
-				}
-				return `Available statistics: \`\`\`${list}\`\`\``;
-			}
-			// Check if statistic exists
 			if (!(statName in stats)) {
 				throw new Error(`Invalid statistic!`);
 			}
