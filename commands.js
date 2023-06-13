@@ -206,7 +206,6 @@ ${list}\`\`\``;
 			return text;
 		}
 	},
-		permLevel: "normal",
 	morshu: {
 		arguments: ["[sentenceCount]"],
 		description: "Generates <sentenceCount> (one if unspecified) amount of morshu sentences.",

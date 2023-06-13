@@ -25,7 +25,6 @@ const stats = {
 			return prompt;
 		}
 	},
-	// Round-specific
 	listContestants: {
 		description: "List all contestants in a round",
 		permLevel: "normal",
