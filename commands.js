@@ -35,18 +35,31 @@ Use \`${prefix} list\` to list all available commands.`;
 		arguments: [],
 		description: "Show this command list.",
 		permLevel: "normal",
+		cookArgs: function (args) {
+			if (args.length === 0) {
+				return "";
+			}
+			let text = " " + args.join(" ");
+			text = text.replace(" [", " \x1B[33m[");
+			text = text.replace(" (", " \x1B[34m(");
+			text = text.replace(" <", " \x1B[31m<");
+			return text;
+		},
+		cook: function (text) {
+			return text.replace(/(<[^>]*>)/g, "\x1B[31m$1\x1B[37m");
+		},
 		execute: function () {
 			let list = "";
 			for (const [name, command] of Object.entries(commands)) {
 				if (command.permLevel === "normal") {
-					list += `${name}${command.arguments.length > 0 ? ` ${command.arguments.join(" ")}` : ""}: ${command.description}\n`;
+					list += `\x1B[32m${name}${this.cookArgs(command.arguments)}\x1B[37m: ${this.cook(command.description)}\n`;
 				}
 			}
-			return `\`\`\`ldif
-# Here are the current available commands:
+			return `\`\`\`ansi
+\x1B[0mHere are the current available commands:
 
-# Example list entry:
-command <requiredArg> [optionalArg]: Description <argument>.
+Example list entry:
+\x1B[32mcommand \x1B[31m<requiredArg> \x1B[33m[optionalArg]\x1B[37m: Description \x1B[31m<argument>\x1B[37m.
 
 ${list}\`\`\``;
 		}
@@ -219,7 +232,7 @@ ${list}\`\`\``;
 	},
 	name: {
 		arguments: ["<newName>"],
-		description: "Changes the name displayed during results for the current season to `<newName>`.",
+		description: "Changes the name displayed during results for the current season to <newName>.",
 		permLevel: "normal",
 		execute: async function ({args: [newName], message: {author: {id}}}) {
 			if (newName == null) {

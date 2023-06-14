@@ -11,9 +11,9 @@ const stats = {
 		execute: function () {
 			let list = "";
 			for (const [name, {description}] of Object.entries(stats)) {
-				list += `${name}: ${description}\n`;
+				list += `\x1B[31m${name}\x1B[37m: ${description}\n`;
 			}
-			return `Available statistics: \`\`\`${list}\`\`\``;
+			return `Available statistics: \`\`\`ansi\n\x1B[0m${list}\n\`\`\``;
 		}
 	},
 	// TWOW-specific
