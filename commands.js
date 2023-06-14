@@ -45,25 +45,36 @@ Use \`${prefix} list\` to list all available commands.`;
 			text = text.replace(" <", " \x1B[31m<");
 			return text;
 		},
-		cook: function (text) {
+		cook: function (text = "") {
 			return text.replace(/(<[^>]*>)/g, "\x1B[31m$1\x1B[37m");
 		},
-		execute: function () {
+		execute: function ({message, roles}) {
 			let list = "";
-			for (const [name, command] of Object.entries(commands)) {
-				if (command.permLevel === "normal") {
-					list += `\x1B[32m${name}${this.cookArgs(command.arguments)}\x1B[37m: ${this.cook(command.description)}\n`;
+			// Sort commands into permission levels
+			const permLevels = ["developer", "admin", "normal"];
+			const levelCommands = Object.entries(commands).reduce((levelCommands, [name, command]) => {
+				levelCommands[command.permLevel] ??= [];
+				levelCommands[command.permLevel].push([name, command]);
+				return levelCommands;
+			}, {});
+			// List commands per level
+			for (const level of permLevels) {
+				if (hasPerms(message.author, message.guild, roles, level)) {
+					list += `\n\x1B[1m${level.toUpperCase()} COMMANDS\x1B[0m\n`;
+					for (const [name, command] of levelCommands[level]) {
+						list += `\x1B[32m${name}${this.cookArgs(command.arguments)}\x1B[37m: ${this.cook(command.description)}\n`;
+					}
 				}
 			}
 			return `\`\`\`ansi
-\x1B[0mHere are the current available commands:
+\x1B[0mHere are the current available commands.
 
 Example list entry:
 \x1B[32mcommand \x1B[31m<requiredArg> \x1B[33m[optionalArg]\x1B[37m: Description \x1B[31m<argument>\x1B[37m.
-
 ${list}\`\`\``;
 		}
 	},
+	// Developer level
 	change: {
 		arguments: ["<path>", "<keys>", "<value>"],
 		permLevel: "developer",
@@ -144,6 +155,7 @@ ${list}\`\`\``;
 			sendMessage(channelId, message, true);
 		}
 	},
+	// Admin level
 	phase: {
 		arguments: ["<phase>"],
 		permLevel: "admin",
@@ -186,6 +198,7 @@ ${list}\`\`\``;
 			return require("./voting.js").logVote(message);
 		}
 	},
+	// Normal level
 	book: {
 		arguments: ["(attach exactly one file)"],
 		description: "Record the attachment as your book.",

@@ -62,9 +62,7 @@ exports.sendMessage = async function (destination, message, id = false, longMess
 		if (typeof message !== "object") {
 			message = {content: message};
 		}
-		if (message.files == null) {
-			message.files = [];
-		}
+		message.files ??= [];
 		message.files.unshift({
 			attachment: Buffer.from(message.content ?? message),
 			name: longMessageName ?? "message.txt"
