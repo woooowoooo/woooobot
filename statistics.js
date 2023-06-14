@@ -23,9 +23,7 @@ const stats = {
 		range: "season",
 		execute: function () {
 			const {names} = require(seasonPath + "seasonContestants.json");
-			for (let name of Object.values(names)) {
-				console.log(name);
-			}
+			return Object.values(names);
 		}
 	},
 	// Round-specific
@@ -45,9 +43,7 @@ const stats = {
 		execute: function (round) {
 			const {names} = require(seasonPath + "seasonContestants.json");
 			const {responseCount} = require(seasonPath + rounds[round] + "contestants.json");
-			for (const id of Object.keys(responseCount)) {
-				console.log(names[id]);
-			}
+			return Object.keys(responseCount).map(id => names[id]);
 		}
 	},
 	calculateContestants: {
@@ -65,9 +61,7 @@ const stats = {
 		range: "round",
 		execute: function (round) {
 			const responses = require(seasonPath + rounds[round] + "responses.json");
-			for (const response of responses) {
-				console.log(response.text);
-			}
+			return responses.map(response => response.text);
 		}
 	},
 	calculateResponses: {
@@ -86,9 +80,7 @@ const stats = {
 		execute: function (round) {
 			const {names} = require(seasonPath + "seasonContestants.json");
 			const votes = require(seasonPath + rounds[round] + "votes.json");
-			for (const id of Object.keys(votes)) {
-				console.log(names[id]);
-			}
+			return Object.keys(votes).map(id => names[id]);
 		}
 	},
 	listSupervoters: {
@@ -98,11 +90,7 @@ const stats = {
 		execute: function (round) {
 			const {names} = require(seasonPath + "seasonContestants.json");
 			const votes = require(seasonPath + rounds[round] + "votes.json");
-			for (const [id, vote] of Object.entries(votes)) {
-				if (vote.supervote) {
-					console.log(names[id]);
-				}
-			}
+			return Object.keys(votes).filter(id => votes[id].supervote).map(id => names[id]);
 		}
 	},
 	calculateVPR: {
@@ -113,7 +101,7 @@ const stats = {
 			const responses = require(seasonPath + rounds[round] + "responses.json");
 			let responseVotes = 0;
 			for (const response of responses) {
-				responseVotes += Object.keys(response.ratings ?? {}).length;
+				responseVotes += Object.keys(response.ratings)?.length ?? 0;
 			}
 			return responseVotes / responses.length;
 		}
