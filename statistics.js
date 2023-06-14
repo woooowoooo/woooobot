@@ -16,6 +16,33 @@ const stats = {
 			return `Available statistics: \`\`\`${list}\`\`\``;
 		}
 	},
+	// TWOW-specific
+	listTWOWContestants: {
+		description: "List all unique contestants who have participated in this TWOW",
+		permLevel: "normal",
+		range: "twow",
+		execute: function () {
+			const contestants = new Set();
+			for (let seasonPath of Object.values(seasons)) {
+				const {names} = require(seasonPath + "seasonContestants.json");
+				contestants.add(...Object.values(names));
+			}
+			return [...contestants];
+		}
+	},
+	calculateTWOWContestants: {
+		description: "Calculate the number of unique contestants who have participated in this TWOW",
+		permLevel: "normal",
+		range: "twow",
+		execute: function () {
+			const contestants = new Set();
+			for (let seasonPath of Object.values(seasons)) {
+				const {names} = require(seasonPath + "seasonContestants.json");
+				contestants.add(...Object.values(names));
+			}
+			return contestants.size;
+		}
+	},
 	// Season-specific
 	listSeasonContestants: {
 		description: "List all season contestants",
@@ -24,6 +51,15 @@ const stats = {
 		execute: function () {
 			const {names} = require(seasonPath + "seasonContestants.json");
 			return Object.values(names);
+		}
+	},
+	calculateSeasonContestants: {
+		description: "Calculate the number of season contestants",
+		permLevel: "normal",
+		range: "season",
+		execute: function () {
+			const {names} = require(seasonPath + "seasonContestants.json");
+			return Object.keys(names).length;
 		}
 	},
 	// Round-specific
