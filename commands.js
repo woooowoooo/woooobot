@@ -80,6 +80,7 @@ ${list}\`\`\``;
 	// Developer level
 	change: {
 		arguments: ["<path>", "<keys>", "<value>"],
+		description: "Changes the value of <key> in <path> to <value>.",
 		permLevel: "developer",
 		execute: async function ({args: [path, keys, value]}) {
 			// Get object from path
@@ -108,6 +109,7 @@ ${list}\`\`\``;
 	},
 	editmsg: {
 		arguments: ["<channelId>", "<messageId>", "<newMessage>"],
+		description: "Edits the message <messageId> (in <channelId>) to <newMessage>.",
 		permLevel: "developer",
 		execute: async function ({args: [channelId, messageId, newMessage], message}) {
 			const channel = await message.guild.channels.fetch(channelId).catch(e => {
@@ -124,6 +126,7 @@ ${list}\`\`\``;
 	},
 	eval: {
 		arguments: ["<code>"],
+		description: "Runs <code>.",
 		permLevel: "developer",
 		execute: function ({args: [code]}) {
 			try {
@@ -138,6 +141,7 @@ ${list}\`\`\``;
 	},
 	log: {
 		arguments: ["[date]"],
+		description: "Returns the log file for <date> (today if unspecified).",
 		permLevel: "developer",
 		execute: async function ({args: [date = toTimeString().slice(0, 10)]}) {
 			try {
@@ -149,6 +153,7 @@ ${list}\`\`\``;
 	},
 	send: {
 		arguments: ["<channelId>", "<message>"],
+		description: "Sends <message> to <channelId>.",
 		permLevel: "developer",
 		execute: async function ({args: [channelId, message]}) {
 			channelId = channelId.match(/^<(#|@|@!)(?<id>\d+)>$/)?.groups.id ?? channelId;
@@ -161,6 +166,7 @@ ${list}\`\`\``;
 	// Admin level
 	phase: {
 		arguments: ["<phase>"],
+		description: "Changes round status to <phase>.",
 		permLevel: "admin",
 		execute: async function ({args: [phase]}) {
 			let {seasonPath, roundPath} = require(twowPath + "status.json");
@@ -186,6 +192,7 @@ ${list}\`\`\``;
 	},
 	vote: {
 		arguments: ["<userId>", "<messageId>", "<vote>"],
+		description: "Records <vote> as <userId>'s vote, sent as message <messageId>.",
 		permLevel: "admin",
 		execute: async function ({args: [userId, messageId, vote]}) {
 			const message = {

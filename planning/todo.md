@@ -23,6 +23,8 @@
 - [Add book message to first response message](behavior.md#first-response-message)
 - Remove notification roles if people remove the corresponding ping role
 - Figure out range of `stat list`
+- Allow `phase` to take no argument
+- Show `reload` in `list`
 
 # EndlessTWOW-specific things
 - Add points to supervoters who did not respond
@@ -45,6 +47,9 @@
 - Dry run of a command
 - Slash commands (maybe)
 - Use a database (maybe)
+- `respond` command (similar to `vote`)
+- Make `change` usable and useful
+- Command to return a value (like `change` but without changing anything)
 
 ## Results
 - "Watching SampleTWOW Season 1 Round 1 Results" feature

@@ -1,7 +1,7 @@
 # woooobot
 Made to automate twoooowoooo. Currently used to automate EndlessTWOW.
 
-**DOCS LAST UPDATED ON 2023-06-06**
+**DOCS LAST UPDATED ON 2023-06-15**
 
 ## Commands
 Example table entry:
@@ -17,7 +17,7 @@ Example table entry:
 | `book` (attach exactly one file) | Records the attachment as your book. |
 | `echo <message>` | Repeats `<message>`. |
 | `edit [responseNumber] <message>` | Edits your response. You must specify a `<responseNumber>` if you have submitted multiple responses. |
-| `morshu [sentenceCount]` | Generates `<sentenceCount>` (one if unspecified) amount of morshu sentences. |
+| `morshu [sentenceCount]` | Generates `<sentenceCount>` (one if unspecified) amount of [morshu sentences](#Spoiler%20Wall). |
 | `name <newName>` | Changes the name displayed during results for the current season to `<newName>`. |
 | `ping` | Pings yourself. |
 | `stat <statName> [possible arguments]` | It's complicated (docs don't exist yet) |
@@ -25,18 +25,18 @@ Example table entry:
 ### Admin-only
 | Command | Description |
 | --- | --- |
-| `phase [newPhase]` | Changes round status to `<newPhase>`. If no argument is provided, increments the phase. |
-| `vote <userId> <messageId> <vote>` | Records `<vote>` as `<userId>`'s vote, sent as message `<messageId>`. `<messageId>` may be in the form of a time string, but the space between the date and the time must be replaced with `T`. |
+| `phase <phase>` | Changes round status to `<phase>`. |
+| `vote <userId> <messageId> <vote>` | Records `<vote>` as `<userId>`'s vote, sent as message `<messageId>`. `<messageId>` may be in the form of a ISO 8601 time string. |
 
 ### Developer-only
 | Command | Description |
 | --- | --- |
 | `change <path> <key> <value>` | Changes the value of `<key>` in `<path>` to `<value>`. |
-| `editmsg <messageId> <channelId> <newMessage>` | Edits the message `<messageId>` (in `<channelId>`) to `<newMessage>`. |
-| `eval <command>` | Runs `<command>`. |
+| `editmsg <channelId> <messageId> <newMessage>` | Edits the message `<messageId>` (in `<channelId>`) to `<newMessage>`. |
+| `eval <code>` | Runs `<code>`. |
 | `log [date]` | Returns the log file for `<date>` (today if unspecified). |
 | `reload` | Reloads commands.js. |
-| `send <id> <text>` | Sends `<text>` to `<id>`. |
+| `send <channelId> <message>` | Sends `<message>` to `<channelId>`. |
 
 ## TWOW Directory Structure
 TWOWs > Seasons > Rounds
@@ -180,6 +180,8 @@ A text version of the megascreen will be also be sent to facilitate use of https
 When results begins, first the leaderboard will be created.
 Then, the results CLI will activate.
 After results are finished with `end`, the bot will post the full leaderboard (generated at the beginning) in the results channel, as well as in the leaderboard channel if a `leaderboards` channel id is defined in `twowConfig.json`.
+It will then post a 49 message ["spoiler wall" of "morshu sentences"](#Spoiler%20Wall) in the results channel to prevent people from unintentionally seeing the results.
+Finally, it will post a link to the beginning of results.
 
 #### CLI
 Examples:
@@ -187,3 +189,8 @@ Examples:
 - `5.1` would show the first unranked response after rank 5
 - `1-3f` would show the responses in ranks 1 through 3 without dummies and DRPs
 - `end` would end results
+
+#### Spoiler Wall
+Morshu sentences are grammatical (mostly) English sentences that only contain words spoken by Morshu in the CD-i game "Link: The Faces of Evil".
+They are generated in [`morshu.js`](morshu.js).
+If you run `node morshu.js`, it will generate ten morshu sentences.
