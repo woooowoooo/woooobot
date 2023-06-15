@@ -52,7 +52,6 @@ Use \`${prefix} list\` to list all available commands.`;
 			return text.replace(/(<[^>]*>)/g, "\x1B[31m$1\x1B[37m");
 		},
 		execute: async function ({message, roles}) {
-			let list = "";
 			// Sort commands into permission levels
 			const permLevels = ["developer", "admin", "normal"];
 			const levelCommands = Object.entries(commands).reduce((levelCommands, [name, command]) => {
@@ -61,9 +60,10 @@ Use \`${prefix} list\` to list all available commands.`;
 				return levelCommands;
 			}, {});
 			// List commands per level
+			let list = "";
 			for (const level of permLevels) {
 				if (await hasPerms(message.author, message.guild, roles, level)) {
-					list += `\n\x1B[1m${level.toUpperCase()} COMMANDS\x1B[0m\n`;
+					list += `\n\x1B[1;37m${level.toUpperCase()} COMMANDS\x1B[0m\n`;
 					for (const [name, command] of levelCommands[level]) {
 						list += `\x1B[32m${name}${this.cookArgs(command.arguments)}\x1B[37m: ${this.cook(command.description)}\n`;
 					}

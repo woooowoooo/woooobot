@@ -9,9 +9,20 @@ const stats = {
 		permLevel: "normal",
 		range: undefined, // TODO: Work this out
 		execute: function () {
-			let list = "";
-			for (const [name, {description}] of Object.entries(stats)) {
-				list += `\x1B[31m${name}\x1B[37m: ${description}\n`;
+			// Sort commands into permission levels
+			const rangeNames = ["twow", "season", "round"];
+			const ranges = Object.entries(stats).reduce((ranges, [name, command]) => {
+				ranges[command.range] ??= [];
+				ranges[command.range].push([name, command]);
+				return ranges;
+			}, {});
+			// List commands per level
+			let list = `\x1B[31mlist\x1B[37m: ${this.description}\n`;
+			for (const range of rangeNames) {
+				list += `\n\x1B[1;37m${range.toUpperCase()}-SPECIFIC STATS\x1B[0m\n`;
+				for (const [name, {description}] of ranges[range]) {
+					list += `\x1B[31m${name}\x1B[37m: ${description}\n`;
+				}
 			}
 			return `Available statistics: \`\`\`ansi\n\x1B[0m${list}\n\`\`\``;
 		}
@@ -92,7 +103,7 @@ const stats = {
 		}
 	},
 	listResponses: {
-		description: "List all responses in a round",
+		description: "List all responses in a round (admin only)",
 		permLevel: "admin",
 		range: "round",
 		execute: function (round) {
