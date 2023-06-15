@@ -3,7 +3,7 @@ const {createWriteStream} = require("fs");
 const {readFile} = require("fs/promises");
 const {logMessage, sendMessage, toTimeString, toSnowflake, toUnixTime, getPaths, reload, save, parseArgs} = require("./helpers.js");
 const {prefix, devId, twowPath} = require("./config.json");
-const hasPerms = function (user, server, roles, permLevel) {
+const hasPerms = async function (user, server, roles, permLevel) {
 	if (user.id === devId) {
 		return true;
 	}
@@ -14,9 +14,12 @@ const hasPerms = function (user, server, roles, permLevel) {
 		return false; // The first case already covers this
 	}
 	// I'll use "switch" if I add another case.
-	return server.members.fetch(user.id)
-		.then(member => member.roles.has(roles[permLevel]))
-		.catch(() => false);
+	const member = await server.members.fetch(user.id);
+	try {
+		return member.roles.has(roles[permLevel]);
+	} catch {
+		return false;
+	}
 };
 const commands = {
 	help: {
@@ -48,7 +51,7 @@ Use \`${prefix} list\` to list all available commands.`;
 		cook: function (text = "") {
 			return text.replace(/(<[^>]*>)/g, "\x1B[31m$1\x1B[37m");
 		},
-		execute: function ({message, roles}) {
+		execute: async function ({message, roles}) {
 			let list = "";
 			// Sort commands into permission levels
 			const permLevels = ["developer", "admin", "normal"];
@@ -59,7 +62,7 @@ Use \`${prefix} list\` to list all available commands.`;
 			}, {});
 			// List commands per level
 			for (const level of permLevels) {
-				if (hasPerms(message.author, message.guild, roles, level)) {
+				if (await hasPerms(message.author, message.guild, roles, level)) {
 					list += `\n\x1B[1m${level.toUpperCase()} COMMANDS\x1B[0m\n`;
 					for (const [name, command] of levelCommands[level]) {
 						list += `\x1B[32m${name}${this.cookArgs(command.arguments)}\x1B[37m: ${this.cook(command.description)}\n`;
@@ -282,7 +285,7 @@ ${list}\`\`\``;
 			}
 			const stat = stats[statName];
 			// Check permissions
-			if (!hasPerms(message.author, message.guild, roles, stat.permLevel)) {
+			if (!(await hasPerms(message.author, message.guild, roles, stat.permLevel))) {
 				throw new Error("You aren't allowed to see this statistic!");
 			}
 			// Execute statistic command
@@ -295,12 +298,12 @@ module.exports = async function (commandName, argText, message, roles) {
 		throw new Error(`That isn't a valid command!`);
 	}
 	const command = commands[commandName];
-	if (!hasPerms(message.author, message.guild, roles, command.permLevel)) {
+	if (!(await hasPerms(message.author, message.guild, roles, command.permLevel))) {
 		throw new Error("You aren't allowed to use this command!");
 	}
 	const args = parseArgs(argText, command.arguments.length);
 	const output = await command.execute({message, args, roles}); // I really don't like exposing `roles`, TODO: Rework `stats`
-	if (message.guild != null && hasPerms(message.author, message.guild, roles, "admin") && (output.includes("@everyone") || output.includes("@here"))) {
+	if (message.guild != null && await hasPerms(message.author, message.guild, roles, "admin") && (output.includes("@everyone") || output.includes("@here"))) {
 		throw new Error(`You aren't allowed to ping @​${output.includes("@everyone") ? "everyone" : "here"}!`);
 	}
 	return output;
