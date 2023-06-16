@@ -17,7 +17,7 @@ Example table entry:
 | `book` (attach exactly one file) | Records the attachment as your book. |
 | `echo <message>` | Repeats `<message>`. |
 | `edit [responseNumber] <message>` | Edits your response. You must specify a `<responseNumber>` if you have submitted multiple responses. |
-| `morshu [sentenceCount]` | Generates `<sentenceCount>` (one if unspecified) amount of [morshu sentences](#Spoiler%20Wall). |
+| `morshu [sentenceCount]` | Generates `<sentenceCount>` (one if unspecified) amount of [morshu sentences](#spoiler-wall). |
 | `name <newName>` | Changes the name displayed during results for the current season to `<newName>`. |
 | `ping` | Pings yourself. |
 | `stat <statName> [possible arguments]` | It's complicated (docs don't exist yet) |
@@ -180,7 +180,7 @@ A text version of the megascreen will be also be sent to facilitate use of https
 When results begins, first the leaderboard will be created.
 Then, the results CLI will activate.
 After results are finished with `end`, the bot will post the full leaderboard (generated at the beginning) in the results channel, as well as in the leaderboard channel if a `leaderboards` channel id is defined in `twowConfig.json`.
-It will then post a 49 message ["spoiler wall" of "morshu sentences"](#Spoiler%20Wall) in the results channel to prevent people from unintentionally seeing the results.
+It will then post a 49 message ["spoiler wall" of "morshu sentences"](#spoiler-wall) in the results channel to prevent people from unintentionally seeing the results.
 Finally, it will post a link to the beginning of results.
 
 #### CLI
