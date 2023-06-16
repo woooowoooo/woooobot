@@ -34,9 +34,9 @@ const stats = {
 		range: "twow",
 		execute: function () {
 			const contestants = new Set();
-			for (let seasonPath of Object.values(seasons)) {
-				const {names} = require(seasonPath + "seasonContestants.json");
-				contestants.add(...Object.values(names));
+			for (const seasonPath of Object.values(seasons)) {
+				const {names} = require(twowPath + seasonPath + "seasonContestants.json");
+				Object.values(names).forEach(name => contestants.add(name));
 			}
 			return [...contestants];
 		}
@@ -48,8 +48,8 @@ const stats = {
 		execute: function () {
 			const contestants = new Set();
 			for (let seasonPath of Object.values(seasons)) {
-				const {names} = require(seasonPath + "seasonContestants.json");
-				contestants.add(...Object.values(names));
+				const {names} = require(twowPath + seasonPath + "seasonContestants.json");
+				Object.values(names).forEach(name => contestants.add(name));
 			}
 			return contestants.size;
 		}
@@ -60,7 +60,10 @@ const stats = {
 		permLevel: "normal",
 		range: "season",
 		execute: function () {
-			const {names} = require(seasonPath + "seasonContestants.json");
+			const {contestants, names} = require(seasonPath + "seasonContestants.json");
+			if (contestants != null) { // EndlessTWOW-specific?
+				return contestants.map(id => names[id]);
+			}
 			return Object.values(names);
 		}
 	},
@@ -70,6 +73,9 @@ const stats = {
 		range: "season",
 		execute: function () {
 			const {names} = require(seasonPath + "seasonContestants.json");
+			if (contestants != null) {
+				return contestants.length;
+			}
 			return Object.keys(names).length;
 		}
 	},

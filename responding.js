@@ -144,6 +144,7 @@ async function logResponse(message) {
 		reply += " **It is a dummy response, which means that its placement in results does not matter.**";
 	}
 	if (!alive && joins) {
+		seasonContestants.contestants.push(message.author.id);
 		seasonContestants.names[message.author.id] = message.author.username;
 		contestants.alive.push(message.author.id);
 		addRole(serverId, message.author.id, aliveId);
