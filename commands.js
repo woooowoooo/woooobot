@@ -296,7 +296,14 @@ ${list}\`\`\``;
 				throw new Error("You aren't allowed to see this statistic!");
 			}
 			// Execute statistic command
-			return stat.execute(statArgs).toString();
+			const result = stat.execute(statArgs);
+			if (Array.isArray(result)) {
+				return result.join("\n");
+			}
+			if (typeof result === "object") {
+				return JSON.stringify(result, null, 4); // Discord doesn't support tabs
+			}
+			return result.toString();
 		}
 	}
 };
