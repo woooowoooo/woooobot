@@ -17,7 +17,6 @@
 - Change default new round name to increment any number found in the previous round's name
 - Add a way to use `send` with a username
 - Clarify vote rejection messages
-	- On partially bad votes, accept the good screens
 - Check book attachment extension before saving
 - Save large .txt megascreens
 - [Add book message to first response message](behavior.md#first-response-message)
