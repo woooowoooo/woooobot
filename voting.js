@@ -178,6 +178,9 @@ function logVote(message) {
 	// Calculate ratings
 	const ratings = new Map();
 	const voteErrors = voteFull.map(([_, screen, vote]) => calculateRatings(screen, vote, ratings));
+	if (voteErrors.every(error => error != null)) { // No passing screens
+		return voteErrors.filter(error => error != null).join("\n");
+	}
 	// Apply ratings to responses (separate step for atomicity)
 	for (const [id, rating] of ratings) {
 		const response = responses.find(res => res.id === id);
@@ -186,7 +189,8 @@ function logVote(message) {
 	}
 	save(roundPath + "responses.json", responses);
 	// Update votes.json
-	const matches = voteFull.map(matches => [matches[1], matches[2]]);
+	const errorFree = voteFull.filter((_, i) => voteErrors[i] == null);
+	const matches = errorFree.map(matches => [matches[1], matches[2]]);
 	votes[message.author.id] ??= {
 		section: section,
 		supervote: false,
@@ -207,6 +211,12 @@ function logVote(message) {
 	}
 	// TODO: Add more stats
 	save(roundPath + "votes.json", votes);
-	return `Your vote has been recorded:\n\`\`\`${voteFull.map(matches => matches[0]).join("\n")}\`\`\`${votes[message.author.id].supervote ? "Thank you for supervoting!" : ""}`;
+	let reply = `The following ${errorFree.length === 1 ? "vote has" : "votes have"} been recorded:\n\`\`\`${errorFree.map(matches => matches[0]).join("\n")}\`\`\``;
+	if (voteErrors.some(error => error != null)) {
+		reply += "**The rest of your vote contains the following errors:**\n" + voteErrors.filter(error => error != null).join("\n");
+	} else if (votes[message.author.id].supervote) { // Errors preclude supervoting
+		reply += "Thank you for supervoting!";
+	}
+	return reply;
 };
 Object.assign(exports, {partitionResponses, initVoting, logVote});
