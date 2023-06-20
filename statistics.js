@@ -1,3 +1,4 @@
+const {optRequire} = require("./helpers.js");
 const {twowPath} = require("./config.json");
 const {seasonPath} = require(twowPath + "status.json");
 const {seasons} = require(twowPath + "twowConfig.json");
@@ -157,6 +158,23 @@ const stats = {
 				responseVotes += Object.keys(response.ratings)?.length ?? 0;
 			}
 			return responseVotes / responses.length;
+		}
+	},
+	// Contestant-specific
+	// Season-specific
+	listWins: {
+		description: "List all wins in a season",
+		permLevel: "normal",
+		range: "season",
+		execute: function (contestant) {
+			const roundsWon = [];
+			for (let [round, roundPath] of Object.entries(rounds)) {
+				const results = optRequire(seasonPath + roundPath + "results.json");
+				if (results != null && results[0].id === contestant) {
+					roundsWon.push(round);
+				}
+			}
+			return roundsWon;
 		}
 	}
 };
