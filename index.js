@@ -13,6 +13,28 @@ const client = new Client({
 	]
 });
 exports.client = client; // Client is exported so helpers.js can use it
+// Console event handling (up here for exports)
+const stdin = process.openStdin();
+function consoleLogger(data) {
+	logMessage(`[R] Console input: ${data.toString().trim()}`);
+}
+function consoleListener(data) {
+	let text = data.toString().trim();
+	if (text.substring(0, 2) !== "//") { // Allow for comments
+		if (text.substring(0, prefix.length) === prefix) {
+			text = text.substring(prefix.length);
+		}
+		parseCommands(text, { // Flesh this out
+			author: me,
+			channel: me.dmChannel,
+			createdAt: new Date()
+		});
+	}
+}
+stdin.on("data", consoleLogger);
+stdin.on("data", consoleListener);
+exports.consoleListener = consoleListener; // Exported so results.js can use it
+exports.consoleLogger = consoleLogger;
 // Configs
 let config = require("./config.json");
 const {automatic, prefix, token, devId, botId, twowPath, lastUnread} = config; // TODO: Allow for multiple TWOWs
@@ -32,7 +54,6 @@ let {initVoting, logVote} = require(votingPath);
 let {results} = require(resultsPath);
 let {initRound} = require(initsPath);
 // Other variables
-const stdin = process.openStdin();
 const queue = [];
 let processing = false;
 let me;
@@ -194,22 +215,3 @@ client.on("messageCreate", async function (message) {
 	}
 });
 client.login(token);
-// Respond to console input
-function consoleLogger(data) {
-	logMessage(`[R] Console input: ${data.toString().trim()}`);
-}
-function consoleListener(data) {
-	let text = data.toString().trim();
-	if (text.substring(0, 2) !== "//") { // Allow for comments
-		if (text.substring(0, prefix.length) === prefix) {
-			text = text.substring(prefix.length);
-		}
-		parseCommands(text, { // Flesh this out
-			author: me,
-			channel: me.dmChannel,
-			createdAt: new Date()
-		});
-	}
-}
-stdin.on("data", consoleLogger);
-stdin.on("data", consoleListener);

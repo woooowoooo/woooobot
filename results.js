@@ -1,5 +1,5 @@
 // Modules
-const {client} = require("./index.js");
+const {client, consoleListener} = require("./index.js");
 const {logMessage, sendMessage, save} = require("./helpers.js");
 const {generate: morshu} = require("./morshu.js");
 // Data
@@ -126,7 +126,6 @@ async function results() {
 	// Reveal results
 	let slide = 1;
 	let moreSlides = true;
-	const consoleListener = stdin.listeners("data")[1];
 	stdin.removeListener("data", consoleListener);
 	while (moreSlides) {
 		moreSlides = await new Promise(resolve => stdin.once("data", async input => {
