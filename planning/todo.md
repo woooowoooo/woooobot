@@ -24,6 +24,7 @@
 - Figure out range of `stat list`
 - Allow `phase` to take no argument
 - Show `reload` in `list`
+- Update to new username system
 
 # EndlessTWOW-specific things
 - Add points to supervoters who did not respond
