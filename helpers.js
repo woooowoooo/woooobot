@@ -11,8 +11,16 @@ const colors = {
 	magenta: "\x1B[35m",
 	cyan: "\x1B[36m",
 	white: "\x1B[37m",
-	error: "\x1B[31m" // Red
+	// Non-hardcoded colors
+	error: "\x1B[31m", // Red
+	dm: "\x1B[32m", // Green
+	input: "\x1B[33m", // Yellow
+	output: "\x1B[33m", // Yellow
+	console: "\x1B[35m", // Magenta
+	message: "\x1B[36m" // Cyan
 };
+exports.colors = colors;
+const findColor = /(\x1B\[[\w;]+m)/g;
 let buffer = "\n" + "─".repeat(50) + "\n\n";
 let logStream = null;
 let currentDay = "";
@@ -27,16 +35,15 @@ async function makeLogFile(time) {
 	currentDay = timeString.substring(0, 10);
 	logStream = fs.createWriteStream(`${path}/${currentDay}.log`, {flags: "a"});
 }
-exports.logMessage = function (message, color) {
+exports.logMessage = function (message, color, multicolor = false) {
 	if (Array.isArray(message)) {
 		message = message.join("\n\t");
 	}
 	const timeDate = new Date();
 	const time = exports.toTimeString(timeDate);
 	// Log message to console
-	const fullMessage = `${time} ${message}`;
 	const colorMessage = `\x1B[38;5;246m${time} ${colors[color] ?? color ?? "\x1B[0m"}${message}`;
-	console.log(colorMessage);
+	console.log(colorMessage + colors.console);
 	// Do file stuff
 	if (logging) {
 		// If day has changed, create new log file
@@ -44,7 +51,10 @@ exports.logMessage = function (message, color) {
 			makeLogFile(timeDate);
 		}
 		// Log message to file or to buffer if log file is not ready
-		const logMessage = (colorLogs ? colorMessage : fullMessage) + "\n";
+		let logMessage = (colorLogs ? colorMessage : `${time} ${message}`) + "\n";
+		if (!colorLogs && multicolor) {
+			logMessage = logMessage.replaceAll(findColor, "");
+		}
 		if (logStream == null) {
 			buffer += logMessage;
 		} else {
@@ -85,11 +95,11 @@ exports.sendMessage = async function (destination, message, id = false, longMess
 		message = JSON.stringify(message);
 	}
 	if (destination.isDMBased()) { // Channel is either DM or group DM
-		exports.logMessage(`[S] ${destination.recipient?.tag ?? destination.recipients.map(user => user.tag).join(", ")}:\n	${message}`);
+		exports.logMessage(`[S] ${destination.recipient?.tag ?? destination.recipients.map(user => user.tag).join(", ")}:\n	${colors.message}${message}`, "output", true);
 	} else if (destination.isTextBased()) {
-		exports.logMessage(`[S] ${destination.guild.name}, ${destination.name}:\n	${message}`);
+		exports.logMessage(`[S] ${destination.guild.name}, ${destination.name}:\n	${colors.message}${message}`, "output", true);
 	} else { // Non-text channel
-		exports.logMessage(`[S] ??? ${destination.guild?.name !== undefined ? destination.guild.name + ", " : ""}${destination.name}:\n	${message}`);
+		exports.logMessage(`[S] ??? ${destination.guild?.name !== undefined ? destination.guild.name + ", " : ""}${destination.name}:\n	${colors.message}${message}`, "output", true);
 		exports.logMessage(`[E] Not a text-based channel`, "error");
 	}
 	return sentMessage;

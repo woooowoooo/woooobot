@@ -16,7 +16,7 @@ exports.client = client; // Client is exported so helpers.js can use it
 // Console event handling (up here for exports)
 const stdin = process.openStdin();
 function consoleLogger(data) {
-	logMessage(`[R] Console input: ${data.toString().trim()}`);
+	logMessage(`[R] Console input: ${colors.console}${data.toString().trim()}`, "input", true);
 }
 function consoleListener(data) {
 	let text = data.toString().trim();
@@ -44,7 +44,7 @@ let {autoDeadlines} = require(seasonPath + "seasonConfig.json");
 let {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
 // Modules
 const readline = require("readline");
-const {toTimeString, logMessage, sendMessage, toSnowflake, getPaths, save, reload} = require("./helpers.js");
+const {colors, toTimeString, logMessage, sendMessage, toSnowflake, getPaths, save, reload} = require("./helpers.js");
 const morshu = require("./morshu.js");
 let commands = require("./commands.js");
 // Possibly season-specific modules
@@ -66,7 +66,7 @@ function readMessage(message, readTime = false, queued = queue.length > 0) {
 	if (readTime) {
 		header += ` at ${toTimeString(message.createdAt)}`;
 	}
-	logMessage(`[R] ${header}${queued ? " (queued)" : `:\n	${message}`}`);
+	logMessage(`[R] ${header}${queued ? " (queued)" : `:\n	${colors.message}${message}`}`, "input", true);
 }
 function parseCommands(text, message) {
 	const command = text.split(" ", 1)[0];
@@ -176,7 +176,7 @@ client.once("ready", async function () {
 		if (dms == null) {
 			continue;
 		}
-		logMessage(`DM to ${member.user.tag} created.`);
+		logMessage(`DM to ${member.user.tag} created.`, "dm");
 		const messages = await dms.messages.fetch({after: lastUnread});
 		for (const [_, message] of messages.filter(m => m.author.id !== botId)) {
 			readMessage(message, true, true);
