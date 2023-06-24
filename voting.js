@@ -115,7 +115,7 @@ async function initVoting() {
 			dnper.roles.remove([prize, alive]);
 			dnper.roles.add(dead);
 		} catch {
-			logMessage(`[E] ${names[dnpId]}'s roles are not accessible due to leaving the server`, true);
+			logMessage(`[E] ${names[dnpId]}'s roles are not accessible due to leaving the server`, "error");
 		}
 	}
 	save(roundPath + "contestants.json", contestants);

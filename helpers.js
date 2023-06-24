@@ -2,6 +2,17 @@
 const fs = require("fs");
 const {client} = require("./index.js");
 const {logging, colorLogs, loggingPath, sandbox, sandboxId} = require("./config.json");
+const colors = {
+	gray: "\x1B[30m",
+	red: "\x1B[31m",
+	green: "\x1B[32m",
+	yellow: "\x1B[33m",
+	blue: "\x1B[34m",
+	magenta: "\x1B[35m",
+	cyan: "\x1B[36m",
+	white: "\x1B[37m",
+	error: "\x1B[31m" // Red
+};
 let buffer = "\n" + "─".repeat(50) + "\n\n";
 let logStream = null;
 let currentDay = "";
@@ -16,7 +27,7 @@ async function makeLogFile(time) {
 	currentDay = timeString.substring(0, 10);
 	logStream = fs.createWriteStream(`${path}/${currentDay}.log`, {flags: "a"});
 }
-exports.logMessage = function (message, error) {
+exports.logMessage = function (message, color) {
 	if (Array.isArray(message)) {
 		message = message.join("\n\t");
 	}
@@ -24,7 +35,7 @@ exports.logMessage = function (message, error) {
 	const time = exports.toTimeString(timeDate);
 	// Log message to console
 	const fullMessage = `${time} ${message}`;
-	const colorMessage = `\x1B[38;5;246m${time} \x1B[${error ? "31" : "0"}m${message}`;
+	const colorMessage = `\x1B[38;5;246m${time} ${colors[color] ?? color ?? "\x1B[0m"}${message}`;
 	console.log(colorMessage);
 	// Do file stuff
 	if (logging) {
@@ -79,7 +90,7 @@ exports.sendMessage = async function (destination, message, id = false, longMess
 		exports.logMessage(`[S] ${destination.guild.name}, ${destination.name}:\n	${message}`);
 	} else { // Non-text channel
 		exports.logMessage(`[S] ??? ${destination.guild?.name !== undefined ? destination.guild.name + ", " : ""}${destination.name}:\n	${message}`);
-		exports.logMessage(`[E] Not a text-based channel`, true);
+		exports.logMessage(`[E] Not a text-based channel`, "error");
 	}
 	return sentMessage;
 };
@@ -91,7 +102,7 @@ exports.addRole = async function (server, user, role) {
 		const member = await server.members.fetch(user);
 		member.roles.add(role);
 	} catch {
-		exports.logMessage(`[E] Failed to add role ${role} to ${user} in ${server.name}`, true);
+		exports.logMessage(`[E] Failed to add role ${role} to ${user} in ${server.name}`, "error");
 	}
 };
 exports.removeRole = async function (server, user, role) {
@@ -102,7 +113,7 @@ exports.removeRole = async function (server, user, role) {
 		const member = await server.members.fetch(user);
 		member.roles.remove(role);
 	} catch {
-		exports.logMessage(`[E] Failed to remove role ${role} to ${user} in ${server.name}`, true);
+		exports.logMessage(`[E] Failed to remove role ${role} to ${user} in ${server.name}`, "error");
 	}
 };
 // Time
@@ -185,8 +196,8 @@ exports.defaultRequire = function (path, defaultPath) {
 		let uncool = require(defaultPath);
 		return Object.assign({}, uncool, cool);
 	} catch (e) {
-		// exports.logMessage(`[E] Could not require the file at "${path}"`, true);
-		exports.logMessage(e, true);
+		// exports.logMessage(`[E] Could not require the file at "${path}"`, "error");
+		exports.logMessage(e, "error");
 		return require(defaultPath);
 	}
 };
@@ -194,7 +205,7 @@ exports.optRequire = function (path, backup = null) {
 	try {
 		return require(path);
 	} catch {
-		exports.logMessage(`[E] Could not require the file at "${path}"`, true);
+		exports.logMessage(`[E] Could not require the file at "${path}"`, "error");
 		return backup;
 	}
 };

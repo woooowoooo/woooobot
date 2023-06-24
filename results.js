@@ -139,7 +139,7 @@ async function results() {
 				await sendSlide(`slide${slide}.png`, entries, (slide === 1), comment);
 				slide++;
 			} catch (e) {
-				logMessage(`[E] ${e}`, true);
+				logMessage(`[E] ${e}`, "error");
 			}
 			resolve(true);
 		}));

@@ -83,7 +83,7 @@ function parseCommands(text, message) {
 			sendMessage(message.channel, reply);
 		}
 	}).catch(e => {
-		logMessage(`[E] ${e}`, true);
+		logMessage(`[E] ${e}`, "error");
 		if (message.author.id !== devId) { // I have access to the logs
 			sendMessage(message.channel, e.message);
 		}
@@ -156,7 +156,7 @@ async function processQueue() {
 	processing = false;
 }
 // Event handling
-process.on("uncaughtException", e => logMessage(`[E] ${e}\nStack trace is below:\n${e.stack}`, true));
+process.on("uncaughtException", e => logMessage(`[E] ${e}\nStack trace is below:\n${e.stack}`, "error"));
 client.once("ready", async function () {
 	// Send startup messages to console
 	const initLog = `Logged in as ${client.user.tag}.\n\n`;
@@ -172,7 +172,7 @@ client.once("ready", async function () {
 	// Queue and process unread DMs
 	processing = true;
 	for (const [_, member] of members) {
-		const dms = await member.createDM().catch(() => logMessage(`[E] Failed to create DM to ${member.user.tag}`, true));
+		const dms = await member.createDM().catch(() => logMessage(`[E] Failed to create DM to ${member.user.tag}`, "error"));
 		if (dms == null) {
 			continue;
 		}
