@@ -7,7 +7,8 @@ const {twowPath} = require("./config.json"); // TODO: Add support for multiple T
 const status = require(twowPath + "status.json");
 let {currentSeason, currentRound, seasonPath, roundPath} = status;
 const {seasons} = require(twowPath + "twowConfig.json");
-const {nextSeason = {}, nextRound = {}} = require(twowPath + "new.json");
+const nextSeason = require(twowPath + "newSeason.json");
+const roundQueue = require(twowPath + "queue.json");
 // Season-specific
 const seasonConfig = require(seasonPath + "seasonConfig.json");
 const {rounds} = seasonConfig;
@@ -35,6 +36,7 @@ exports.initRound = async function (newRoundName) {
 	await save(twowPath + "status.json", status);
 	logMessage("New round started: " + currentRound);
 	// Create new files
+	const nextRound = roundQueue?.shift() ?? {};
 	await fs.mkdir(roundPath);
 	await fs.mkdir(roundPath + "results/");
 	await fs.mkdir(roundPath + "screens/");
@@ -67,6 +69,7 @@ exports.initRound = async function (newRoundName) {
 		screenSections: {},
 		screenResponses: {}
 	});
+	await save(twowPath + "queue.json", roundQueue);
 };
 async function initSeason() {
 	// Start new season

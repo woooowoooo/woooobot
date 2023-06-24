@@ -11,7 +11,6 @@
 - Fix `parseArgs` dying on escaped quotes
 
 # Annoyances
-- Replace `new.json` with `queue.json`
 - Remove `pnpm.lock`, `node_modules`, and other symlinks from unison
 - Change "could not require" messages to be opt-in, i.e. show "required" messages instead
 - Change default new round name to increment any number found in the previous round's name

@@ -70,7 +70,8 @@ TWOW folders consist of the following:
 - Seasons
 - `twowConfig.json`
 - `status.json`
-- `new.json`
+- `queue.json`
+- `nextSeason.json`
 
 `twowConfig.json` deals with the configuration of the Discord server the miniTWOW will be held in.
 ALL SEASONS MUST BE HELD IN THIS SERVER.
@@ -151,6 +152,7 @@ Round folders consist of the following:
 Each round consists of two phases: responding and voting.
 There is a special phase called "both" that allows for simultaneous responding and voting.
 Results happen after the voting phase concludes.
+After results, the next round begins.
 If `autoDeadlines` in `seasonConfig.json` is set to true, these phases will be incremented automatically, following the `rDeadline` and `vDeadline` set in `roundConfig.json`.
 `rDeadline` and `vDeadline` are automatically generated following the configured `deadlines` in `seasonConfig.json`, but can be manually configured.
 
@@ -194,3 +196,11 @@ Examples:
 Morshu sentences are grammatical (mostly) English sentences that only contain words spoken by Morshu in the CD-i game "Link: The Faces of Evil".
 They are generated in [`morshu.js`](morshu.js).
 If you run `node morshu.js`, it will generate ten morshu sentences.
+
+### New Rounds
+New rounds are stored in `queue.json` in the TWOW folder.
+When a new round is created, woooobot will copy over the `contestants.json` and `roundConfig.json` from the previous round with some modifications.
+To override properties in `roundConfig.json`, add them to `queue.json` in the TWOW folder.
+In each round of `queue.json`, there is also a special `remove` property, which is either a single key or a list of keys.
+All keys in `remove` as well as `remove` itself will be removed from the new `roundConfig.json`.
+After doing `phase newRound`, it is recommended to end woooobot (`Ctrl+C`) and restart it to ensure that the new round is loaded properly.
