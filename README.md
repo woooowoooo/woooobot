@@ -140,6 +140,7 @@ Round folders consist of the following:
 | `season` | String | Season name |
 | `round` | String | Round name |
 | **\***`prompt` | String | Round prompt |
+| `author` | String | Author of the prompt |
 | `example` | String | Example response to the prompt |
 | **\***`rDeadline` | String | Responding deadline in the format `YYYY-MM-DD HH:MM:SS` (UTC) |
 | **\***`vDeadline` | String | Voting deadline in the format `YYYY-MM-DD HH:MM:SS` (UTC) |
@@ -158,6 +159,10 @@ If `autoDeadlines` in `seasonConfig.json` is set to true, these phases will be i
 
 ### Responding
 When the responding phase begins, the bot will post the prompt in the prompts channel.
+If the prompt has a specified author in `roundConfig.json`, the bot will post that field verbatim.
+Therefore, tf you want to ping the author, set `author` in `roundConfig.json` to `<@SNOWFLAKE>` where `SNOWFLAKE` is replaced with the author's Discord snowflake.
+If there is an example response, it will be posted as well.
+If there are technicals and/or twists, their titles and descriptions will be posted as well.
 
 #### Technicals
 A "technical" is a rule that must be followed when responding to a prompt.

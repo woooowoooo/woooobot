@@ -16,7 +16,7 @@ const seasonContestants = require(seasonPath + "seasonContestants.json");
 const technicals = optRequire(seasonPath + "technicals.js");
 const twists = optRequire(seasonPath + "twists.js");
 // Round-specific
-const {prompt, example, rDeadline, technicals: roundTechnicals = [], twists: roundTwists} = require(roundPath + "roundConfig.json");
+const {prompt, author, example, rDeadline, technicals: roundTechnicals = [], twists: roundTwists} = require(roundPath + "roundConfig.json");
 const {joins, dummies} = defaultRequire(seasonPath + "seasonConfig.json", roundPath + "roundConfig.json");
 const contestants = require(roundPath + "contestants.json");
 const responses = require(roundPath + "responses.json");
@@ -39,6 +39,9 @@ async function initResponding() {
 	}
 	const unixDeadline = toUnixTime(rDeadline);
 	let message = `<@&${joins ? respondingPing : aliveId}> ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@${botId}> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)`;
+	if (author != null) {
+		message += `\nPrompt author: ${author}`;
+	}
 	if (example != null) {
 		message += `\nHere's an example response: \`${example}\``;
 	}
