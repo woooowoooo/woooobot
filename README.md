@@ -51,6 +51,7 @@ For the tables below, **a bold asterisk means the property is required**.
 | `version` | Integer | `config.json` version |
 | **\***`sandbox` | Boolean | Send all messages to a sandbox channel |
 | **\***`logging` | Boolean | Save logs |
+| **\***`colorLogs` | Boolean | Use ANSI color codes in logs |
 | **\***`automatic` | Boolean | Automatically process messages |
 | **\***`prefix` | String | Prefix to activate commands |
 | **\***`token` | String | Discord bot token (NEVER SHARE THIS) |

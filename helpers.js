@@ -1,7 +1,7 @@
 // Logging
 const fs = require("fs");
 const {client} = require("./index.js");
-const {logging, loggingPath, sandbox, sandboxId} = require("./config.json");
+const {logging, colorLogs, loggingPath, sandbox, sandboxId} = require("./config.json");
 let buffer = "\n" + "─".repeat(50) + "\n\n";
 let logStream = null;
 let currentDay = "";
@@ -16,18 +16,16 @@ async function makeLogFile(time) {
 	currentDay = timeString.substring(0, 10);
 	logStream = fs.createWriteStream(`${path}/${currentDay}.log`, {flags: "a"});
 }
-exports.logMessage = function (message, error = false) {
+exports.logMessage = function (message, error) {
 	if (Array.isArray(message)) {
 		message = message.join("\n\t");
 	}
 	const timeDate = new Date();
 	const time = exports.toTimeString(timeDate);
 	// Log message to console
-	if (error) {
-		console.error(`${time} ${message}`);
-	} else {
-		console.log(`${time} ${message}`);
-	}
+	const fullMessage = `${time} ${message}`;
+	const colorMessage = `\x1B[38;5;246m${time} \x1B[${error ? "31" : "0"}m${message}`;
+	console.log(colorMessage);
 	// Do file stuff
 	if (logging) {
 		// If day has changed, create new log file
@@ -35,10 +33,11 @@ exports.logMessage = function (message, error = false) {
 			makeLogFile(timeDate);
 		}
 		// Log message to file or to buffer if log file is not ready
+		const logMessage = (colorLogs ? colorMessage : fullMessage) + "\n";
 		if (logStream == null) {
-			buffer += `${time} ${message}\n`;
+			buffer += logMessage;
 		} else {
-			logStream.write(`${time} ${message}\n`);
+			logStream.write(logMessage);
 		}
 	}
 };

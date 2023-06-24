@@ -2,6 +2,7 @@
 	"version": 3,
 	"sandbox": false,
 	"logging": false,
+	"colorLogs": false,
 	"automatic": false,
 	"prefix": "sample ",
 	"token": "INSERT TOKEN HERE",
