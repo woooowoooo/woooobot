@@ -251,6 +251,16 @@ ${list}\`\`\``;
 			return text;
 		}
 	},
+	edit: {
+		arguments: ["<message>"],
+		description: "Edits your response to <message>.",
+		permLevel: "normal",
+		execute: function ({args: [text], message}) {
+			const {editResponse} = require("./responding.js");
+			message.content = text;
+			return editResponse(message);
+		}
+	},
 	morshu: {
 		arguments: ["[sentenceCount]"],
 		description: "Generates <sentenceCount> (one if unspecified) amount of morshu sentences.",

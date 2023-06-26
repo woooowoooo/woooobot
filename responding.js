@@ -107,7 +107,6 @@ function ordinal(number) {
 }
 async function logResponse(message) {
 	// Reject extra responses and determine dummies
-	// TODO: Allow edits
 	logMessage(`Recording response by ${message.author}:\n\t${message}`);
 	const prized = contestants.prize.includes(message.author.id);
 	const alive = prized || contestants.alive.includes(message.author.id);
@@ -131,7 +130,7 @@ async function logResponse(message) {
 		author: message.author.id,
 		time: toTimeString(message.createdAt),
 		text: message.content,
-		dummy: isDummy
+		dummy: isDummy || undefined
 	};
 	if (roundTwists != null) {
 		let twistResult = message.content;
@@ -167,6 +166,38 @@ async function logResponse(message) {
 	save(`${roundPath}/contestants.json`, contestants);
 	return reply;
 };
+function editResponse(message) {
+	logMessage(`Recording response edit by ${message.author}:\n\t${message}`);
+	// Find old response
+	const authorResponseIndex = responses.findIndex(response => response.author === message.author.id);
+	if (authorResponseIndex === -1) {
+		return "You have not responded to this prompt!";
+	}
+	const formerResponse = responses[authorResponseIndex].text;
+	// Check technicals
+	const failedTechnical = checkTechnicals(message.content);
+	if (failedTechnical !== null) {
+		return `Your new response (\`${message}\`) failed the technical "${failedTechnical}".\nYour edit has not been recorded; please submit a new response that follows all technicals.`;
+	}
+	// Build response object
+	let messageData = {
+		id: message.id,
+		author: message.author.id,
+		time: toTimeString(message.createdAt),
+		text: message.content,
+		dummy: isDummy || undefined,
+		edited: true
+	};
+	if (roundTwists != null) {
+		messageData.twist = roundTwists.reduce((message, name) => {
+			return twists[name].execute(message);
+		}, message.content);
+	}
+	// Update response
+	responses[authorResponseIndex] = messageData;
+	save(`${roundPath}/responses.json`, responses);
+	return `Your response, formerly \`${formerResponse}\`, has been edited to be \`${message.content}\``;
+}
 function deleteResponse(author) {
 	const authorResponseIndex = responses.findIndex(response => response.author === author);
 	if (authorResponseIndex === -1) {
@@ -177,4 +208,4 @@ function deleteResponse(author) {
 	save(`${roundPath}/responses.json`, responses);
 	return `Your response, formerly \`${formerResponse}\`, has been successfully deleted.`;
 }
-Object.assign(exports, {initResponding, checkTechnicals, logResponse, deleteResponse});
+Object.assign(exports, {initResponding, checkTechnicals, logResponse, editResponse, deleteResponse});
