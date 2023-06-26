@@ -173,7 +173,7 @@ function editResponse(message) {
 	if (authorResponseIndex === -1) {
 		return "You have not responded to this prompt!";
 	}
-	const formerResponse = responses[authorResponseIndex].text;
+	const formerResponse = responses[authorResponseIndex];
 	// Check technicals
 	const failedTechnical = checkTechnicals(message.content);
 	if (failedTechnical !== null) {
@@ -185,7 +185,7 @@ function editResponse(message) {
 		author: message.author.id,
 		time: toTimeString(message.createdAt),
 		text: message.content,
-		dummy: isDummy || undefined,
+		dummy: formerResponse.isDummy || undefined,
 		edited: true
 	};
 	if (roundTwists != null) {
@@ -196,16 +196,22 @@ function editResponse(message) {
 	// Update response
 	responses[authorResponseIndex] = messageData;
 	save(`${roundPath}/responses.json`, responses);
-	return `Your response, formerly \`${formerResponse}\`, has been edited to be \`${message.content}\``;
+	return `Your response, formerly \`${formerResponse.text}\`, has been edited to be \`${message.content}\``;
 }
 function deleteResponse(author) {
 	const authorResponseIndex = responses.findIndex(response => response.author === author);
 	if (authorResponseIndex === -1) {
 		return "You have not responded to this prompt!";
 	}
+	// Delete response
 	const formerResponse = responses[authorResponseIndex].text;
 	responses.splice(authorResponseIndex, 1);
+	// Update response count
+	contestants.responseCount[author]--;
+	addRole(serverId, author, respondingRemindPing);
+	// Save files
 	save(`${roundPath}/responses.json`, responses);
+	save(`${roundPath}/contestants.json`, contestants);
 	return `Your response, formerly \`${formerResponse}\`, has been successfully deleted.`;
 }
 Object.assign(exports, {initResponding, checkTechnicals, logResponse, editResponse, deleteResponse});
