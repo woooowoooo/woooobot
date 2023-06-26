@@ -15,8 +15,9 @@ Example table entry:
 | `help` | Shows a welcome message. |
 | `list` | Shows this command list. |
 | `book` (attach exactly one file) | Records the attachment as your book. |
+| `delete` | Deletes your response. |
 | `echo <message>` | Repeats `<message>`. |
-| `edit [responseNumber] <message>` | Edits your response. You must specify a `<responseNumber>` if you have submitted multiple responses. |
+<!-- | `edit [responseNumber] <message>` | Edits your response. You must specify a `<responseNumber>` if you have submitted multiple responses. | -->
 | `morshu [sentenceCount]` | Generates `<sentenceCount>` (one if unspecified) amount of [morshu sentences](#spoiler-wall). |
 | `name <newName>` | Changes the name displayed during results for the current season to `<newName>`. |
 | `ping` | Pings yourself. |

@@ -167,4 +167,14 @@ async function logResponse(message) {
 	save(`${roundPath}/contestants.json`, contestants);
 	return reply;
 };
-Object.assign(exports, {initResponding, checkTechnicals, logResponse});
+function editResponse(message, responseNumber) {
+	const authorResponseIndex = responses.findIndex(response => response.author === author);
+	if (authorResponseIndex === -1) {
+		return "You have not responded to this prompt!";
+	}
+	const formerResponse = responses[authorResponseIndex].text;
+	responses.splice(authorResponseIndex, 1);
+	save(`${roundPath}/responses.json`, responses);
+	return `Your response, formerly \`${formerResponse}\`, has been successfully deleted.`;
+}
+// editResponse,

@@ -231,6 +231,15 @@ ${list}\`\`\``;
 			return `Book ${firstBook ? "saved" : "updated"}!`;
 		}
 	},
+	delete: {
+		arguments: [],
+		description: "Deletes your response.",
+		permLevel: "normal",
+		execute: function ({message}) {
+			const {deleteResponse} = require("./responding.js");
+			return deleteResponse(message.author.id);
+		}
+	},
 	echo: {
 		arguments: ["<message>"],
 		description: "Repeats <message>.",
