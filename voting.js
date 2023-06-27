@@ -142,25 +142,24 @@ function validateScreen(screen, section) {
 function suffixPlural(collection) {
 	return (collection.length ?? collection.size) !== 1 ? "s" : "";
 }
-function validateVote(screen, vote) {
+function validateVote(voteText, screen, vote) {
 	const errors = [];
 	const screenChars = new Set(Object.keys(screenResponses[screen]));
 	const voteChars = new Set(vote);
-	const voteText = `[${screen} ${vote}]`;
 	// Duplicate characters
-	const duplicateChars = vote.split("").filter((char, i) => vote.indexOf(char) !== i); // Short but unclean
+	const duplicateChars = [...vote].filter((char, i) => vote.indexOf(char) !== i); // Short but unclean
 	if (duplicateChars.length > 0) {
 		errors.push(`Duplicate character${suffixPlural(duplicateChars)} \`${duplicateChars.join("")}\` found in the vote \`${voteText}\`.`);
 	}
 	// Invalid characters
 	const invalidChars = new Set([...voteChars].filter(char => !screenChars.has(char))); // Replace with set difference when supported
 	if (invalidChars.size > 0) {
-		errors.push(`Invalid character${suffixPlural(missingChars)} \`${char}\` found in the vote \`${voteText}\`.`);
+		errors.push(`Invalid character${suffixPlural(invalidChars)} \`${[...invalidChars].join("")}\` found in the vote \`${voteText}\`.`);
 	}
 	// Missing characters
 	const missingChars = new Set([...screenChars].filter(char => !voteChars.has(char)));
 	if (missingChars.size > 0) {
-		errors.push(`The vote \`${voteText}\` is missing character${suffixPlural(missingChars)} \`${[...missingChars].join("")}\`.`);
+		errors.push(`The character${suffixPlural(missingChars)} \`${[...missingChars].join("")}\` are missing from the vote \`${voteText}\`.`);
 	}
 	return errors.length === 0 ? null : errors.join("\n");
 }
@@ -189,7 +188,7 @@ function logVote(message) {
 		return screenErrors.filter(error => error != null).join("\n");
 	}
 	// Find vote errors
-	const voteErrors = voteFull.map(([_, screen, vote]) => validateVote(screen, vote));
+	const voteErrors = voteFull.map(([voteText, screen, vote]) => validateVote(voteText, screen, vote));
 	if (voteErrors.every(error => error != null)) { // No passing screens
 		return voteErrors.filter(error => error != null).join("\n");
 	}
