@@ -131,7 +131,6 @@ async function initVoting() {
 	}; */
 };
 function validateScreen(screen, section) {
-	// Check screen validity
 	if (!(screen in screenSections)) {
 		return `The screen \`${screen}\` does not exist.`;
 	}
@@ -140,20 +139,34 @@ function validateScreen(screen, section) {
 	}
 	return null;
 }
+function validateVote(screen, vote) {
+	const errors = [];
+	const screenChars = Object.keys(screenResponses[screen]);
+	const usedChars = new Set();
+	for (const char of vote) {
+		// Invalid characters
+		if (!screenChars.includes(char)) {
+			errors.push(`Invalid character \`${char}\` found in vote \`${vote}\` for screen \`${screen}\`.`);
+		}
+		// Duplicate characters
+		if (usedChars.has(char)) {
+			errors.push(`Duplicate character \`${char}\` found in vote \`${vote}\` for screen \`${screen}\`.`);
+		} else {
+			usedChars.add(char);
+		}
+	}
+	// Missing characters
+	for (const char of screenChars) {
+		if (!usedChars.has(char)) {
+			errors.push(`Vote \`${vote}\` for screen \`${screen}\` is missing character \`${char}\`.`);
+		}
+	}
+	return errors.length === 0 ? null : errors.join("\n");
+}
 function calculateRatings(screen, vote, ratings) {
-	// Find vote errors
-	if (vote.length !== Object.keys(screenResponses[screen]).length) {
-		return `The vote \`${vote}\` for screen \`${screen}\` is too ${vote.length > Object.keys(screenResponses[screen]).length ? "long" : "short"}.`;
-	}
-	if (vote.length !== (new Set(vote.split(""))).size) {
-		return `The vote \`${vote}\` for screen \`${screen}\` contains duplicate characters.`;
-	}
 	// Calculate individual response ratings
 	let position = 0;
 	for (const char of vote) {
-		if (!(char in screenResponses[screen])) {
-			return `Invalid character \`${char}\` found in vote \`${vote}\` for screen \`${screen}\`.`;
-		}
 		if (vote.length === 1) {
 			ratings.set(screenResponses[screen][char], 0.5);
 		} else {
@@ -161,7 +174,6 @@ function calculateRatings(screen, vote, ratings) {
 		}
 		position++;
 	}
-	return null;
 }
 function logVote(message) {
 	logMessage(`Recording vote by ${message.author}:\n\t${message}`);
@@ -175,11 +187,16 @@ function logVote(message) {
 	if (screenErrors.some(error => error != null)) {
 		return screenErrors.filter(error => error != null).join("\n");
 	}
-	// Calculate ratings
-	const ratings = new Map();
-	const voteErrors = voteFull.map(([_, screen, vote]) => calculateRatings(screen, vote, ratings));
+	// Find vote errors
+	const voteErrors = voteFull.map(([_, screen, vote]) => validateVote(screen, vote));
 	if (voteErrors.every(error => error != null)) { // No passing screens
 		return voteErrors.filter(error => error != null).join("\n");
+	}
+	// Calculate ratings
+	const ratings = new Map();
+	const errorFree = voteFull.filter((_, i) => voteErrors[i] == null);
+	for (const [_, screen, vote] of errorFree) {
+		calculateRatings(screen, vote, ratings);
 	}
 	// Apply ratings to responses (separate step for atomicity)
 	for (const [id, rating] of ratings) {
@@ -189,7 +206,6 @@ function logVote(message) {
 	}
 	save(roundPath + "responses.json", responses);
 	// Update votes.json
-	const errorFree = voteFull.filter((_, i) => voteErrors[i] == null);
 	const matches = errorFree.map(matches => [matches[1], matches[2]]);
 	votes[message.author.id] ??= {
 		section: section,
