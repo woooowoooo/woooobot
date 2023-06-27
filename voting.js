@@ -139,27 +139,28 @@ function validateScreen(screen, section) {
 	}
 	return null;
 }
+function suffixPlural(collection) {
+	return (collection.length ?? collection.size) !== 1 ? "s" : "";
+}
 function validateVote(screen, vote) {
 	const errors = [];
-	const screenChars = Object.keys(screenResponses[screen]);
-	const usedChars = new Set();
-	for (const char of vote) {
-		// Invalid characters
-		if (!screenChars.includes(char)) {
-			errors.push(`Invalid character \`${char}\` found in vote \`${vote}\` for screen \`${screen}\`.`);
-		}
-		// Duplicate characters
-		if (usedChars.has(char)) {
-			errors.push(`Duplicate character \`${char}\` found in vote \`${vote}\` for screen \`${screen}\`.`);
-		} else {
-			usedChars.add(char);
-		}
+	const screenChars = new Set(Object.keys(screenResponses[screen]));
+	const voteChars = new Set(vote);
+	const voteText = `[${screen} ${vote}]`;
+	// Duplicate characters
+	const duplicateChars = vote.split("").filter((char, i) => vote.indexOf(char) !== i); // Short but unclean
+	if (duplicateChars.length > 0) {
+		errors.push(`Duplicate character${suffixPlural(duplicateChars)} \`${duplicateChars.join("")}\` found in the vote \`${voteText}\`.`);
+	}
+	// Invalid characters
+	const invalidChars = new Set([...voteChars].filter(char => !screenChars.has(char))); // Replace with set difference when supported
+	if (invalidChars.size > 0) {
+		errors.push(`Invalid character${suffixPlural(missingChars)} \`${char}\` found in the vote \`${voteText}\`.`);
 	}
 	// Missing characters
-	for (const char of screenChars) {
-		if (!usedChars.has(char)) {
-			errors.push(`Vote \`${vote}\` for screen \`${screen}\` is missing character \`${char}\`.`);
-		}
+	const missingChars = new Set([...screenChars].filter(char => !voteChars.has(char)));
+	if (missingChars.size > 0) {
+		errors.push(`The vote \`${voteText}\` is missing character${suffixPlural(missingChars)} \`${[...missingChars].join("")}\`.`);
 	}
 	return errors.length === 0 ? null : errors.join("\n");
 }
