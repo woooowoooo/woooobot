@@ -278,12 +278,12 @@ ${list}\`\`\``;
 		}
 	},
 	edit: {
-		arguments: ["<message>"],
-		description: "Edits your response to <message>.",
+		arguments: ["<newResponse>"],
+		description: "Edits your response to <newResponse>.",
 		permLevel: "normal",
-		execute: function ({args: [text], message}) {
+		execute: function ({args: [newResponse], message}) {
 			const {editResponse} = require("./responding.js");
-			message.content = text;
+			message.content = newResponse;
 			return editResponse(message);
 		}
 	},
