@@ -88,7 +88,7 @@ function checkTechnicals(response) {
 	if (response.includes("```")) {
 		return "Don't Try To Game The System Challenge";
 	}
-	for (let tech of roundTechnicals) {
+	for (const tech of roundTechnicals) {
 		if (tech !== "noTenWord" && technicals[tech].check(response) === false) {
 			return technicals[tech].title;
 		}
@@ -115,7 +115,7 @@ async function logResponse(message) {
 		return `Your response (\`${message}\`) failed the technical "${failedTechnical}".\nIt has not been recorded; please submit a response that follows all technicals.`;
 	}
 	// Build response object
-	let messageData = {
+	const messageData = {
 		id: message.id,
 		author: message.author.id,
 		time: toTimeString(message.createdAt),
@@ -170,7 +170,7 @@ function editResponse(message) {
 		return `Your new response (\`${message}\`) failed the technical "${failedTechnical}".\nYour edit has not been recorded; please submit a new response that follows all technicals.`;
 	}
 	// Build response object
-	let messageData = {
+	const messageData = {
 		id: message.id,
 		author: message.author.id,
 		time: toTimeString(message.createdAt),

@@ -48,7 +48,7 @@ const stats = {
 		range: "twow",
 		execute: function () {
 			const contestants = new Set();
-			for (let seasonPath of Object.values(seasons)) {
+			for (const seasonPath of Object.values(seasons)) {
 				const {names} = require(twowPath + seasonPath + "seasonContestants.json");
 				Object.values(names).forEach(name => contestants.add(name));
 			}
@@ -168,7 +168,7 @@ const stats = {
 		range: "season",
 		execute: function (contestant) {
 			const roundsWon = [];
-			for (let [round, roundPath] of Object.entries(rounds)) {
+			for (const [round, roundPath] of Object.entries(rounds)) {
 				const results = optRequire(seasonPath + roundPath + "results.json");
 				if (results != null && results[0].id === contestant) {
 					roundsWon.push(round);

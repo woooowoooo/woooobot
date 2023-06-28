@@ -38,31 +38,31 @@ function partitionResponses(responseAmount) {
 	}
 	// General case
 	// Determine if less or more screens is closer to the ideal
-	let lessScreens = Math.floor(responseAmount / IDEAL);
-	let lessScreensSize = responseAmount / lessScreens;
-	let moreScreens = Math.ceil(responseAmount / IDEAL);
-	let moreScreensSize = responseAmount / moreScreens;
+	const lessScreens = Math.floor(responseAmount / IDEAL);
+	const lessScreensSize = responseAmount / lessScreens;
+	const moreScreens = Math.ceil(responseAmount / IDEAL);
+	const moreScreensSize = responseAmount / moreScreens;
 	let betterAmount = lessScreensSize - IDEAL <= IDEAL - moreScreensSize ? lessScreens : moreScreens;
 	if (responseAmount / betterAmount < MIN) {
 		betterAmount = lessScreens;
 	}
-	let betterSize = responseAmount / betterAmount;
+	const betterSize = responseAmount / betterAmount;
 	// Partition
-	let screenSizes = Array(betterAmount);
+	const screenSizes = Array(betterAmount);
 	screenSizes.fill(Math.floor(betterSize));
 	screenSizes.fill(Math.ceil(betterSize), 0, responseAmount % betterAmount);
 	return screenSizes;
 }
 async function createScreen(responses, keyword, section, textScreen = false) {
-	let rows = new Map();
-	let ids = new Map();
+	const rows = new Map();
+	const ids = new Map();
 	// Create text screen
 	let screen = `\`\`\`\n${keyword}\n`;
 	// TODO: Extend characters
-	let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 	let charIndex = 0;
 	for (const response of responses) {
-		let char = chars[charIndex];
+		const char = chars[charIndex];
 		screen += `${char}\t${response.twist ?? response.text}\n`;
 		rows.set(char, response.twist ?? response.text);
 		ids.set(char, response.id);

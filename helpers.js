@@ -202,8 +202,8 @@ exports.getPaths = function (seasonPath) {
 };
 exports.defaultRequire = function (path, defaultPath) {
 	try {
-		let cool = require(path);
-		let uncool = require(defaultPath);
+		const cool = require(path);
+		const uncool = require(defaultPath);
 		return Object.assign({}, uncool, cool);
 	} catch (e) {
 		// exports.logMessage(`[E] Could not require the file at "${path}"`, "error");

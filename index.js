@@ -36,11 +36,11 @@ stdin.on("data", consoleListener);
 exports.consoleListener = consoleListener; // Exported so results.js can use it
 exports.consoleLogger = consoleLogger;
 // Configs
-let config = require("./config.json");
+const config = require("./config.json");
 const {automatic, prefix, token, devId, botId, twowPath, lastUnread} = config; // TODO: Allow for multiple TWOWs
 const {id: serverId, roles, channels: {bots}} = require(twowPath + "twowConfig.json");
 let {seasonPath, roundPath, phase} = require(twowPath + "status.json");
-let {autoDeadlines} = require(seasonPath + "seasonConfig.json");
+const {autoDeadlines} = require(seasonPath + "seasonConfig.json");
 let {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
 // Modules
 const readline = require("readline");
@@ -95,7 +95,7 @@ function processMessage(message = queue.shift()) {
 		parseCommands(message.content.substring(prefix.length), message);
 	} else if (message.guild == null && message.author.id !== devId) {
 		// Act on non-command direct messages
-		let isVote = /\[.*\]/.test(message.content);
+		const isVote = /\[.*\]/.test(message.content);
 		if (phase === "responding" || phase === "both" && !isVote) {
 			logResponse(message).then(reply => sendMessage(message.author.dmChannel, reply));
 		} else if (phase === "voting" || phase === "both") {
