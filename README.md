@@ -17,8 +17,7 @@ Example table entry:
 | `book` (attach exactly one file) | Records the attachment as your book. |
 | `delete` | Deletes your response. |
 | `echo <message>` | Repeats `<message>`. |
-<!-- | `edit [responseNumber] <message>` | Edits your response. You must specify a `<responseNumber>` if you have submitted multiple responses. | -->
-| `edit <newResponse>` | Edits your response to `<newResponse>`. |
+| `edit <newResponse>` | Edits your response to `<newResponse>`. | <!-- | `edit [responseNumber] <message>` | Edits your response. You must specify a `<responseNumber>` if you have submitted multiple responses. | -->
 | `morshu [sentenceCount]` | Generates `<sentenceCount>` (one if unspecified) amount of [morshu sentences](#spoiler-wall). |
 | `name <newName>` | Changes the name displayed during results for the current season to `<newName>`. |
 | `ping` | Pings yourself. |
@@ -45,7 +44,7 @@ Example table entry:
 TWOWs > Seasons > Rounds
 
 To add TWOWs, edit `config.json`.
-See [sampleConfig.json] for an example.
+See [`sampleConfig.json`](sampleConfig.json) for an example.
 For the tables below, **a bold asterisk means the property is required**.
 
 `config.json` properties:
