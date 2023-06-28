@@ -43,7 +43,7 @@ async function initResponding() {
 		await save(`${twowPath}/status.json`, status);
 	}
 	const unixDeadline = toUnixTime(rDeadline);
-	let message = `<@&${joins ? respondingPing : aliveId}> ${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@${botId}> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)`;
+	let message = `<@&${aliveId}> ${joins ? `<@&${respondingPing}> ` : ""}${status.currentRound} Prompt:\`\`\`\n${prompt}\`\`\`Respond to <@${botId}> by <t:${unixDeadline}> (<t:${unixDeadline}:R>)`;
 	if (author != null) {
 		message += `\nPrompt author: ${author}`;
 	}
