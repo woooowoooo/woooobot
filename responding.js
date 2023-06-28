@@ -1,6 +1,11 @@
 // Modules
 // const {client} = require("./index.js");
-const {logMessage, sendMessage, addRole, removeRole, toTimeString, toUnixTime, defaultRequire, optRequire, save} = require("./helpers.js");
+const {
+	logMessage, sendMessage, addRole, removeRole,
+	toTimeString, toUnixTime,
+	defaultRequire, optRequire, save,
+	ordinal, suffixPlural
+} = require("./helpers.js");
 // Data
 const {botId, twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const status = require(twowPath + "status.json");
@@ -46,7 +51,7 @@ async function initResponding() {
 		message += `\nHere's an example response: \`${example}\``;
 	}
 	if (roundTechnicals.length > 0) {
-		message += `\n\n**Technical${roundTechnicals.length > 1 ? "s" : ""}**:`;
+		message += `\n\n**Technical${suffixPlural(roundTechnicals)}**:`;
 		for (const tech of roundTechnicals) {
 			if (tech !== "noTenWord") {
 				message += `\n${technicals[tech].title}: ${technicals[tech].description}`;
@@ -54,7 +59,7 @@ async function initResponding() {
 		}
 	}
 	if (roundTwists != null && roundTwists.length > 0) {
-		message += `\n\n**Twist${roundTwists.length > 1 ? "s" : ""}**:`;
+		message += `\n\n**Twist${suffixPlural(roundTwists)}**:`;
 		for (const twist of roundTwists) {
 			message += `\n${twists[twist].title}: ${twists[twist].description}`;
 		}
@@ -89,21 +94,6 @@ function checkTechnicals(response) {
 		}
 	}
 	return null;
-}
-function ordinal(number) {
-	if (number >= 11 && number <= 13) {
-		return `${number}th`;
-	}
-	switch (number % 10) {
-		case 1:
-			return `${number}st`;
-		case 2:
-			return `${number}nd`;
-		case 3:
-			return `${number}rd`;
-		default:
-			return `${number}th`;
-	}
 }
 async function logResponse(message) {
 	// Reject extra responses and determine dummies

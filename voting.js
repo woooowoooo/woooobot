@@ -1,6 +1,11 @@
 // Modules
 const {client} = require("./index.js");
-const {logMessage, sendMessage, addRole, removeRole, toTimeString, toUnixTime, defaultRequire, save, scramble} = require("./helpers.js");
+const {
+	logMessage, sendMessage, addRole, removeRole,
+	toTimeString, toUnixTime,
+	defaultRequire, save,
+	scramble, suffixPlural
+} = require("./helpers.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const status = require(twowPath + "status.json");
@@ -139,9 +144,6 @@ function validateScreen(screen, section) {
 	}
 	return null;
 }
-function suffixPlural(collection) {
-	return (collection.length ?? collection.size) !== 1 ? "s" : "";
-}
 function validateVote(voteText, screen, vote) {
 	const errors = [];
 	const screenChars = new Set(Object.keys(screenResponses[screen]));
@@ -226,6 +228,7 @@ function logVote(message) {
 		removeRole(serverId, message.author.id, votingRemindPing);
 	}
 	// TODO: Add more stats
+	// Build reply
 	save(roundPath + "votes.json", votes);
 	let reply = `The following ${errorFree.length === 1 ? "vote has" : "votes have"} been recorded:\n\`\`\`${errorFree.map(matches => matches[0]).join("\n")}\`\`\``;
 	if (voteErrors.some(error => error != null)) {
