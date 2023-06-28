@@ -190,22 +190,48 @@ ${list}\`\`\``;
 			reload(twowPath + "status.json");
 		}
 	},
+	respond: {
+		arguments: ["<userId>", "<messageId>", "<response>"],
+		description: "Records <response> as <userId>'s response, sent as message <messageId>.",
+		permLevel: "admin",
+		execute: async function ({args: [userId, messageId, response]}) {
+			const {seasonPath} = require(twowPath + "status.json");
+			const {respondingPath} = getPaths(seasonPath);
+			const message = {
+				id: toSnowflake(messageId),
+				content: response,
+				createdAt: toUnixTime(messageId),
+				author: {
+					id: userId,
+					toString: () => userId
+				},
+				toString: () => response
+			};
+			const output = require(respondingPath).logResponse(message);
+			sendMessage(userId, output, true);
+			return output;
+		}
+	},
 	vote: {
 		arguments: ["<userId>", "<messageId>", "<vote>"],
 		description: "Records <vote> as <userId>'s vote, sent as message <messageId>.",
 		permLevel: "admin",
 		execute: async function ({args: [userId, messageId, vote]}) {
+			const {seasonPath} = require(twowPath + "status.json");
+			const {votingPath} = getPaths(seasonPath);
 			const message = {
 				id: toSnowflake(messageId),
 				content: vote,
 				createdAt: toUnixTime(messageId),
 				author: {
 					id: userId,
-					toString: () => userId,
+					toString: () => userId
 				},
-				toString: () => vote,
+				toString: () => vote
 			};
-			return require("./voting.js").logVote(message);
+			const output = require(votingPath).logVote(message);
+			sendMessage(userId, output, true);
+			return output;
 		}
 	},
 	// Normal level

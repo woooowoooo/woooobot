@@ -27,6 +27,7 @@ Example table entry:
 | Command | Description |
 | --- | --- |
 | `phase <phase>` | Changes round status to `<phase>`. |
+| `respond <userId> <messageId> <response>` | Records `<response>` as `<userId>`'s response, sent as message `<messageId>`. `<messageId>` may be in the form of a ISO 8601 time string. |
 | `vote <userId> <messageId> <vote>` | Records `<vote>` as `<userId>`'s vote, sent as message `<messageId>`. `<messageId>` may be in the form of a ISO 8601 time string. |
 
 ### Developer-only
