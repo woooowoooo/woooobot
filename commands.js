@@ -1,26 +1,13 @@
 const {get} = require("https");
 const {createWriteStream} = require("fs");
 const {readFile} = require("fs/promises");
-const {logMessage, sendMessage, toTimeString, toSnowflake, toUnixTime, getPaths, reload, save, parseArgs} = require("./helpers.js");
-const {prefix, devId, twowPath} = require("./config.json");
-const hasPerms = async function (user, server, roles, permLevel) {
-	if (user.id === devId) {
-		return true;
-	}
-	if (permLevel === "normal") {
-		return true;
-	}
-	if (permLevel === "developer") {
-		return false; // The first case already covers this
-	}
-	// I'll use "switch" if I add another case.
-	const member = await server.members.fetch(user.id);
-	try {
-		return member.roles.has(roles[permLevel]);
-	} catch {
-		return false;
-	}
-};
+const {
+	logMessage, sendMessage,
+	toTimeString, toSnowflake, toUnixTime,
+	getPaths, reload, save,
+	hasPerms, parseArgs
+} = require("./helpers.js");
+const {prefix, twowPath} = require("./config.json");
 const commands = {
 	help: {
 		arguments: [],

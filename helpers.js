@@ -1,7 +1,7 @@
 // Logging
 const fs = require("fs");
 const {client} = require("./index.js");
-const {logging, colorLogs, loggingPath, sandbox, sandboxId} = require("./config.json");
+const {logging, colorLogs, loggingPath, sandbox, devId, sandboxId} = require("./config.json");
 const colors = {
 	gray: "\x1B[30m",
 	red: "\x1B[31m",
@@ -228,6 +228,24 @@ exports.save = async function (path, content) {
 	await fs.promises.writeFile(path, JSON.stringify(content, null, "\t"));
 };
 // Miscellanous
+exports.hasPerms = async function (user, server, roles, permLevel) {
+	if (user.id === devId) {
+		return true;
+	}
+	if (permLevel === "normal") {
+		return true;
+	}
+	if (permLevel === "developer") {
+		return false; // The first case already covers this
+	}
+	// I'll use "switch" if I add another case.
+	const member = await server.members.fetch(user.id);
+	try {
+		return member.roles.has(roles[permLevel]);
+	} catch {
+		return false;
+	}
+};
 exports.parseArgs = function (text, amount) { // Split a string into arguments
 	const regex = /(?<=\s|^)(?:"(?<quoted>[^"]+)"|(?<unquoted>\S+))(?=\s|$)/g; // Either double quotes or non-whitespace, separated by whitespace
 	const args = [];
