@@ -3,6 +3,7 @@ const fs = require("fs");
 const {client} = require("./index.js");
 const {logging, colorLogs, loggingPath, sandbox, devId, sandboxId} = require("./config.json");
 const colors = {
+	reset: "\x1B[0m",
 	gray: "\x1B[30m",
 	red: "\x1B[31m",
 	green: "\x1B[32m",
@@ -42,7 +43,7 @@ exports.logMessage = function (message, color, multicolor = false) {
 	const timeDate = new Date();
 	const time = exports.toTimeString(timeDate);
 	// Log message to console
-	const colorMessage = `\x1B[38;5;246m${time} ${colors[color] ?? color ?? "\x1B[0m"}${message}`;
+	const colorMessage = `\x1B[38;5;246m${time} ${colors[color] ?? color ?? colors.reset}${message}`;
 	console.log(colorMessage + colors.console);
 	// Do file stuff
 	if (logging) {

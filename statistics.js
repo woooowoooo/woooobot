@@ -1,4 +1,4 @@
-const {optRequire, hasPerms} = require("./helpers.js");
+const {colors, optRequire, hasPerms} = require("./helpers.js");
 const {twowPath} = require("./config.json");
 const {seasonPath} = require(twowPath + "status.json");
 const {seasons} = require(twowPath + "twowConfig.json");
@@ -18,14 +18,14 @@ const stats = {
 				return ranges;
 			}, {});
 			// List commands per level
-			let list = `\x1B[31mlist\x1B[37m: ${this.description}\n`;
+			let list = `${colors.red}list${colors.white}: ${this.description}\n`;
 			for (const range of rangeNames) {
-				list += `\n\x1B[1;37m${range.toUpperCase()}-SPECIFIC STATS\x1B[0m\n`;
+				list += `\n\x1B[1;37m${range.toUpperCase()}-SPECIFIC STATS${colors.reset}\n`;
 				for (const [name, {description}] of ranges[range]) {
-					list += `\x1B[31m${name}\x1B[37m: ${description}\n`;
+					list += `${colors.red}${name}${colors.white}: ${description}\n`;
 				}
 			}
-			return `Available statistics: \`\`\`ansi\n\x1B[0m${list}\n\`\`\``;
+			return `Available statistics: \`\`\`ansi\n${colors.reset}${list}\n\`\`\``;
 		}
 	},
 	// TWOW-specific

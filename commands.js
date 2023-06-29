@@ -2,7 +2,7 @@ const {get} = require("https");
 const {createWriteStream} = require("fs");
 const {readFile} = require("fs/promises");
 const {
-	logMessage, sendMessage,
+	colors, logMessage, sendMessage,
 	toTimeString, toSnowflake, toUnixTime,
 	getPaths, reload, save,
 	hasPerms, parseArgs
@@ -30,13 +30,13 @@ Use \`${prefix} list\` to list all available commands.`;
 				return "";
 			}
 			let text = " " + args.join(" ");
-			text = text.replace(" [", " \x1B[33m[");
-			text = text.replace(" (", " \x1B[34m(");
-			text = text.replace(" <", " \x1B[31m<");
+			text = text.replace(" [", ` ${colors.yellow}[`);
+			text = text.replace(" (", ` ${colors.blue}(`);
+			text = text.replace(" <", ` ${colors.red}<`);
 			return text;
 		},
 		cook: function (text = "") {
-			return text.replace(/(<[^>]*>)/g, "\x1B[31m$1\x1B[37m");
+			return text.replace(/(<[^>]*>)/g, `${colors.red}$1${colors.white}`);
 		},
 		execute: async function ({message, roles}) {
 			// Sort commands into permission levels
@@ -50,17 +50,17 @@ Use \`${prefix} list\` to list all available commands.`;
 			let list = "";
 			for (const level of permLevels) {
 				if (await hasPerms(message.author, message.guild, roles, level)) {
-					list += `\n\x1B[1;37m${level.toUpperCase()} COMMANDS\x1B[0m\n`;
+					list += `\n\x1B[1;37m${level.toUpperCase()} COMMANDS${colors.reset}\n`;
 					for (const [name, command] of levelCommands[level]) {
-						list += `\x1B[32m${name}${this.cookArgs(command.arguments)}\x1B[37m: ${this.cook(command.description)}\n`;
+						list += `${colors.green}${name}${this.cookArgs(command.arguments)}${colors.white}: ${this.cook(command.description)}\n`;
 					}
 				}
 			}
 			return `\`\`\`ansi
-\x1B[0mHere are the current available commands.
+${colors.reset}Here are the current available commands.
 
 Example list entry:
-\x1B[32mcommand \x1B[31m<requiredArg> \x1B[33m[optionalArg]\x1B[37m: Description \x1B[31m<argument>\x1B[37m.
+${colors.green}command ${colors.red}<requiredArg> ${colors.yellow}[optionalArg]${colors.white}: Description ${colors.red}<argument>${colors.white}.
 ${list}\`\`\``;
 		}
 	},
