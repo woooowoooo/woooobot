@@ -2,7 +2,7 @@
 For the tables below, **a bold asterisk means the property is required**.
 
 ## `config.json`
-Example: [`sampleConfig.json`](sampleConfig.json)
+Example: [`sampleConfig.json`](../sampleConfig.json)
 
 | Key | Value Type | Description |
 | --- | --- | --- |
@@ -23,7 +23,7 @@ Example: [`sampleConfig.json`](sampleConfig.json)
 | **\***`twowPath` | String | The path of `currentTWOW` |
 
 ## `twowConfig.json`
-Example: [`Sample TWOW/twowConfig.json`](Sample%20TWOW/twowConfig.json)
+Example: [`Sample TWOW/twowConfig.json`](../Sample%20TWOW/twowConfig.json)
 
 | Key | Value Type | Description |
 | --- | --- | --- |
@@ -39,7 +39,7 @@ Roles include `admin`, `mod`, `bot`, `prize`, `supervoter`, `alive`, `dead`, and
 Channels include `bots` (an array of bot channels), `prompts`, `voting`, `results`, `reminders`, and `statistics`. All are required.
 
 ## `seasonConfig.json`
-Example: [`Sample TWOW/Sample Season/seasonConfig.json`](Sample%20TWOW/Sample%20Season/seasonConfig.json)
+Example: [`Sample TWOW/Sample Season/seasonConfig.json`](../Sample%20TWOW/Sample%20Season/seasonConfig.json)
 
 | Key | Value Type | Description |
 | --- | --- | --- |
@@ -56,7 +56,7 @@ Example: [`Sample TWOW/Sample Season/seasonConfig.json`](Sample%20TWOW/Sample%20
 | **\***`rounds` | {String: String} | Round names and paths |
 
 ## `roundConfig.json`
-Example: [`Sample TWOW/Sample Season/Round 1/roundConfig.json`](Sample%20TWOW/Sample%20Season/Round%201/roundConfig.json)
+Example: [`Sample TWOW/Sample Season/Round 1/roundConfig.json`](../Sample%20TWOW/Sample%20Season/Round%201/roundConfig.json)
 
 | Key | Value Type | Description |
 | --- | --- | --- |

@@ -1,7 +1,7 @@
 # woooobot
 Made to automate twoooowoooo. Currently used to automate EndlessTWOW.
 
-Here's the to-do list: [to-do](docs/to-do.md)
+Here's the to-do list: [to-do](docs/todo.md)
 
 **DOCS LAST UPDATED ON 2023-06-29**
 **SAMPLE TWOW LAST UPDATED A LONG TIME AGO**
@@ -84,7 +84,7 @@ For a list of properties for each config file, see [`config-files.md`](docs/conf
 
 ### (Mini)TWOWs
 TWOW names and paths should specified in `config.json`.
-An example TWOW can be seen at [Sample TWOW](Sample%20TWOW).
+An example TWOW can be seen at [`Sample TWOW/`](Sample%20TWOW).
 TWOW folders consist of the following:
 - Seasons
 - `twowConfig.json`
