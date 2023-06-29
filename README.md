@@ -44,7 +44,7 @@ Example table entry:
 | `delete` | Deletes your response. |
 | `echo <message>` | Repeats `<message>`. |
 | `edit <newResponse>` | Edits your response to `<newResponse>`. | <!-- | `edit [responseNumber] <message>` | Edits your response. You must specify a `<responseNumber>` if you have submitted multiple responses. | -->
-| `morshu [sentenceCount]` | Generates `<sentenceCount>` (one if unspecified) amount of [morshu sentences](#spoiler-wall). |
+| `morshu [sentenceCount]` | Generates `<sentenceCount>` (one if unspecified) amount of [morshu sentences](#morshu). |
 | `name <newName>` | Changes the name displayed during results for the current season to `<newName>`. |
 | `ping` | Pings yourself. |
 | `stat <statName> [possible arguments]` | It's complicated (docs don't exist yet) |
@@ -65,6 +65,14 @@ Example table entry:
 | `log [date]` | Returns the log file for `<date>` (today if unspecified). |
 | `reload` | Reloads commands.js. |
 | `send <channelId> <message>` | Sends `<message>` to `<channelId>`. |
+
+### Morshu
+Morshu sentences are grammatical (mostly) English sentences that only contain words spoken by Morshu in the CD-i game "Link: The Faces of Evil".
+They are generated in [`morshu.js`](morshu.js).
+If you run `node morshu.js`, it will generate ten morshu sentences.
+
+### Stats
+TODO
 
 ## TWOW Directory Structure
 TWOWs > Seasons > Rounds
@@ -152,8 +160,10 @@ A text version of the megascreen will be also be sent to facilitate use of https
 When results begins, first the leaderboard will be created.
 Then, the results CLI will activate.
 After results are finished with `end`, the bot will post the full leaderboard (generated at the beginning) in the results channel, as well as in the leaderboard channel if a `leaderboards` channel id is defined in `twowConfig.json`.
-It will then post a 49 message ["spoiler wall" of "morshu sentences"](#spoiler-wall) in the results channel to prevent people from unintentionally seeing the results.
-Finally, it will post a link to the beginning of results.
+
+It will then post a 50 message "spoiler wall" in the results channel, consisting of 49 ["morshu sentences"](#morshu) and a link to the beginning of results.
+The purpose of this is to prevent people from unintentionally seeing the results, as Discord loads the latest 50 messages in a channel when you open it and more than 50 messages are unread.
+Without a spoiler wall, unsuspecting latecomers would be dropped into the middle of results.
 
 #### CLI
 Examples:
@@ -162,15 +172,13 @@ Examples:
 - `1-3f` would show the responses in ranks 1 through 3 without dummies and DRPs
 - `end` would end results
 
-#### Spoiler Wall
-Morshu sentences are grammatical (mostly) English sentences that only contain words spoken by Morshu in the CD-i game "Link: The Faces of Evil".
-They are generated in [`morshu.js`](morshu.js).
-If you run `node morshu.js`, it will generate ten morshu sentences.
-
 ### New Rounds
 New rounds are stored in `queue.json` in the TWOW folder.
 When a new round is created, woooobot will copy over the `contestants.json` and `roundConfig.json` from the previous round with some modifications.
-To override properties in `roundConfig.json`, add them to `queue.json` in the TWOW folder.
+It will then take the first round in `queue.json` and copy over its properties to the new `roundConfig.json`.
+Thus, to override properties in `roundConfig.json`, add them to the first element of `queue.json` in the TWOW folder.
+
 In each round of `queue.json`, there is also a special `remove` property, which is either a single key or a list of keys.
 All keys in `remove` as well as `remove` itself will be removed from the new `roundConfig.json`.
+
 After doing `phase newRound`, it is recommended to end woooobot (`Ctrl+C`) and restart it to ensure that the new round is loaded properly.
