@@ -1,7 +1,7 @@
 # woooobot
 Made to automate twoooowoooo. Currently used to automate EndlessTWOW.
 
-Here's the to-do list: [to-do](planning/to-do.md)
+Here's the to-do list: [to-do](docs/to-do.md)
 
 **DOCS LAST UPDATED ON 2023-06-29**
 **SAMPLE TWOW LAST UPDATED A LONG TIME AGO**
@@ -49,7 +49,7 @@ TWOWs > Seasons > Rounds
 To add TWOWs, edit `config.json`.
 See [`sampleConfig.json`](sampleConfig.json) for an example.
 
-For a list of properties for each config file, see [`config-files.md`](planning/config-files.md).
+For a list of properties for each config file, see [`config-files.md`](docs/config-files.md).
 
 ### (Mini)TWOWs
 TWOW names and paths should specified in `config.json`.
