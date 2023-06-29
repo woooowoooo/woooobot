@@ -3,10 +3,8 @@
 - Fix first round mess
 - Fix listeners
 	- Sometimes, listeners are doubled up
-	- Messages sent during results
-	- Stop the bot from treating results screen inputs as commands
-		- Removing the console command listener would be sad
-	- Some responses are not being recorded
+	- Stop the bot from erroring on result screen inputs
+		- Keep a way to do commands during results, stats are important
 - Refresh all files after results and after `newRound`
 - Fix `parseArgs` dying on escaped quotes
 

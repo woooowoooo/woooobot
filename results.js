@@ -1,5 +1,5 @@
 // Modules
-const {client, consoleListener} = require("./index.js");
+const {client, listeners} = require("./index.js");
 const {logMessage, sendMessage, save} = require("./helpers.js");
 const {generate: morshu} = require("./morshu.js");
 // Data
@@ -126,12 +126,14 @@ async function results() {
 	// Reveal results
 	let slide = 1;
 	let moreSlides = true;
-	stdin.removeListener("data", consoleListener);
+	stdin.removeListener("data", listeners.consoleListener);
+	listeners.processing = true;
 	while (moreSlides) {
 		moreSlides = await new Promise(resolve => stdin.once("data", async input => {
 			const line = input.toString().trim();
 			if (line === "end") {
 				resolve(false);
+				return;
 			}
 			try { // Only send slide and increment if input is valid
 				const [selection, comment] = line.split("; ");
@@ -144,7 +146,8 @@ async function results() {
 			resolve(true);
 		}));
 	}
-	stdin.addListener("data", consoleListener);
+	listeners.processing = false;
+	stdin.addListener("data", listeners.consoleListener);
 	// Full leaderboard
 	await sendMessage(resultsId, {
 		files: [{

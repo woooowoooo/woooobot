@@ -33,8 +33,12 @@ function consoleListener(data) {
 }
 stdin.on("data", consoleLogger);
 stdin.on("data", consoleListener);
-exports.consoleListener = consoleListener; // Exported so results.js can use it
-exports.consoleLogger = consoleLogger;
+const listeners = {
+	consoleListener,
+	consoleLogger,
+	processing: false
+};
+exports.listeners = listeners; // Exported so results.js can use it
 // Configs
 const config = require("./config.json");
 const {automatic, prefix, token, devId, botId, twowPath, lastUnread} = config; // TODO: Allow for multiple TWOWs
@@ -55,7 +59,6 @@ let {results} = require(resultsPath);
 let {initRound} = require(initsPath);
 // Other variables
 const queue = [];
-let processing = false;
 let me;
 // Process messages
 function readMessage(message, readTime = false, queued = queue.length > 0) {
@@ -133,7 +136,7 @@ async function processMessageAsync(message) {
 }
 async function processQueue() {
 	// Act on unread messages
-	processing = true;
+	listeners.processing = true;
 	if (!automatic) {
 		stdin.removeListener("data", consoleListener);
 		stdin.removeListener("data", consoleLogger);
@@ -153,7 +156,7 @@ async function processQueue() {
 		stdin.on("data", consoleListener);
 		stdin.on("data", consoleLogger);
 	}
-	processing = false;
+	listeners.processing = false;
 }
 // Event handling
 process.on("uncaughtException", e => logMessage(`[E] ${e}\nStack trace is below:\n${e.stack}`, "error"));
@@ -170,7 +173,7 @@ client.once("ready", async function () {
 	const botRole = await server.roles.fetch(roles.bot);
 	const members = (await server.members.fetch()).filter(m => m.id !== devId && !m.roles.cache.has(botRole.id));
 	// Queue and process unread DMs
-	processing = true;
+	listeners.processing = true;
 	for (const [_, member] of members) {
 		const dms = await member.createDM().catch(() => logMessage(`[E] Failed to create DM to ${member.user.tag}`, "error"));
 		if (dms == null) {
@@ -210,7 +213,7 @@ client.on("messageCreate", async function (message) {
 	}
 	readMessage(message);
 	queue.push(message);
-	if (!processing) {
+	if (!listeners.processing) {
 		await processQueue();
 	}
 });
