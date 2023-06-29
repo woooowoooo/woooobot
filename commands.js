@@ -315,40 +315,24 @@ ${list}\`\`\``;
 		permLevel: "normal",
 		execute: async function ({args: [statName, statArgs], message, roles}) {
 			const stats = require("./statistics.js");
-			// Check if statistic exists
-			if (statName == null) {
-				throw new Error("Statistic name is missing!");
-			}
-			if (!(statName in stats)) {
-				throw new Error(`Invalid statistic!`);
-			}
-			const stat = stats[statName];
-			// Check permissions
-			if (!(await hasPerms(message.author, message.guild, roles, stat.permLevel))) {
-				throw new Error("You aren't allowed to see this statistic!");
-			}
-			// Execute statistic command
-			const result = stat.execute(statArgs);
-			if (Array.isArray(result)) {
-				return result.join("\n");
-			}
-			if (typeof result === "object") {
-				return JSON.stringify(result, null, 4); // Discord doesn't support tabs
-			}
-			return result.toString();
+			return await stats(statName, statArgs, message, roles);
 		}
 	}
 };
 module.exports = async function (commandName, argText, message, roles) {
+	// Check if command exists
 	if (!(commandName in commands)) {
 		throw new Error(`That isn't a valid command!`);
 	}
 	const command = commands[commandName];
+	// Check permissions
 	if (!(await hasPerms(message.author, message.guild, roles, command.permLevel))) {
 		throw new Error("You aren't allowed to use this command!");
 	}
+	// Execute comand
 	const args = parseArgs(argText, command.arguments.length);
 	const output = await command.execute({message, args, roles}); // I really don't like exposing `roles`, TODO: Rework `stats`
+	// Check for pings in output
 	if (message.guild != null && await hasPerms(message.author, message.guild, roles, "admin") && (output.includes("@everyone") || output.includes("@here"))) {
 		throw new Error(`You aren't allowed to ping @​${output.includes("@everyone") ? "everyone" : "here"}!`);
 	}

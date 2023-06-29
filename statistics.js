@@ -1,4 +1,4 @@
-const {optRequire} = require("./helpers.js");
+const {optRequire, hasPerms} = require("./helpers.js");
 const {twowPath} = require("./config.json");
 const {seasonPath} = require(twowPath + "status.json");
 const {seasons} = require(twowPath + "twowConfig.json");
@@ -178,4 +178,26 @@ const stats = {
 		}
 	}
 };
-module.exports = stats;
+module.exports = async function (statName, statArgs, message, roles) {
+	// Check if statistic exists
+	if (statName == null) {
+		throw new Error("Statistic name is missing!");
+	}
+	if (!(statName in stats)) {
+		throw new Error(`Invalid statistic!`);
+	}
+	const stat = stats[statName];
+	// Check permissions
+	if (!(await hasPerms(message.author, message.guild, roles, stat.permLevel))) {
+		throw new Error("You aren't allowed to see this statistic!");
+	}
+	// Execute statistic command
+	const result = stat.execute(statArgs);
+	if (Array.isArray(result)) {
+		return result.join("\n");
+	}
+	if (typeof result === "object") {
+		return JSON.stringify(result, null, 4); // Discord doesn't support tabs
+	}
+	return result.toString();
+};
