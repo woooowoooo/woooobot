@@ -6,6 +6,29 @@ Here's the to-do list: [to-do](docs/to-do.md)
 **DOCS LAST UPDATED ON 2023-06-29**
 **SAMPLE TWOW LAST UPDATED A LONG TIME AGO**
 
+## How to Use
+I never really intended for this to be used by anyone else, but if you want to use it, here's an incomplete outline of how.
+
+### Prerequisites
+- How to use Discord
+- Knowledge of what a modern (mini)TWOW is
+- Discord bot token (from the [Discord Developer Portal](https://discord.com/developers/applications))
+- Basic terminal knowledge (what one is, how to run a command)
+- `node.js` and `npm`
+- (ideally) General programming knowledge (what code is, what an error is, how to debug, etc.)
+- (optional) Basic knowledge of JavaScript
+- (optional) Basic knowledge of `git`
+
+### Setup
+1. Clone (download) this repository onto your device.
+2. Move it to a good location.
+3. In the terminal, run `npm install` in the repository folder.
+4. Create a file named `config.json` similar to the sample one.
+5. Setup your TWOW's file structure.
+
+### Running
+Run `node index.js` in the repository folder.
+
 ## Commands
 Example table entry:
 | Command | Description |
