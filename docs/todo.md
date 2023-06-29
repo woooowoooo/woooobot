@@ -42,7 +42,6 @@
 - Dry run of a command
 - Slash commands (maybe)
 - Use a database (maybe)
-- Extend comments
 - Open results image setting
 
 ## New Commands

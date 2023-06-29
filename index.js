@@ -93,7 +93,9 @@ function parseCommands(text, message) {
 	});
 }
 function processMessage(message = queue.shift()) {
-	if (message.content.substring(0, prefix.length) === prefix) {
+	if (message.content.substring(0, 2) === "//") {
+		// Allow for comments
+	} else if (message.content.substring(0, prefix.length) === prefix) {
 		// Act on bot commands
 		parseCommands(message.content.substring(prefix.length), message);
 	} else if (message.guild == null && message.author.id !== devId) {
