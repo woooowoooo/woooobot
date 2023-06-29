@@ -45,12 +45,14 @@
 - Slash commands (maybe)
 - Use a database (maybe)
 - Extend comments
+- Open results image setting
 
 ## New Commands
 - `respond` command (similar to `vote`)
 - User-side `respond` and `vote` commands
 - Make `change` usable and useful
 - Command to return a value (like `change` but without changing anything)
+- Argument of `log` to open it in a text viewer
 
 ## Voting
 - VoteLink™
