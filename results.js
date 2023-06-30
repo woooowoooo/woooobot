@@ -163,7 +163,6 @@ async function results() {
 			resolve(true);
 		}));
 	}
-	listeners.processing = false;
 	stdin.addListener("data", listeners.consoleListener);
 	// Full leaderboard
 	await sendMessage(resultsId, {
@@ -187,6 +186,8 @@ async function results() {
 	}
 	// Link to beginning of results
 	await sendMessage(resultsId, resultsMessage.url, true);
+	listeners.processing = false;
+	listeners.processQueue();
 	// Reset contestants.json
 	contestants.prize = [];
 	contestants.alive = [];

@@ -3,7 +3,6 @@
 - Fix first round mess
 - Fix listeners
 	- Sometimes, listeners are doubled up
-	- Queue messages during results but read them afterwards
 	- Stop the bot from erroring on result screen inputs
 		- Keep a way to do commands during results, stats are important
 - Refresh all files after results and after `newRound`

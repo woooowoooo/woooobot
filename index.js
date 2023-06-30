@@ -167,6 +167,7 @@ async function processQueue() {
 	}
 	listeners.processing = false;
 }
+listeners.processQueue = processQueue;
 // Event handling
 process.on("uncaughtException", e => logMessage(`[E] ${e}\nStack trace is below:\n${e.stack}`, "error"));
 client.once("ready", async function () {
