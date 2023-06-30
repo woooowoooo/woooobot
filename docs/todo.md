@@ -59,7 +59,6 @@
 
 ## Results
 - "Watching SampleTWOW Season 1 Round 1 Results" feature
-- Send ping with `start`
 
 ### 1b1s
 - Generate input

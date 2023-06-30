@@ -121,9 +121,20 @@ function selectEntries(rankings, line) {
 async function results() {
 	logMessage("Results started.");
 	const rankings = calculateResults();
+	await drawHeader(`${roundPath}results/header.png`, currentRound, prompt);
 	await drawResults(`${roundPath}results/leaderboard.png`, currentRound, prompt, rankings, true);
 	// Send start message
-	await drawHeader(`${roundPath}results/header.png`, currentRound, prompt);
+	stdin.removeListener("data", listeners.consoleListener);
+	listeners.processing = true;
+	await new Promise(resolve => {
+		const startListener = function (input) {
+			if (input.toString().trim() === "start") {
+				stdin.removeListener("data", startListener);
+				resolve();
+			}
+		};
+		stdin.on("data", startListener);
+	});
 	const resultsMessage = await sendMessage(resultsId, {
 		content: `@everyone ${currentRound} Results`,
 		files: [{
@@ -134,8 +145,6 @@ async function results() {
 	// Reveal results
 	let slide = 1;
 	let moreSlides = true;
-	stdin.removeListener("data", listeners.consoleListener);
-	listeners.processing = true;
 	while (moreSlides) {
 		moreSlides = await new Promise(resolve => stdin.once("data", async input => {
 			const line = input.toString().trim();
