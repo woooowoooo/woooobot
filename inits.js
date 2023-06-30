@@ -18,7 +18,7 @@ const roundConfig = require(roundPath + "roundConfig.json");
 const contestants = require(roundPath + "contestants.json");
 exports.initRound = async function (newRoundName) {
 	const nextRound = roundQueue?.shift();
-	if (nextRound?.prompt == null) {
+	if (nextRound?.prompt == null || nextRound.prompt === "") {
 		throw Error("No prompt provided!");
 	}
 	// If final round
