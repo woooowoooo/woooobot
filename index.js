@@ -64,7 +64,7 @@ let {initRound} = require(initsPath);
 const queue = [];
 let me;
 // Process messages
-function readMessage(message, readTime = false, queued = queue.length > 0) {
+function readMessage(message, readTime = false, queued = listeners.processing) {
 	let header = `(${message.id}) ${message.author.tag} (${message.author.id})`;
 	if (message.guild != null) {
 		header += ` in ${message.guild.name}, #${message.channel.name}`;
@@ -191,7 +191,7 @@ client.once("ready", async function () {
 		logMessage(`DM to ${member.user.tag} created.`, "dm");
 		const messages = await dms.messages.fetch({after: lastUnread});
 		for (const [_, message] of messages.filter(m => m.author.id !== botId)) {
-			readMessage(message, true, true);
+			readMessage(message, true);
 			queue.push(message);
 		}
 	};
