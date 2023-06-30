@@ -27,7 +27,10 @@ function consoleListener(data) {
 		parseCommands(text, { // Flesh this out
 			author: me,
 			channel: me.dmChannel,
-			createdAt: new Date()
+			content: text,
+			createdAt: new Date(),
+			fromConsole: true, // Custom property
+			toString: () => text
 		});
 	}
 }
@@ -83,7 +86,11 @@ function parseCommands(text, message) {
 	// Execute other commands
 	commands(command, argText, message, roles).then(reply => {
 		if (reply != null) {
-			sendMessage(message.channel, reply);
+			if (!message.fromConsole) {
+				sendMessage(message.channel, reply);
+			} else {
+				logMessage(reply, "message");
+			}
 		}
 	}).catch(e => {
 		logMessage(`[E] ${e}`, "error");
