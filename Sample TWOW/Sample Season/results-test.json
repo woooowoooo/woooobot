@@ -1,0 +1,112 @@
+[
+	{
+		"type": "prize",
+		"rank": 1,
+		"book": "woooowoooo.png",
+		"name": "woooowoooo",
+		"response": "Boost Boost Boost Boost Boost Boost Boost Boost Boost BOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOST",
+		"percentile": 200,
+		"stDev": 20.21,
+		"skew": 0.6,
+		"votes": 17
+	},
+	{
+		"type": "prize",
+		"rank": 2,
+		"book": "woooowoooo.png",
+		"name": "twoooowoooo",
+		"response": "Hi I'm Barry Scott! Bang and the éclair is gone",
+		"percentile": 100,
+		"stDev": 0,
+		"skew": 0,
+		"votes": 6
+	},
+	{
+		"type": "alive",
+		"rank": 3,
+		"book": null,
+		"name": "Darrest (probably)",
+		"response": "Efficiently utilizing fireworks, Darrest carefully formulates elongated and grandiloquent responses.",
+		"percentile": 85.32,
+		"stDev": 17.78,
+		"skew": -0.51,
+		"votes": 100
+	},
+	{
+		"type": "dummy",
+		"rank": 4,
+		"book": null,
+		"name": "GitHub Copilot",
+		"response": "\"For the record, I'm not a copilot.\" — Copilot, given \"F\"",
+		"percentile": 69.69,
+		"stDev": 37.5,
+		"skew": 0.2,
+		"votes": 27
+	},
+	{
+		"type": "alive",
+		"rank": 5,
+		"book": "woooowoooo.png",
+		"name": "I forgor 💀",
+		"response": "I'm immortal in time loops! I'm immortal in time loops!",
+		"percentile": 50,
+		"stDev": 33.3,
+		"skew": -0.2,
+		"votes": 5
+	},
+	{
+		"type": "danger",
+		"rank": 6,
+		"book": "woooowoooo.png",
+		"name": "Super Idol 的笑容都没你的甜",
+		"response": "我小时候很喜欢去麦当劳吃饭。那时候，我最近的麦当劳的价钱有点儿便宜。但是，他们去年涨价了！",
+		"percentile": 43.21,
+		"stDev": 2.58,
+		"skew": 0.17,
+		"votes": 12
+	},
+	{
+		"type": "danger",
+		"rank": 7,
+		"book": null,
+		"name": "Trojanikeman8",
+		"response": "I do not like big words. They are very bad.​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​",
+		"percentile": 40,
+		"stDev": 45.22,
+		"skew": 0,
+		"votes": 1
+	},
+	{
+		"type": "dummy",
+		"rank": 8,
+		"book": null,
+		"name": "GitHub Copilot",
+		"response": "Για παρακαλώ συμπληρώστε την φόρμα στην οποία συμπληρώνετε το όνομά σας και το επίθετό σας. Μετά πατήστε το κουμπί για να εγγραφείτε στο πρόγραμμα.",
+		"percentile": 23.45,
+		"stDev": 10,
+		"skew": 0.3,
+		"votes": 15
+	},
+	{
+		"type": "dead",
+		"rank": 9,
+		"book": null,
+		"name": "mycelium4",
+		"response": "very carefully",
+		"percentile": 20.21,
+		"stDev": 12.29,
+		"skew": 0.52,
+		"votes": 18
+	},
+	{
+		"type": "dead",
+		"rank": 10,
+		"book": null,
+		"name": "the entire atlantic ocean",
+		"response": "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM",
+		"percentile": 0.69,
+		"stDev": 1.23,
+		"skew": 0.89,
+		"votes": 29
+	}
+]
