@@ -15,7 +15,7 @@ const {
 // Season-specific
 const {cutoffs} = require(seasonPath + "seasonConfig.json");
 const {names, bookPaths} = require(seasonPath + "seasonContestants.json");
-const {drawResults} = require(seasonPath + "graphics.js");
+const {drawHeader, drawResults} = require(seasonPath + "graphics.js");
 // Round-specific
 const {prompt} = require(roundPath + "roundConfig.json");
 const contestants = require(roundPath + "contestants.json");
@@ -78,12 +78,12 @@ function calculateResults() {
 }
 // Present results
 const stdin = process.openStdin();
-async function sendSlide(path, rankings, header, comment) {
-	await drawResults(`${roundPath}results/${path}`, currentRound, prompt, rankings, header);
+async function sendSlide(path, fileName, rankings, comment) {
+	await drawResults(path, currentRound, prompt, rankings);
 	const slideMessage = {
 		files: [{
-			attachment: `${roundPath}results/${path}`,
-			name: path
+			attachment: path,
+			name: fileName
 		}]
 	};
 	if (comment != null) {
@@ -122,7 +122,15 @@ async function results() {
 	logMessage("Results started.");
 	const rankings = calculateResults();
 	await drawResults(`${roundPath}results/leaderboard.png`, currentRound, prompt, rankings, true);
-	const resultsMessage = await sendMessage(resultsId, `@everyone ${currentRound} Results`, true);
+	// Send start message
+	await drawHeader(`${roundPath}results/header.png`, currentRound, prompt);
+	const resultsMessage = await sendMessage(resultsId, {
+		content: `@everyone ${currentRound} Results`,
+		files: [{
+			attachment: `${roundPath}results/header.png`,
+			name: "header.png"
+		}]
+	}, true);
 	// Reveal results
 	let slide = 1;
 	let moreSlides = true;
@@ -138,7 +146,7 @@ async function results() {
 			try { // Only send slide and increment if input is valid
 				const [selection, comment] = line.split("; ");
 				const entries = selectEntries(rankings, selection.split(" "));
-				await sendSlide(`slide${slide}.png`, entries, (slide === 1), comment);
+				await sendSlide(`${roundPath}results/slide${slide}.png`, `slide${slide}.png`, entries, comment);
 				slide++;
 			} catch (e) {
 				logMessage(`[E] ${e}`, "error");

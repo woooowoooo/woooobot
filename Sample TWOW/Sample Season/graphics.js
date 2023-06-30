@@ -32,6 +32,13 @@ function drawHeader(context, title, prompt, width, height) {
 		context.fillText(title, width / 2, height / 2 - 10);
 	}
 }
+exports.drawHeader = async function (path, round, prompt) {
+	const canvas = createCanvas(WIDTH, HEADER_HEIGHT);
+	const context = canvas.getContext("2d");
+	drawHeader(context, round + " Results", prompt, WIDTH, HEADER_HEIGHT);
+	await fs.writeFile(path, canvas.toBuffer());
+	console.log("Header done");
+};
 exports.drawScreen = async function (path, keyword, prompt, responses) {
 	// Easily change to SVG by adding `, "svg"` after `ROW_HEIGHT`
 	const canvas = createCanvas(WIDTH, HEADER_HEIGHT + ROW_HEIGHT * responses.length);
