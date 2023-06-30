@@ -17,6 +17,10 @@ const seasonContestants = require(seasonPath + "seasonContestants.json");
 const roundConfig = require(roundPath + "roundConfig.json");
 const contestants = require(roundPath + "contestants.json");
 exports.initRound = async function (newRoundName) {
+	const nextRound = roundQueue?.shift();
+	if (nextRound?.prompt == null) {
+		throw Error("No prompt provided!");
+	}
 	// If final round
 	if (contestants.prize.length + contestants.alive.length <= 1) {
 		logMessage("No rounds needed, starting new season");
@@ -36,7 +40,6 @@ exports.initRound = async function (newRoundName) {
 	await save(twowPath + "status.json", status);
 	logMessage("New round started: " + currentRound);
 	// Create new files
-	const nextRound = roundQueue?.shift() ?? {};
 	await fs.mkdir(roundPath);
 	await fs.mkdir(roundPath + "results/");
 	await fs.mkdir(roundPath + "screens/");
