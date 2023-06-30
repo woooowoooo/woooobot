@@ -25,18 +25,19 @@ const {prompt, author, example, rDeadline, technicals: roundTechnicals = [], twi
 const {joins, dummies} = defaultRequire(seasonPath + "seasonConfig.json", roundPath + "roundConfig.json");
 const contestants = require(roundPath + "contestants.json");
 const responses = require(roundPath + "responses.json");
-// Sanity checks
-if (technicals == null && roundTechnicals.filter(tech => tech !== "noTenWord").length > 0) {
-	throw Error(`Round includes technicals ${roundTechnicals} but does not define them!`);
-}
-if (twists == null && roundTwists != null) {
-	throw Error(`Round includes twists ${roundTwists} but does not define them!`);
-}
-if (prompt == null || prompt === "") {
-	throw Error(`No prompt provided!`);
-}
 // Functions
 async function initResponding() {
+	// Sanity checks
+	if (technicals == null && roundTechnicals.filter(tech => tech !== "noTenWord").length > 0) {
+		throw Error(`Round includes technicals ${roundTechnicals} but does not define them!`);
+	}
+	if (twists == null && roundTwists != null) {
+		throw Error(`Round includes twists ${roundTwists} but does not define them!`);
+	}
+	if (prompt == null || prompt === "") {
+		throw Error(`No prompt provided!`);
+	}
+	// Build message
 	logMessage("Responding period started.");
 	if (status.phase !== "both") {
 		status.phase = "responding";
