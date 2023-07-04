@@ -1,4 +1,5 @@
 // Modules
+const {ActivityType} = require("discord.js");
 const {client, listeners} = require("./index.js");
 const {logMessage, sendMessage, save} = require("./helpers.js");
 const {generate: morshu} = require("./morshu.js");
@@ -142,6 +143,7 @@ async function results() {
 			name: "header.png"
 		}]
 	}, true);
+	client.user.setActivity(`Results for ${currentRound}`, {type: ActivityType.Streaming, url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"});
 	// Reveal results
 	let slide = 1;
 	let moreSlides = true;
@@ -186,6 +188,7 @@ async function results() {
 	}
 	// Link to beginning of results
 	await sendMessage(resultsId, resultsMessage.url, true);
+	client.user.setActivity();
 	listeners.processing = false;
 	listeners.processQueue();
 	// Reset contestants.json
@@ -211,4 +214,4 @@ async function results() {
 	}
 	save(roundPath + "contestants.json", contestants);
 };
-Object.assign(exports, {selectEntries, results});
+Object.assign(exports, {sendSlide, selectEntries, results});

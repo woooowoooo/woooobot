@@ -28,11 +28,13 @@
 	- Fix point assignment afterwards
 		- Make it stay even if someone responds after results
 - LCH in results
-- Make graphics not look funky after 10,000 points
 - Re-implement dummies
 	- Implement editing responses with multi-response eligiblity [(see behavior.md)](behavior.md#editing-behavior)
 - Implement balance
 - Implement items
+- 1b1s
+- Opening cards
+- `results` command? stat?
 
 # New Things
 - Multiple TWOWs
@@ -42,7 +44,6 @@
 - Dry run of a command
 - Slash commands (maybe)
 - Use a database (maybe)
-- Open results image setting
 
 ## New Commands
 - `respond` command (similar to `vote`)
@@ -57,9 +58,12 @@
 - Online vote checker tool
 
 ## Results
-- "Watching SampleTWOW Season 1 Round 1 Results" feature
+- Open results image setting
+- Let people generate screens
+- Don't save individual screens save for the leaderboard maybe
+- Compact header (Round number on left, prompt on right) maybe
 
-### 1b1s
+## 1b1s
 - Generate input
 
 ## Statistics
