@@ -136,8 +136,11 @@ exports.sendMessage = async function (destination, message, id = false, longMess
 	const sentMessage = await destination.send(message);
 	// Save possible attachments
 	if (message.files != null && saveAttachments) {
-		const path = loggingPath + time.toISOString().substring(0, 7);
+		const path = loggingPath + exports.toTimeString().substring(0, 7);
 		for (const {name: fullName, attachment} of message.files) {
+			if (fullName.includes("slide") || fullName.includes("leaderboard")) { // Dirty way to skip results slides
+				continue;
+			}
 			const [name, extension] = fullName.split(/\.(?=[^.]+$)/); // Split at last dot
 			const freePath = await exports.findFreePath(`${path}/${name}`, extension);
 			await fs.promises.writeFile(freePath, attachment);
