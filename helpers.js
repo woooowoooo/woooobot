@@ -221,9 +221,17 @@ exports.optRequire = function (path, backup = null) {
 	}
 };
 exports.reload = function (path) {
-	delete require.cache[require.resolve(path)];
-	exports.logMessage(`${path} reloaded.`);
-	return require(path);
+	if (path) {
+		delete require.cache[require.resolve(path)];
+		exports.logMessage(`"${path}" reloaded.`);
+		return;
+	}
+	for (const key of Object.keys(require.cache)) {
+		if (!key.includes("node_modules") && key.includes("woooobot") && !key.includes("index.js")) {
+			delete require.cache[key];
+		}
+	}
+	exports.logMessage(`All files reloaded.`);
 };
 exports.save = async function (path, content) {
 	await fs.promises.writeFile(path, JSON.stringify(content, null, "\t"));

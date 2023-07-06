@@ -79,8 +79,13 @@ function parseCommands(text, message) {
 	const argText = text.substring(command.length + 1);
 	// Reload commands
 	if (command === "reload" && message.author.id === devId) {
-		commands = reload("./commands.js");
-		// TODO: Add a way to reload other modules
+		reload();
+		commands = require("./commands.js");
+		({respondingPath, votingPath, resultsPath, initsPath} = getPaths(seasonPath));
+		({initResponding, logResponse} = require(respondingPath));
+		({initVoting, logVote} = require(votingPath));
+		({results} = require(resultsPath));
+		({initRound} = require(initsPath));
 		return;
 	}
 	// Execute other commands
@@ -203,14 +208,15 @@ client.once("ready", async function () {
 		if ((phase === "voting" || phase === "both") && toTimeString() > vDeadline) {
 			await results();
 			await initRound();
-			({roundPath} = reload(twowPath + "status.json"));
-			({rDeadline, vDeadline} = reload(roundPath + "roundConfig.json"));
-			({initResponding, logResponse} = reload(respondingPath));
-			({initVoting, logVote} = reload(votingPath));
-			({results} = reload(resultsPath));
-			({initRound} = reload(initsPath));
+			reload();
+			({roundPath} = require(twowPath + "status.json"));
+			({rDeadline, vDeadline} = require(roundPath + "roundConfig.json"));
+			({initResponding, logResponse} = require(respondingPath));
+			({initVoting, logVote} = require(votingPath));
+			({results} = require(resultsPath));
+			({initRound} = require(initsPath));
 			await initResponding();
-			({phase} = reload(twowPath + "status.json"));
+			({phase} = require(twowPath + "status.json"));
 		}
 		if ((phase === "responding" || phase === "both") && toTimeString() > rDeadline) {
 			await initVoting();

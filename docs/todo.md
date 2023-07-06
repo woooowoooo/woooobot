@@ -1,11 +1,6 @@
 # Bugs
-- Fix command aftermath
 - Fix first round mess
-- Fix listeners
-	- Sometimes, listeners are doubled up
-	- Stop the bot from erroring on result screen inputs
-		- Keep a way to do commands during results, stats are important
-- Refresh all files after results and after `newRound`
+- Keep a way to do commands during results, stats are important
 - Fix `parseArgs` dying on escaped quotes
 
 # Annoyances

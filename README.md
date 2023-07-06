@@ -63,7 +63,7 @@ Example table entry:
 | `editmsg <channelId> <messageId> <newMessage>` | Edits the message `<messageId>` (in `<channelId>`) to `<newMessage>`. |
 | `eval <code>` | Runs `<code>`. |
 | `log [date]` | Returns the log file for `<date>` (today if unspecified). |
-| `reload` | Reloads commands.js. |
+| `reload [path]` | Deletes the `require` cache of `<path>`, or all non-node-module files if unspecified. |
 | `send <channelId> <message>` | Sends `<message>` to `<channelId>`. |
 
 ### Morshu

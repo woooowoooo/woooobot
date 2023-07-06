@@ -156,7 +156,7 @@ ${list}\`\`\``;
 		description: "Changes round status to <phase>.",
 		permLevel: "admin",
 		execute: async function ({args: [phase]}) {
-			let {seasonPath, roundPath} = require(twowPath + "status.json");
+			let {seasonPath} = require(twowPath + "status.json");
 			let {respondingPath, votingPath, resultsPath, initsPath} = getPaths(seasonPath);
 			if (phase === "responding") {
 				await require(respondingPath).initResponding();
@@ -166,13 +166,8 @@ ${list}\`\`\``;
 				await require(resultsPath).results();
 			} else if (phase === "newRound") {
 				await require(initsPath).initRound();
-				({seasonPath, roundPath} = reload(twowPath + "status.json"));
-				reload(seasonPath + "seasonConfig.json");
-				reload(roundPath + "roundConfig.json");
-				reload(respondingPath);
-				reload(votingPath);
-				reload(resultsPath);
-				reload(initsPath);
+				reload();
+				({seasonPath} = require(twowPath + "status.json"));
 			}
 			reload(twowPath + "status.json");
 		}

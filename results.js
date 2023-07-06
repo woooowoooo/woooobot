@@ -1,7 +1,7 @@
 // Modules
 const {ActivityType} = require("discord.js");
 const {client, listeners} = require("./index.js");
-const {logMessage, sendMessage, save} = require("./helpers.js");
+const {logMessage, sendMessage, reload, save} = require("./helpers.js");
 const {generate: morshu} = require("./morshu.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
@@ -213,5 +213,6 @@ async function results() {
 		contestants[row.type !== "danger" ? row.type : "alive"].push(author.id);
 	}
 	save(roundPath + "contestants.json", contestants);
+	reload();
 };
 Object.assign(exports, {sendSlide, selectEntries, results});
