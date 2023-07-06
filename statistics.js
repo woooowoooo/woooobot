@@ -155,7 +155,7 @@ const stats = {
 			const responses = require(seasonPath + rounds[round] + "responses.json");
 			let responseVotes = 0;
 			for (const response of responses) {
-				responseVotes += Object.keys(response.ratings)?.length ?? 0;
+				responseVotes += Object.keys(response.ratings ?? {}).length;
 			}
 			return responseVotes / responses.length;
 		}

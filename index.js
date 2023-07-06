@@ -51,7 +51,7 @@ const {autoDeadlines} = require(seasonPath + "seasonConfig.json");
 let {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
 // Modules
 const readline = require("readline");
-const {colors, toTimeString, logMessage, sendMessage, toSnowflake, getPaths, save, reload} = require("./helpers.js");
+const {colors, logMessage, save, sendMessage, toTimeString, toSnowflake, getPaths, reload, suffixPlural} = require("./helpers.js");
 const morshu = require("./morshu.js");
 let commands = require("./commands.js");
 // Possibly season-specific modules
@@ -72,8 +72,8 @@ function readMessage(message, readTime = false, queued = listeners.processing) {
 	if (readTime) {
 		header += ` at ${toTimeString(message.createdAt)}`;
 	}
-	if (message.attachments != null) {
-		header += ` (${message.attachments.size} attachment${exports.suffixPlural(message.attachments)} not shown)`;
+	if (message.attachments.size !== 0) {
+		header += ` (${message.attachments.size} attachment${suffixPlural(message.attachments)} not shown)`;
 	}
 	logMessage(`[R] ${header}${queued ? " (queued)" : `:\n	${colors.message}${message}`}`, "input", true);
 }
