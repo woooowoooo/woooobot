@@ -67,14 +67,24 @@ exports.logMessage = function (message, color, multicolor = false) {
 // Files
 exports.findFreePath = async function (path, extension) {
 	try {
-		await fs.promises.access(`${path}.${extension}`, fs.constants.W_OK);
+		const test = await fs.promises.open(`${path}.${extension}`, "wx");
+		test.close();
 		return `${path}.${extension}`;
-	} catch {
+	} catch (e) {
+		if (e.code !== "EEXIST") {
+			throw e;
+		}
+		let i = 1;
 		while (true) {
 			try {
-				await fs.promises.access(`${path}-${i}.${extension}`, fs.constants.W_OK);
+				const test = await fs.promises.open(`${path}-${i}.${extension}`, "wx");
+				test.close();
 				return `${path}-${i}.${extension}`;
-			} catch {}
+			} catch (e) {
+				if (e.code !== "EEXIST") {
+					throw e;
+				}
+			}
 			i++;
 		}
 	}

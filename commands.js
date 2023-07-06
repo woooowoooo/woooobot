@@ -230,9 +230,10 @@ ${list}\`\`\``;
 			}
 			const attachment = attachments.values().next().value;
 			const firstBook = (contestants.bookPaths[user.id] == null);
-			contestants.bookPaths[user.id] ??= await findFreePath(`${user.username}.${attachments.first().name.split(".").at(-1)}`);
+			const path = await findFreePath(`${seasonPath}books/${user.username}`, attachments.first().name.split(".").at(-1));
+			contestants.bookPaths[user.id] = path.slice(path.lastIndexOf("books/") + 6);
 			await save(seasonPath + "seasonContestants.json", contestants);
-			const book = createWriteStream(`${seasonPath}books/${contestants.bookPaths[user.id]}`);
+			const book = createWriteStream(path);
 			await new Promise(resolve => get(attachment.url, response => {
 				response.pipe(book);
 				response.on("end", resolve);
