@@ -4,6 +4,7 @@
 	"logging": false,
 	"colorLogs": false,
 	"automatic": false,
+	"saveAttachments": false,
 	"openLeaderboards": false,
 	"prefix": "sample ",
 	"token": "INSERT TOKEN HERE",

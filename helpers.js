@@ -2,7 +2,7 @@
 const fs = require("fs");
 const {spawn} = require("child_process");
 const {client} = require("./index.js");
-const {logging, colorLogs, loggingPath, sandbox, devId, sandboxId} = require("./config.json");
+const {logging, colorLogs, saveAttachments, loggingPath, sandbox, devId, sandboxId} = require("./config.json");
 const colors = {
 	reset: "\x1B[0m",
 	gray: "\x1B[30m",
@@ -130,6 +130,14 @@ exports.sendMessage = async function (destination, message, id = false, longMess
 		message.content = null;
 	}
 	const sentMessage = await destination.send(message);
+	// Save possible attachments
+	if (message.files != null && saveAttachments) {
+		const path = loggingPath + time.toISOString().substring(0, 7);
+		for (const {name: fullName, attachment} of message.files) {
+			const [name, extension] = fullName.split(/\.(?=[^.]+$)/); // Split at last dot
+			await exports.saveNumbered(`${path}/${name}`, extension, attachment);
+		}
+	}
 	// Log message
 	if (typeof message === "object") {
 		message = JSON.stringify(message);

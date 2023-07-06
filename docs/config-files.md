@@ -11,6 +11,7 @@ Example: [`sampleConfig.json`](../sampleConfig.json)
 | **\***`logging` | Boolean | Save logs |
 | **\***`colorLogs` | Boolean | Use ANSI color codes in logs |
 | **\***`automatic` | Boolean | Automatically process messages |
+| **\***`saveAttachments` | Boolean | Save command output files to `loggingPath` |
 | **\***`openLeaderboards` | Boolean | Open results leaderboards in the default image viewer |
 | **\***`prefix` | String | Prefix to activate commands |
 | **\***`token` | String | Discord bot token (NEVER SHARE THIS) |
