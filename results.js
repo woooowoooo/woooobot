@@ -1,7 +1,7 @@
 // Modules
 const {ActivityType} = require("discord.js");
 const {client, listeners} = require("./index.js");
-const {logMessage, sendMessage, reload, save} = require("./helpers.js");
+const {logMessage, sendMessage, reload, save, openFile} = require("./helpers.js");
 const {generate: morshu} = require("./morshu.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
@@ -122,8 +122,12 @@ function selectEntries(rankings, line) {
 async function results() {
 	logMessage("Results started.");
 	const rankings = calculateResults();
-	await drawHeader(`${roundPath}results/header.png`, currentRound, prompt);
-	await drawResults(`${roundPath}results/leaderboard.png`, currentRound, prompt, rankings, true);
+	const leaderboardPath = `${roundPath}results/leaderboard.png`;
+	const headerPath = `${roundPath}results/header.png`;
+	await drawHeader(headerPath, currentRound, prompt);
+	await drawResults(leaderboardPath, currentRound, prompt, rankings, true);
+	// Open leaderboard image in image viewer
+	openFile(leaderboardPath);
 	// Send start message
 	stdin.removeListener("data", listeners.consoleListener);
 	listeners.processing = true;
@@ -139,7 +143,7 @@ async function results() {
 	const resultsMessage = await sendMessage(resultsId, {
 		content: `@everyone ${currentRound} Results`,
 		files: [{
-			attachment: `${roundPath}results/header.png`,
+			attachment: headerPath,
 			name: "header.png"
 		}]
 	}, true);
@@ -169,15 +173,15 @@ async function results() {
 	// Full leaderboard
 	await sendMessage(resultsId, {
 		files: [{
-			attachment: `${roundPath}results/leaderboard.png`,
+			attachment: leaderboardPath,
 			name: "leaderboard.png"
 		}]
 	}, true);
 	if (leaderboards != null) {
 		await sendMessage(leaderboards, {
-			content: `${currentVotingRound}: ${resultsMessage.url}`,
+			content: `${currentRound}: ${resultsMessage.url}`,
 			files: [{
-				attachment: `${votingRoundPath}results/leaderboard.png`,
+				attachment: leaderboardPath,
 				name: "leaderboard.png"
 			}]
 		}, true);

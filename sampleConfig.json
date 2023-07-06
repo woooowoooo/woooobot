@@ -4,6 +4,7 @@
 	"logging": false,
 	"colorLogs": false,
 	"automatic": false,
+	"openLeaderboards": false,
 	"prefix": "sample ",
 	"token": "INSERT TOKEN HERE",
 	"devId": "000000000000000000",
