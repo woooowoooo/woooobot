@@ -3,8 +3,9 @@ const {createWriteStream} = require("fs");
 const {readFile} = require("fs/promises");
 const {
 	colors, logMessage, sendMessage,
+	findFreePath, save,
 	toTimeString, toSnowflake, toUnixTime,
-	getPaths, reload, save,
+	getPaths, reload,
 	hasPerms, parseArgs
 } = require("./helpers.js");
 const {prefix, twowPath} = require("./config.json");
@@ -229,7 +230,7 @@ ${list}\`\`\``;
 			}
 			const attachment = attachments.values().next().value;
 			const firstBook = (contestants.bookPaths[user.id] == null);
-			contestants.bookPaths[user.id] ??= `${user.username}.${attachments.first().name.split(".").at(-1)}`;
+			contestants.bookPaths[user.id] ??= await findFreePath(`${user.username}.${attachments.first().name.split(".").at(-1)}`);
 			await save(seasonPath + "seasonContestants.json", contestants);
 			const book = createWriteStream(`${seasonPath}books/${contestants.bookPaths[user.id]}`);
 			await new Promise(resolve => get(attachment.url, response => {
