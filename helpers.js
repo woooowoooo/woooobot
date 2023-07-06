@@ -64,6 +64,44 @@ exports.logMessage = function (message, color, multicolor = false) {
 		}
 	}
 };
+// Files
+exports.openFile = function (path) {
+	if (process.platform === "win32") {
+		exports.logMessage("Opening file in Windows is not supported yet.", "error");
+	} else if (process.platform === "darwin") {
+		spawn("open", [path]);
+	} else if (process.platform === "linux") {
+		spawn("xdg-open", [path]);
+	} else {
+		exports.logMessage(`Opening file is not supported on platform ${process.platform}.`, "error");
+	}
+};
+exports.save = async function (path, content, raw = false) {
+	if (!raw) {
+		content = JSON.stringify(content, null, "\t");
+	}
+	await fs.promises.writeFile(path, content);
+};
+exports.saveNumbered = async function (path, extension, content, raw = true) {
+	if (!raw) {
+		content = JSON.stringify(content, null, "\t");
+	}
+	try {
+		const file = await fs.promises.open(`${path}.${extension}`, "wx");
+		await file.writeFile(content);
+	} catch {
+		exports.logMessage(`Failed to save file to \`${path}.${extension}\``, "error");
+		for (let i = 1; i < 10; i++) { // TODO: Make this work for more than 10 files but not infinite
+			try {
+				const file = await fs.promises.open(`${path}-${i}.${extension}`, "wx");
+				await file.writeFile(content);
+				return;
+			} catch {
+				exports.logMessage(`Failed to save file to \`${path}-${i}.${extension}\``, "error");
+			}
+		}
+	}
+};
 // Discord.js
 exports.resolveChannel = async function (id) {
 	try {
@@ -234,9 +272,6 @@ exports.reload = function (path) {
 	}
 	exports.logMessage(`All files reloaded.`);
 };
-exports.save = async function (path, content) {
-	await fs.promises.writeFile(path, JSON.stringify(content, null, "\t"));
-};
 // Language
 exports.ordinal = function (number) {
 	if (number >= 11 && number <= 13) {
@@ -273,17 +308,6 @@ exports.hasPerms = async function (user, server, roles, permLevel) {
 		return member.roles.has(roles[permLevel]);
 	} catch {
 		return false;
-	}
-};
-exports.openFile = function (path) {
-	if (process.platform === "win32") {
-		exports.logMessage("Opening file in Windows is not supported yet.", "error");
-	} else if (process.platform === "darwin") {
-		spawn("open", [path]);
-	} else if (process.platform === "linux") {
-		spawn("xdg-open", [path]);
-	} else {
-		exports.logMessage(`Opening file is not supported on platform ${process.platform}.`, "error");
 	}
 };
 exports.parseArgs = function (text, amount) { // Split a string into arguments
