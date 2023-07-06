@@ -9,6 +9,7 @@
 - Change default new round name to increment any number found in the previous round's name
 - Add a way to use `send` with a username
 - Check book attachment extension before saving
+	- Save past books
 - Save large .txt megascreens
 - [Add book message to first response message](behavior.md#first-response-message)
 - Remove notification roles if people remove the corresponding ping role
@@ -16,6 +17,7 @@
 - Allow `phase` to take no argument
 - Show `reload` in `list`
 - Update to new username system
+- Add `open` functionality to Windows
 
 # EndlessTWOW-specific Things
 - Add points to supervoters who did not respond
@@ -27,8 +29,6 @@
 	- Implement editing responses with multi-response eligiblity [(see behavior.md)](behavior.md#editing-behavior)
 - Implement balance
 - Implement items
-- 1b1s
-- Opening cards
 - `results` command? stat?
 
 # New Things
@@ -41,7 +41,6 @@
 - Use a database (maybe)
 
 ## New Commands
-- `respond` command (similar to `vote`)
 - User-side `respond` and `vote` commands
 - Make `change` usable and useful
 - Command to return a value (like `change` but without changing anything)

@@ -1,5 +1,6 @@
 // Logging
 const fs = require("fs");
+const {spawn} = require("child_process");
 const {client} = require("./index.js");
 const {logging, colorLogs, loggingPath, sandbox, devId, sandboxId} = require("./config.json");
 const colors = {
@@ -236,6 +237,25 @@ exports.reload = function (path) {
 exports.save = async function (path, content) {
 	await fs.promises.writeFile(path, JSON.stringify(content, null, "\t"));
 };
+// Language
+exports.ordinal = function (number) {
+	if (number >= 11 && number <= 13) {
+		return `${number}th`;
+	}
+	switch (number % 10) {
+		case 1:
+			return `${number}st`;
+		case 2:
+			return `${number}nd`;
+		case 3:
+			return `${number}rd`;
+		default:
+			return `${number}th`;
+	}
+};
+exports.suffixPlural = function (collection) {
+	return (collection.length ?? collection.size) !== 1 ? "s" : "";
+};
 // Miscellanous
 exports.hasPerms = async function (user, server, roles, permLevel) {
 	if (user.id === devId) {
@@ -253,6 +273,17 @@ exports.hasPerms = async function (user, server, roles, permLevel) {
 		return member.roles.has(roles[permLevel]);
 	} catch {
 		return false;
+	}
+};
+exports.openFile = function (path) {
+	if (process.platform === "win32") {
+		exports.logMessage("Opening file in Windows is not supported yet.", "error");
+	} else if (process.platform === "darwin") {
+		spawn("open", [path]);
+	} else if (process.platform === "linux") {
+		spawn("xdg-open", [path]);
+	} else {
+		exports.logMessage(`Opening file is not supported on platform ${process.platform}.`, "error");
 	}
 };
 exports.parseArgs = function (text, amount) { // Split a string into arguments
@@ -280,22 +311,4 @@ exports.scramble = function (array) {
 		[copy[i], copy[j]] = [copy[j], copy[i]];
 	}
 	return copy;
-};
-exports.ordinal = function (number) {
-	if (number >= 11 && number <= 13) {
-		return `${number}th`;
-	}
-	switch (number % 10) {
-		case 1:
-			return `${number}st`;
-		case 2:
-			return `${number}nd`;
-		case 3:
-			return `${number}rd`;
-		default:
-			return `${number}th`;
-	}
-};
-exports.suffixPlural = function (collection) {
-	return (collection.length ?? collection.size) !== 1 ? "s" : "";
 };
