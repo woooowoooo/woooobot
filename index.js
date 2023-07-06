@@ -72,6 +72,9 @@ function readMessage(message, readTime = false, queued = listeners.processing) {
 	if (readTime) {
 		header += ` at ${toTimeString(message.createdAt)}`;
 	}
+	if (message.attachments != null) {
+		header += ` (${message.attachments.size} attachment${exports.suffixPlural(message.attachments)} not shown)`;
+	}
 	logMessage(`[R] ${header}${queued ? " (queued)" : `:\n	${colors.message}${message}`}`, "input", true);
 }
 function parseCommands(text, message) {

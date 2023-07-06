@@ -142,12 +142,13 @@ exports.sendMessage = async function (destination, message, id = false, longMess
 	if (typeof message === "object") {
 		message = JSON.stringify(message);
 	}
+	const afterHeader = `${message.files != null ? ` (${message.files.length} attachment${exports.suffixPlural(message.files)} not shown)` : ""}\n	${colors.message}${message}`;
 	if (destination.isDMBased()) { // Channel is either DM or group DM
-		exports.logMessage(`[S] ${destination.recipient?.tag ?? destination.recipients.map(user => user.tag).join(", ")}:\n	${colors.message}${message}`, "output", true);
+		exports.logMessage(`[S] ${destination.recipient?.tag ?? destination.recipients.map(user => user.tag).join(", ")}:${afterHeader}`, "output", true);
 	} else if (destination.isTextBased()) {
-		exports.logMessage(`[S] ${destination.guild.name}, ${destination.name}:\n	${colors.message}${message}`, "output", true);
+		exports.logMessage(`[S] ${destination.guild.name}, ${destination.name}:${afterHeader}`, "output", true);
 	} else { // Non-text channel
-		exports.logMessage(`[S] ??? ${destination.guild?.name !== undefined ? destination.guild.name + ", " : ""}${destination.name}:\n	${colors.message}${message}`, "output", true);
+		exports.logMessage(`[S] ??? ${destination.guild?.name !== undefined ? destination.guild.name + ", " : ""}${destination.name}:${afterHeader}`, "output", true);
 		exports.logMessage(`[E] Not a text-based channel`, "error");
 	}
 	return sentMessage;
