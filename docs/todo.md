@@ -2,7 +2,6 @@
 - Fix first round mess
 - Keep a way to do commands during results, stats are important
 - Fix `parseArgs` dying on escaped quotes
-- Fix `saveNumbered` not saving on more than 10 copies
 
 # Annoyances
 - Remove `pnpm.lock`, `node_modules`, and other symlinks from unison

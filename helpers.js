@@ -65,6 +65,20 @@ exports.logMessage = function (message, color, multicolor = false) {
 	}
 };
 // Files
+exports.findFreePath = async function (path, extension) {
+	try {
+		await fs.promises.access(`${path}.${extension}`, fs.constants.W_OK);
+		return `${path}.${extension}`;
+	} catch {
+		while (true) {
+			try {
+				await fs.promises.access(`${path}-${i}.${extension}`, fs.constants.W_OK);
+				return `${path}-${i}.${extension}`;
+			} catch {}
+			i++;
+		}
+	}
+};
 exports.openFile = function (path) {
 	if (process.platform === "win32") {
 		exports.logMessage("Opening file in Windows is not supported yet.", "error");
@@ -81,26 +95,6 @@ exports.save = async function (path, content, raw = false) {
 		content = JSON.stringify(content, null, "\t");
 	}
 	await fs.promises.writeFile(path, content);
-};
-exports.saveNumbered = async function (path, extension, content, raw = true) {
-	if (!raw) {
-		content = JSON.stringify(content, null, "\t");
-	}
-	try {
-		const file = await fs.promises.open(`${path}.${extension}`, "wx");
-		await file.writeFile(content);
-	} catch {
-		exports.logMessage(`Failed to save file to \`${path}.${extension}\``, "error");
-		for (let i = 1; i < 10; i++) { // TODO: Make this work for more than 10 files but not infinite
-			try {
-				const file = await fs.promises.open(`${path}-${i}.${extension}`, "wx");
-				await file.writeFile(content);
-				return;
-			} catch {
-				exports.logMessage(`Failed to save file to \`${path}-${i}.${extension}\``, "error");
-			}
-		}
-	}
 };
 // Discord.js
 exports.resolveChannel = async function (id) {
@@ -135,7 +129,9 @@ exports.sendMessage = async function (destination, message, id = false, longMess
 		const path = loggingPath + time.toISOString().substring(0, 7);
 		for (const {name: fullName, attachment} of message.files) {
 			const [name, extension] = fullName.split(/\.(?=[^.]+$)/); // Split at last dot
-			await exports.saveNumbered(`${path}/${name}`, extension, attachment);
+			const freePath = await exports.findFreePath(`${path}/${name}`, extension);
+			await fs.promises.writeFile(freePath, attachment);
+			exports.logMessage(`Saved attachment to ${freePath}`);
 		}
 	}
 	// Log message
