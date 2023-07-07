@@ -53,7 +53,7 @@ function partitionResponses(responseAmount) {
 	screenSizes.fill(Math.ceil(betterSize), 0, responseAmount % betterAmount);
 	return screenSizes;
 }
-async function createScreen(responses, keyword, section, textScreen = false) {
+async function createScreen(path, responses, keyword, section, textScreen = false) {
 	const rows = new Map();
 	const ids = new Map();
 	// Create text screen
@@ -73,7 +73,6 @@ async function createScreen(responses, keyword, section, textScreen = false) {
 	screenSections[keyword] = section;
 	screenResponses[keyword] = Object.fromEntries(ids.entries());
 	// Draw and send screen
-	const path = `${roundPath}/screens/${keyword}.png`;
 	await drawScreen(path, keyword, prompt, Array.from(rows.entries()));
 	await sendMessage(voting, {
 		content: textScreen ? screen : null, // For easy voter.js input
@@ -83,10 +82,10 @@ async function createScreen(responses, keyword, section, textScreen = false) {
 		}]
 	}, true, false, keyword + ".txt");
 }
-async function createSection(responses, sizes, sectWord) {
+async function createSection(path, responses, sizes, sectWord) {
 	for (let i = 0; i < sizes.length; i++) {
 		const keyword = autoKeywords ? `${sectWord}-${i + 1}` : keywords[sectWord][i];
-		await createScreen(responses.splice(0, sizes[i]), keyword, sectWord);
+		await createScreen(`${path}${keyword}.png`, responses.splice(0, sizes[i]), keyword, sectWord);
 	}
 	sectionScreens[sectWord] = sizes.length;
 }
@@ -103,11 +102,11 @@ async function initVoting() {
 	const screenSizes = partitionResponses(responses.length);
 	for (let i = 0; i < sections; i++) {
 		const sectWord = autoKeywords ? (i + 1).toString() : Object.keys(keywords)[i];
-		await createSection(scramble(responses), screenSizes, sectWord);
+		await createSection(`${roundPath}/screens/`, scramble(responses), screenSizes, sectWord);
 	}
 	if (megascreen) {
 		sectionScreens["MEGA"] = 1;
-		await createScreen(scramble(responses), "MEGA", "MEGA", true);
+		await createScreen(`${roundPath}/screens/MEGA.png`, scramble(responses), "MEGA", "MEGA", true);
 	}
 	await save(roundPath + "screens.json", screens);
 	// DNP non-responders
@@ -238,4 +237,4 @@ function logVote(message) {
 	}
 	return reply;
 };
-Object.assign(exports, {partitionResponses, initVoting, logVote});
+Object.assign(exports, {partitionResponses, createScreen, createSection, initVoting, logVote});
