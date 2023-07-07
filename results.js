@@ -90,7 +90,7 @@ async function sendSlide(path, fileName, rankings, comment) {
 	if (comment != null) {
 		slideMessage.content = comment;
 	}
-	await sendMessage(resultsId, slideMessage, true);
+	await sendMessage(resultsId, slideMessage, true, false);
 }
 function findEntry(rankings, token) {
 	let index = rankings.findIndex(row => row.rank === parseInt(token));
@@ -176,7 +176,7 @@ async function results() {
 			attachment: leaderboardPath,
 			name: "leaderboard.png"
 		}]
-	}, true);
+	}, true, false);
 	if (leaderboards != null) {
 		await sendMessage(leaderboards, {
 			content: `${currentRound}: ${resultsMessage.url}`,
@@ -184,7 +184,7 @@ async function results() {
 				attachment: leaderboardPath,
 				name: "leaderboard.png"
 			}]
-		}, true);
+		}, true, false);
 	}
 	// Spoiler wall
 	for (let _ = 0; _ < 49; _++) {

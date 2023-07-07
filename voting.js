@@ -81,7 +81,7 @@ async function createScreen(responses, keyword, section, textScreen = false) {
 			attachment: path,
 			name: keyword + ".png"
 		}]
-	}, true, keyword + ".txt");
+	}, true, false, keyword + ".txt");
 }
 async function createSection(responses, sizes, sectWord) {
 	for (let i = 0; i < sizes.length; i++) {
