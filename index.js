@@ -78,10 +78,8 @@ function readMessage(message, readTime = false, queued = listeners.processing) {
 	logMessage(`[R] ${header}${queued ? " (queued)" : `:\n	${colors.message}${message}`}`, "input", true);
 }
 function parseCommands(text, message) {
-	const command = text.split(" ", 1)[0];
-	const argText = text.substring(command.length + 1);
 	// Reload commands
-	if (command === "reload" && message.author.id === devId) {
+	if (text === "reload" && message.author.id === devId) {
 		reload();
 		commands = require("./commands.js");
 		({respondingPath, votingPath, resultsPath, initsPath} = getPaths(seasonPath));
@@ -92,7 +90,7 @@ function parseCommands(text, message) {
 		return;
 	}
 	// Execute other commands
-	commands(command, argText, message, roles).then(reply => {
+	commands(text, message, roles).then(reply => {
 		if (reply != null) {
 			if (!message.fromConsole) {
 				sendMessage(message.channel, reply);

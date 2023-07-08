@@ -41,7 +41,9 @@
 - Use a database (maybe)
 
 ## New Commands
-- User-side `respond` and `vote` commands
+- Custom commands
+- `execute` command that'd be kinda like Minecraft
+	- User-side `respond` and `vote` commands
 - Make `change` useful
 - Argument of `log` to open it in a text viewer
 
