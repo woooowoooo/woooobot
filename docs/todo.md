@@ -42,8 +42,7 @@
 
 ## New Commands
 - User-side `respond` and `vote` commands
-- Make `change` usable and useful
-- Command to return a value (like `change` but without changing anything)
+- Make `change` useful
 - Argument of `log` to open it in a text viewer
 
 ## Voting

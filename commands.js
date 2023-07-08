@@ -67,32 +67,39 @@ ${list}\`\`\``;
 	},
 	// Developer level
 	change: {
-		arguments: ["<path>", "<keys>", "<value>"],
-		description: "Changes the value of <key> in <path> to <value>.",
+		arguments: ["<path>", "<keyString>", "<value>"],
+		description: "Changes the value of the property in file <path> at <keyString> to <value>.",
 		permLevel: "developer",
-		execute: async function ({args: [path, keys, value]}) {
-			// Get object from path
-			if (/..\//.test(path)) {
-				throw new Error("You can't edit above miniTWOW-level!");
+		execute: async function ({args: [path, keyString, value]}) {
+			// Get file from path
+			if (/\.\.\//.test(path)) {
+				throw new Error("You can't edit above woooobot level!");
 			}
 			path = `./${path}`;
-			let file = require(path);
-			// Do the change
-			let pointer = file;
-			let traverse = function (keys, value) {
-				let [key, ...rest] = keys;
-				if (rest.length === 0) {
-					pointer[key] = value;
-					return;
+			const file = require(path);
+			// Traverse through keys
+			const keys = keyString.split(".");
+			let finalPointer = keys.slice(0, -1).reduce((pointer, key) => {
+				if (typeof pointer[key] !== "object" || !(key in pointer)) {
+					throw new Error(`Cannot traverse into \`${key}\`!`);
 				}
-				if (!(key in pointer) || typeof pointer[key] !== "object") {
-					throw new Error(`Cannot traverse into "${key}"!`);
+				return pointer[key];
+			}, file);
+			// Validate value
+			if (value === "undefined") {
+				value = undefined;
+			} else {
+				try {
+					value = JSON.parse(value);
+				} catch {
+					throw new Error(`\`${value}\` is not a valid JSON value!`);
 				}
-				traverse(rest, value);
-			};
-			traverse(keys.split("."), value);
+			}
+			// Change value
+			finalPointer[keys.at(-1)] = value;
 			await save(path, file);
-			logMessage(`Set ${path}:${keys} to ${value}`);
+			reload();
+			logMessage(`Set ${path}:${keyString} to ${value}`);
 		}
 	},
 	editmsg: {
@@ -137,6 +144,30 @@ ${list}\`\`\``;
 			} catch {
 				throw new Error("No log found!");
 			}
+		}
+	},
+	return: {
+		arguments: ["<path>", "<keyString>"],
+		description: "Returns the value of the property in file <path> at <keyString>.",
+		permLevel: "developer",
+		execute: async function ({args: [path, keyString]}) {
+			// Get file from path
+			if (/\.\.\//.test(path)) {
+				throw new Error("You can't view values above woooobot level!");
+			}
+			path = `./${path}`;
+			const keys = keyString.split(".");
+			// Traverse through keys
+			const value = keys.reduce((object, key) => {
+				if (!(key in object)) {
+					throw new Error(`Key \`${key}\` not found!`);
+				}
+				return object[key];
+			}, require(path));
+			// Stringify and return value
+			const valueString = typeof value === "object" ? JSON.stringify(value, null, "\t") : value;
+			logMessage(`Returned the property at ${path}:${keyString}, which had value \`${valueString}\``);
+			return valueString;
 		}
 	},
 	send: {

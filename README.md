@@ -59,11 +59,12 @@ Example table entry:
 ### Developer-only
 | Command | Description |
 | --- | --- |
-| `change <path> <key> <value>` | Changes the value of `<key>` in `<path>` to `<value>`. |
+| `change <path> <keyString> <value>` | Changes the value of the property in file `<path>` at `<keyString>` to `<value>`. |
 | `editmsg <channelId> <messageId> <newMessage>` | Edits the message `<messageId>` (in `<channelId>`) to `<newMessage>`. |
 | `eval <code>` | Runs `<code>`. |
 | `log [date]` | Returns the log file for `<date>` (today if unspecified). |
 | `reload [path]` | Deletes the `require` cache of `<path>`, or all non-node-module files if unspecified. |
+| `return <path> <keyString>` | Returns the value of the property in file `<path>` at `<keyString>`. |
 | `send <channelId> <message>` | Sends `<message>` to `<channelId>`. |
 
 ### Morshu
