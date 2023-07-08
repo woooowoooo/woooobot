@@ -15,12 +15,12 @@
 - Remove notification roles if people remove the corresponding ping role
 - Figure out range of `stat list`
 - Allow `phase` to take no argument
-- Show `reload` in `list`
 - Update to new username system
 - Add `open` functionality to Windows
 
 # EndlessTWOW-specific Things
 - Add points to supervoters who did not respond
+- Add pointless voting? Ability to remove points?
 - Automatic point assigning before results
 	- Fix point assignment afterwards
 		- Make it stay even if someone responds after results

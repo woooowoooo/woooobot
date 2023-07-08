@@ -63,7 +63,7 @@ Example table entry:
 | `editmsg <channelId> <messageId> <newMessage>` | Edits the message `<messageId>` (in `<channelId>`) to `<newMessage>`. |
 | `eval <code>` | Runs `<code>`. |
 | `log [date]` | Returns the log file for `<date>` (today if unspecified). |
-| `reload [path]` | Deletes the `require` cache of `<path>`, or all non-node-module files if unspecified. |
+| `reload` | Deletes the `require` cache of all non-node-module files. |
 | `return <path> <keyString>` | Returns the value of the property in file `<path>` at `<keyString>`. |
 | `send <channelId> <message>` | Sends `<message>` to `<channelId>`. |
 

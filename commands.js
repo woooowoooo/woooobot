@@ -146,6 +146,12 @@ ${list}\`\`\``;
 			}
 		}
 	},
+	reload: {
+		arguments: [],
+		description: "Deletes the `require` cache of all non-node-module files.",
+		permLevel: "developer",
+		execute: function () {}
+	},
 	return: {
 		arguments: ["<path>", "<keyString>"],
 		description: "Returns the value of the property in file <path> at <keyString>.",
