@@ -4,7 +4,7 @@ const {client, listeners} = require("./index.js");
 const {logMessage, sendMessage, reload, save, openFile} = require("./helpers.js");
 const {generate: morshu} = require("./morshu.js");
 // Data
-const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
+const {openLeaderboards, twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const {currentRound: currentRegularRound, currentVotingRound, seasonPath, roundPath: regularRoundPath, votingRoundPath, phase} = require(twowPath + "status.json");
 const currentRound = phase === "both" ? currentVotingRound : currentRegularRound;
 const roundPath = phase === "both" ? votingRoundPath : regularRoundPath;
@@ -127,7 +127,9 @@ async function results() {
 	await drawHeader(headerPath, currentRound, prompt);
 	await drawResults(leaderboardPath, currentRound, prompt, rankings, true);
 	// Open leaderboard image in image viewer
-	openFile(leaderboardPath);
+	if (openLeaderboards) {
+		openFile(leaderboardPath);
+	}
 	// Send start message
 	stdin.removeListener("data", listeners.consoleListener);
 	listeners.processing = true;
