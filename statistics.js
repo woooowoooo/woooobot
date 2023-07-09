@@ -28,8 +28,8 @@ const stats = {
 		}
 	},
 	// TWOW-specific
-	listTWOWContestants: {
-		description: "List all unique contestants who have participated in this TWOW",
+	twowContestants: {
+		description: "Return all unique contestants who have participated in this TWOW",
 		permLevel: "normal",
 		range: "twow",
 		execute: function () {
@@ -42,8 +42,8 @@ const stats = {
 		}
 	},
 	// Season-specific
-	listSeasonContestants: {
-		description: "List all season contestants",
+	seasonContestants: {
+		description: "Return all season contestants",
 		permLevel: "normal",
 		range: "season",
 		execute: function () {
@@ -64,8 +64,8 @@ const stats = {
 			return prompt;
 		}
 	},
-	listContestants: {
-		description: "List all contestants in a round",
+	contestants: {
+		description: "Return all contestants in a round",
 		permLevel: "normal",
 		range: "round",
 		execute: function (round) {
@@ -74,8 +74,8 @@ const stats = {
 			return Object.keys(responseCount).map(id => names[id]);
 		}
 	},
-	listResponses: {
-		description: "List all responses in a round (admin only)",
+	responses: {
+		description: "Return all responses in a round (admin only)",
 		permLevel: "admin",
 		range: "round",
 		execute: function (round) {
@@ -83,8 +83,8 @@ const stats = {
 			return responses.map(response => response.text);
 		}
 	},
-	listVoters: {
-		description: "List all voters in a round",
+	voters: {
+		description: "Return all voters in a round",
 		permLevel: "normal",
 		range: "round",
 		execute: function (round) {
@@ -93,8 +93,8 @@ const stats = {
 			return Object.keys(votes).map(id => names[id]);
 		}
 	},
-	listSupervoters: {
-		description: "List all supervoters in a round",
+	supervoters: {
+		description: "Return all supervoters in a round",
 		permLevel: "normal",
 		range: "round",
 		execute: function (round) {
@@ -103,7 +103,7 @@ const stats = {
 			return Object.keys(votes).filter(id => votes[id].supervote).map(id => names[id]);
 		}
 	},
-	calculateVPR: {
+	vpr: {
 		description: "Calculate the average number of votes per response in a round",
 		permLevel: "normal",
 		range: "round",
@@ -118,8 +118,8 @@ const stats = {
 	},
 	// Contestant-specific
 	// Season-specific
-	listWins: {
-		description: "List all wins in a season",
+	wins: {
+		description: "Return all wins in a season",
 		permLevel: "normal",
 		range: "season",
 		execute: function (contestant) {
