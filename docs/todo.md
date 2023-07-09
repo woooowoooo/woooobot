@@ -9,8 +9,6 @@
 - Change default new round name to increment any number found in the previous round's name
 - Add a way to use `send` with a username
 - Check book attachment extension before saving
-	- Save past books
-- Save large .txt megascreens
 - [Add book message to first response message](behavior.md#first-response-message)
 - Remove notification roles if people remove the corresponding ping role
 - Figure out range of `stat list`
@@ -53,16 +51,13 @@
 - Online vote checker tool
 
 ## Results
-- Open results image setting
 - Let people generate screens
-- Don't save individual screens save for the leaderboard maybe
 - Compact header (Round number on left, prompt on right) maybe
 
-## 1b1s
+### 1b1s
 - Generate input
 
 ## Statistics
-- Give actual names to stat commands
 - Leaderboard change over votes in a round
 
 ### Individual
