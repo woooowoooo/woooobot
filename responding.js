@@ -131,11 +131,16 @@ async function logResponse(message) {
 		messageData.twist = twistResult;
 	}
 	responses.push(messageData);
-	// Initialize first-time responders, build reply
-	let reply = `Your response (\`${message}\`) has been recorded${message.twist != null ? ` as \`${message.twist}\`` : ""}.`;
+	// Build reply
+	let reply = `Your response (\`${message}\`) has been recorded`;
+	if (messageData.twist != null) {
+		reply += ` as \`${messageData.twist}\``;
+	}
+	reply += `. It is this round's **${ordinal(responses.length)}** submitted response.`;
 	if (isDummy) {
 		reply += " **It is a dummy response, which means that its placement in results does not matter.**";
 	}
+	// Initialize first-time responders
 	if (!alive && joins) {
 		seasonContestants.contestants.push(message.author.id);
 		seasonContestants.names[message.author.id] = message.author.username;
@@ -145,7 +150,6 @@ async function logResponse(message) {
 		addRole(serverId, message.author.id, votingPing);
 		addRole(serverId, message.author.id, resultsPing);
 	}
-	reply += ` It is this round's **${ordinal(responses.length)}** submitted response.`;
 	// Remove responders from reminders
 	contestants.responseCount[message.author.id] ??= 0;
 	contestants.responseCount[message.author.id]++;
