@@ -355,7 +355,7 @@ ${list}\`\`\``;
 };
 module.exports = async function run(text, message, roles) {
 	const commandName = text.split(" ", 1)[0];
-	const argText = text.substring(command.length + 1);
+	const argText = text.substring(commandName.length + 1);
 	// Check if command exists
 	if (!(commandName in commands)) {
 		throw new Error(`That isn't a valid command!`);

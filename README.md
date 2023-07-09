@@ -47,7 +47,7 @@ Example table entry:
 | `morshu [sentenceCount]` | Generates `<sentenceCount>` (one if unspecified) amount of [morshu sentences](#morshu). |
 | `name <newName>` | Changes the name displayed during results for the current season to `<newName>`. |
 | `ping` | Pings yourself. |
-| `stat <statName> [possible arguments]` | It's complicated (docs don't exist yet) |
+| `stat <statName> [possible arguments]` | [It's complicated (docs don't exist yet)](#stats) |
 
 ### Admin-only
 | Command | Description |

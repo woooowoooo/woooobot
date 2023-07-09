@@ -325,7 +325,7 @@ exports.hasPerms = async function (user, server, roles, permLevel) {
 		return false;
 	}
 };
-exports.parseArgs = function (text, amount) { // Split a string into arguments
+exports.parseArgs = function (text, amount = Infinity) { // Split a string into arguments
 	const regex = /(?<=\s|^)(?:"(?<quoted>[^"]+)"|(?<unquoted>\S+))(?=\s|$)/g; // Either double quotes or non-whitespace, separated by whitespace
 	const args = [];
 	if (text === "" || amount === 0) {

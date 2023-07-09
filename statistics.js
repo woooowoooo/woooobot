@@ -1,4 +1,4 @@
-const {colors, optRequire, hasPerms} = require("./helpers.js");
+const {colors, optRequire, hasPerms, parseArgs} = require("./helpers.js");
 const {twowPath} = require("./config.json");
 const {seasonPath} = require(twowPath + "status.json");
 const {seasons} = require(twowPath + "twowConfig.json");
@@ -178,7 +178,7 @@ const stats = {
 		}
 	}
 };
-module.exports = async function (statName, statArgs, message, roles) {
+module.exports = async function (statName, argString, message, roles) {
 	// Check if statistic exists
 	if (statName == null) {
 		throw new Error("Statistic name is missing!");
@@ -191,8 +191,10 @@ module.exports = async function (statName, statArgs, message, roles) {
 	if (!(await hasPerms(message.author, message.guild, roles, stat.permLevel))) {
 		throw new Error("You aren't allowed to see this statistic!");
 	}
+	// Range stuff
+	const args = parseArgs(argString);
 	// Execute statistic command
-	const result = stat.execute(statArgs);
+	const result = stat.execute(...args);
 	if (Array.isArray(result)) {
 		return result.join("\n");
 	}
