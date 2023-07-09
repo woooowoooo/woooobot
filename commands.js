@@ -227,7 +227,7 @@ ${list}\`\`\``;
 				},
 				toString: () => response
 			};
-			const output = require(respondingPath).logResponse(message);
+			const output = await require(respondingPath).logResponse(message);
 			sendMessage(userId, output, true);
 			return output;
 		}
@@ -249,7 +249,7 @@ ${list}\`\`\``;
 				},
 				toString: () => vote
 			};
-			const output = require(votingPath).logVote(message);
+			const output = await require(votingPath).logVote(message);
 			sendMessage(userId, output, true);
 			return output;
 		}
