@@ -126,31 +126,28 @@ function processMessage(message = queue.shift()) {
 }
 async function processMessageAsync(message) {
 	process.stdout.write("\u0007"); // Bell
-	return new Promise((resolve, reject) => {
-		const fullListener = (_, key) => {
-			if (key.ctrl && key.name === "r") {
-				// Ctrl + R: Process message
-				logMessage("Message read");
-				try {
-					processMessage(message);
-					stdin.removeListener("keypress", fullListener);
-					resolve();
-				} catch (e) {
-					reject(e);
-				}
-			} else if (key.ctrl && key.name === "s") {
-				// Ctrl + S: Skip message
-				logMessage("Message skipped");
+	return new Promise((resolve, reject) => stdin.on("keypress", function fullListener(_, key) {
+		if (key.ctrl && key.name === "r") {
+			// Ctrl + R: Process message
+			logMessage("Message read");
+			try {
+				processMessage(message);
 				stdin.removeListener("keypress", fullListener);
 				resolve();
-			} else if (key.ctrl && key.name === "c") {
-				// Ctrl + C: Exit
-				logMessage("Ending woooobot…");
-				process.exit();
+			} catch (e) {
+				reject(e);
 			}
-		};
-		stdin.on("keypress", fullListener);
-	});
+		} else if (key.ctrl && key.name === "s") {
+			// Ctrl + S: Skip message
+			logMessage("Message skipped");
+			stdin.removeListener("keypress", fullListener);
+			resolve();
+		} else if (key.ctrl && key.name === "c") {
+			// Ctrl + C: Exit
+			logMessage("Ending woooobot…");
+			process.exit();
+		}
+	}));
 }
 async function processQueue() {
 	// Act on unread messages

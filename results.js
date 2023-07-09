@@ -133,15 +133,12 @@ async function results() {
 	// Send start message
 	stdin.removeListener("data", listeners.consoleListener);
 	listeners.processing = true;
-	await new Promise(resolve => {
-		const startListener = function (input) {
-			if (input.toString().trim() === "start") {
-				stdin.removeListener("data", startListener);
-				resolve();
-			}
-		};
-		stdin.on("data", startListener);
-	});
+	await new Promise(resolve => stdin.on("data", function listener(input) {
+		if (input.toString().trim() === "start") {
+			stdin.removeListener("data", listener);
+			resolve();
+		}
+	}));
 	const resultsMessage = await sendMessage(resultsId, {
 		content: `@everyone ${currentRound} Results`,
 		files: [{
