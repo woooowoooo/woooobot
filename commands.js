@@ -352,7 +352,7 @@ ${list}\`\`\``;
 };
 module.exports = async function run(text, message, roles) {
 	const commandName = text.split(" ", 1)[0];
-	const argText = text.substring(commandName.length + 1);
+	const argString = text.substring(commandName.length + 1);
 	// Check if command exists
 	if (!(commandName in commands)) {
 		throw new Error(`That isn't a valid command!`);
@@ -363,7 +363,7 @@ module.exports = async function run(text, message, roles) {
 		throw new Error("You aren't allowed to use this command!");
 	}
 	// Execute comand
-	const args = parseArgs(argText, command.arguments.length);
+	const args = parseArgs(argString, command.arguments.length);
 	const output = await command.execute({message, args, roles}); // I really don't like exposing `roles`, TODO: Rework `stats`
 	// Check for pings in output
 	if (message.guild != null && await hasPerms(message.author, message.guild, roles, "admin") && (output.includes("@everyone") || output.includes("@here"))) {
