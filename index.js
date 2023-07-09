@@ -42,6 +42,14 @@ const listeners = {
 	processing: false
 };
 exports.listeners = listeners; // Exported so results.js can use it
+// Modules
+const readline = require("readline");
+const {
+	colors, logMessage, getPaths, save, reload,
+	sendMessage, toTimeString, toSnowflake, suffixPlural
+} = require("./helpers.js");
+const morshu = require("./morshu.js");
+let commands = require("./commands.js");
 // Configs
 const config = require("./config.json");
 const {automatic, prefix, token, devId, botId, twowPath, lastUnread} = config; // TODO: Allow for multiple TWOWs
@@ -49,11 +57,6 @@ const {id: serverId, roles, channels: {bots}} = require(twowPath + "twowConfig.j
 let {seasonPath, roundPath, phase} = require(twowPath + "status.json");
 const {autoDeadlines} = require(seasonPath + "seasonConfig.json");
 let {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
-// Modules
-const readline = require("readline");
-const {colors, logMessage, save, sendMessage, toTimeString, toSnowflake, getPaths, reload, suffixPlural} = require("./helpers.js");
-const morshu = require("./morshu.js");
-let commands = require("./commands.js");
 // Possibly season-specific modules
 let {respondingPath, votingPath, resultsPath, initsPath} = getPaths(seasonPath);
 let {initResponding, logResponse} = require(respondingPath);

@@ -2,11 +2,8 @@ const {get} = require("https");
 const {createWriteStream} = require("fs");
 const {readFile} = require("fs/promises");
 const {
-	colors, logMessage, sendMessage,
-	findFreePath, save,
-	toTimeString, toSnowflake, toUnixTime,
-	getPaths, reload,
-	hasPerms, parseArgs
+	colors, logMessage, findFreePath, getPaths, save, reload,
+	sendMessage, toTimeString, toSnowflake, toUnixTime, hasPerms, parseArgs
 } = require("./helpers.js");
 const {prefix, twowPath} = require("./config.json");
 const commands = {
