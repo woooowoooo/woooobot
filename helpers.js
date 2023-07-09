@@ -181,14 +181,19 @@ exports.sendMessage = async function (destination, message, id = false, saveAtta
 		message.content = null;
 	}
 	const sentMessage = await destination.send(message);
-	// Save possible attachments
-	if (message.files != null && saveAttachments && saveAttachment) {
+	// Save and remove possible attachments
+	if (message.files != null) {
 		const path = loggingPath + exports.toTimeString().substring(0, 7);
 		for (const {name: fullName, attachment} of message.files) {
 			const [name, extension] = fullName.split(/\.(?=[^.]+$)/); // Split at last dot
 			const freePath = await exports.findFreePath(`${path}/${name}`, extension);
-			await fs.promises.writeFile(freePath, attachment);
-			exports.logMessage(`Saved attachment to ${freePath}`);
+			if (saveAttachments && saveAttachment) {
+				await fs.promises.writeFile(freePath, attachment);
+				exports.logMessage(`Saved attachment to ${freePath}`);
+			}
+			if (attachment?.data != null) {
+				attachment.data = `[${attachment.data.length} bytes not logged${saveAttachments && saveAttachment ? `, saved to ${freePath}` : ""}]`;
+			}
 		}
 	}
 	// Log message
