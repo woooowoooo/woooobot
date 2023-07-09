@@ -89,6 +89,20 @@ exports.findFreePath = async function (path, extension) {
 		}
 	}
 };
+exports.getPaths = function (seasonPath) {
+	const paths = {
+		respondingPath: "./responding.js",
+		votingPath: "./voting.js",
+		resultsPath: "./results.js",
+		initsPath: "./inits.js"
+	};
+	for (const key of Object.keys(paths)) {
+		if (fs.existsSync(seasonPath + paths[key])) {
+			paths[key] = seasonPath + paths[key];
+		}
+	}
+	return paths;
+};
 exports.openFile = function (path) {
 	if (process.platform === "win32") {
 		exports.logMessage("Opening file in Windows is not supported yet.", "error");
@@ -105,6 +119,39 @@ exports.save = async function (path, content, raw = false) {
 		content = JSON.stringify(content, null, "\t");
 	}
 	await fs.promises.writeFile(path, content);
+};
+// Require
+exports.defaultRequire = function (path, defaultPath) {
+	try {
+		const cool = require(path);
+		const uncool = require(defaultPath);
+		return Object.assign({}, uncool, cool);
+	} catch (e) {
+		// exports.logMessage(`[E] Could not require the file at "${path}"`, "error");
+		exports.logMessage(e, "error");
+		return require(defaultPath);
+	}
+};
+exports.optRequire = function (path, backup = null) {
+	try {
+		return require(path);
+	} catch {
+		exports.logMessage(`[E] Could not require the file at "${path}"`, "error");
+		return backup;
+	}
+};
+exports.reload = function (path) {
+	if (path) {
+		delete require.cache[require.resolve(path)];
+		exports.logMessage(`"${path}" reloaded.`);
+		return;
+	}
+	for (const key of Object.keys(require.cache)) {
+		if (!key.includes("node_modules") && key.includes("woooobot") && !key.includes("index.js")) {
+			delete require.cache[key];
+		}
+	}
+	exports.logMessage(`All files reloaded.`);
 };
 // Discord.js
 exports.resolveChannel = async function (id) {
@@ -239,53 +286,6 @@ exports.toUnixTime = function (time) { // (Snowflake | String | Unix | null) -> 
 		default:
 			throw new Error("Invalid time");
 	}
-};
-// Require
-exports.getPaths = function (seasonPath) {
-	const paths = {
-		respondingPath: "./responding.js",
-		votingPath: "./voting.js",
-		resultsPath: "./results.js",
-		initsPath: "./inits.js"
-	};
-	for (const key of Object.keys(paths)) {
-		if (fs.existsSync(seasonPath + paths[key])) {
-			paths[key] = seasonPath + paths[key];
-		}
-	}
-	return paths;
-};
-exports.defaultRequire = function (path, defaultPath) {
-	try {
-		const cool = require(path);
-		const uncool = require(defaultPath);
-		return Object.assign({}, uncool, cool);
-	} catch (e) {
-		// exports.logMessage(`[E] Could not require the file at "${path}"`, "error");
-		exports.logMessage(e, "error");
-		return require(defaultPath);
-	}
-};
-exports.optRequire = function (path, backup = null) {
-	try {
-		return require(path);
-	} catch {
-		exports.logMessage(`[E] Could not require the file at "${path}"`, "error");
-		return backup;
-	}
-};
-exports.reload = function (path) {
-	if (path) {
-		delete require.cache[require.resolve(path)];
-		exports.logMessage(`"${path}" reloaded.`);
-		return;
-	}
-	for (const key of Object.keys(require.cache)) {
-		if (!key.includes("node_modules") && key.includes("woooobot") && !key.includes("index.js")) {
-			delete require.cache[key];
-		}
-	}
-	exports.logMessage(`All files reloaded.`);
 };
 // Language
 exports.ordinal = function (number) {
