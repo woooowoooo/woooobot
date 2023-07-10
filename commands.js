@@ -2,10 +2,12 @@ const {get} = require("https");
 const {createWriteStream} = require("fs");
 const {readFile} = require("fs/promises");
 const {
-	colors, logMessage, findFreePath, getPaths, save, reload,
+	colors, logMessage, findFreePath, getPaths, save, optRequire, reload,
 	sendMessage, toTimeString, toSnowflake, toUnixTime, hasPerms, parseArgs
 } = require("./helpers.js");
 const {prefix, twowPath} = require("./config.json");
+let {seasonPath} = require(twowPath + "status.json");
+const customCommands = optRequire(seasonPath + "commands.js");
 const commands = {
 	help: {
 		arguments: [],
@@ -194,7 +196,6 @@ ${list}\`\`\``;
 		description: "Changes round status to <phase>.",
 		permLevel: "admin",
 		execute: async function ({args: [phase]}) {
-			let {seasonPath} = require(twowPath + "status.json");
 			let {respondingPath, votingPath, resultsPath, initsPath} = getPaths(seasonPath);
 			if (phase === "responding") {
 				await require(respondingPath).initResponding();
@@ -215,7 +216,6 @@ ${list}\`\`\``;
 		description: "Records <response> as <userId>'s response, sent as message <messageId>.",
 		permLevel: "admin",
 		execute: async function ({args: [userId, messageId, response]}) {
-			const {seasonPath} = require(twowPath + "status.json");
 			const {respondingPath} = getPaths(seasonPath);
 			const message = {
 				id: toSnowflake(messageId),
@@ -237,7 +237,6 @@ ${list}\`\`\``;
 		description: "Records <vote> as <userId>'s vote, sent as message <messageId>.",
 		permLevel: "admin",
 		execute: async function ({args: [userId, messageId, vote]}) {
-			const {seasonPath} = require(twowPath + "status.json");
 			const {votingPath} = getPaths(seasonPath);
 			const message = {
 				id: toSnowflake(messageId),
@@ -260,7 +259,6 @@ ${list}\`\`\``;
 		description: "Record the attachment as your book.",
 		permLevel: "normal",
 		execute: async function ({message: {author: user, attachments}}) {
-			const {seasonPath} = require(twowPath + "status.json");
 			const contestants = require(seasonPath + "seasonContestants.json");
 			if (attachments.size !== 1) {
 				throw new Error("Your message does not contain exactly one file attachment!");
@@ -327,7 +325,6 @@ ${list}\`\`\``;
 			if (newName == null) {
 				throw new Error("New display name is missing!");
 			}
-			const {seasonPath} = require(twowPath + "status.json");
 			const contestants = require(seasonPath + "seasonContestants.json");
 			const oldName = contestants.names[id];
 			contestants.names[id] = newName;
@@ -357,10 +354,10 @@ module.exports = async function run(text, message, roles) {
 	const commandName = text.split(" ", 1)[0];
 	const argString = text.substring(commandName.length + 1);
 	// Check if command exists
-	if (!(commandName in commands)) {
+	if (!(commandName in commands) && typeof customCommands?.[commandName]?.execute !== "function") {
 		throw new Error(`That isn't a valid command!`);
 	}
-	const command = commands[commandName];
+	const command = commands[commandName] ?? customCommands[commandName];
 	// Check permissions
 	if (!(await hasPerms(message.author, message.guild, roles, command.permLevel))) {
 		throw new Error("You aren't allowed to use this command!");
