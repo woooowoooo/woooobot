@@ -1,6 +1,6 @@
 const {colors, optRequire, hasPerms, parseArgs} = require("./helpers.js");
 const {twowPath} = require("./config.json");
-const {seasonPath} = require(twowPath + "status.json");
+const {currentRound, seasonPath} = require(twowPath + "status.json");
 const {seasons} = require(twowPath + "twowConfig.json");
 const {rounds} = require(seasonPath + "seasonConfig.json");
 const stats = {
@@ -122,7 +122,7 @@ const stats = {
 		description: "Return all wins in a season",
 		permLevel: "normal",
 		range: "season",
-		execute: function (contestant) {
+		execute: function (_, contestant) {
 			const roundsWon = [];
 			for (const [round, roundPath] of Object.entries(rounds)) {
 				const results = optRequire(seasonPath + roundPath + "results.json");
@@ -151,9 +151,9 @@ module.exports = async function (statName, text, message, roles) {
 		throw new Error("You aren't allowed to see this statistic!");
 	}
 	// Execute statistic command
-	const [argString, processor] = text.split("|").map(arg => arg.trim()); // Ignores further pipes, no need demonstrated
-	const args = parseArgs(argString);
-	let result = stat.execute(...args);
+	const [rangeString, args, processor] = text.split("|").map(arg => arg.trim()); // Ignores further pipes, no need demonstrated
+	const range = rangeString ?? currentRound; // TODO: Allow ranges
+	let result = stat.execute(range, ...parseArgs(args));
 	// Process result
 	if (processor != null) {
 		if (!(processor in processors)) {
