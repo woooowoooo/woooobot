@@ -345,12 +345,12 @@ ${list}\`\`\``;
 		description: "UNFINISHED",
 		permLevel: "normal",
 		execute: async function ({args: [statName, statArgs], message, roles}) {
-			const stats = require("./statistics.js");
-			return await stats(statName, statArgs, message, roles);
+			const {calcStat} = require("./statistics.js");
+			return await calcStat(statName, statArgs, message, roles);
 		}
 	}
 };
-module.exports = async function run(text, message, roles) {
+async function runCommand(text, message, roles) {
 	const commandName = text.split(" ", 1)[0];
 	const argString = text.substring(commandName.length + 1);
 	// Check if command exists
@@ -371,3 +371,4 @@ module.exports = async function run(text, message, roles) {
 	}
 	return output;
 };
+Object.assign(module.exports, {commands, runCommand});

@@ -49,7 +49,7 @@ const {
 	sendMessage, toTimeString, toSnowflake, suffixPlural
 } = require("./helpers.js");
 const morshu = require("./morshu.js");
-let commands = require("./commands.js");
+let {runCommand} = require("./commands.js");
 // Configs
 const config = require("./config.json");
 const {automatic, prefix, token, devId, botId, twowPath, lastUnread} = config; // TODO: Allow for multiple TWOWs
@@ -84,7 +84,7 @@ function parseCommands(text, message) {
 	// Reload commands
 	if (text === "reload" && message.author.id === devId) {
 		reload();
-		commands = require("./commands.js");
+		({runCommand} = require("./commands.js"));
 		({respondingPath, votingPath, resultsPath, initsPath} = getPaths(seasonPath));
 		({initResponding, logResponse} = require(respondingPath));
 		({initVoting, logVote} = require(votingPath));
@@ -93,7 +93,7 @@ function parseCommands(text, message) {
 		return;
 	}
 	// Execute other commands
-	commands(text, message, roles).then(reply => {
+	runCommand(text, message, roles).then(reply => {
 		if (reply != null) {
 			if (!message.fromConsole) {
 				sendMessage(message.channel, reply);

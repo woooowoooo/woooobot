@@ -137,7 +137,7 @@ const stats = {
 const processors = {
 	size: result => result?.length ?? result?.size ?? undefined
 };
-module.exports = async function (statName, text, message, roles) {
+async function calcStat(statName, text, message, roles) {
 	// Check if statistic exists
 	if (statName == null) {
 		throw new Error("Statistic name is missing!");
@@ -170,3 +170,4 @@ module.exports = async function (statName, text, message, roles) {
 	}
 	return result.toString();
 };
+Object.assign(module.exports, {stats, calcStat});
