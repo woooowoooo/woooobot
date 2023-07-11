@@ -66,24 +66,13 @@ exports.logMessage = function (message, color, multicolor = false) {
 };
 // Files
 exports.findFreePath = async function (path, extension) {
-	try {
-		const test = await fs.promises.open(`${path}.${extension}`, "wx");
-		test.close();
+	if (!fs.existsSync(`${path}.${extension}`)) {
 		return `${path}.${extension}`;
-	} catch (e) {
-		if (e.code !== "EEXIST") {
-			throw e;
-		}
+	} else {
 		let i = 1;
 		while (true) {
-			try {
-				const test = await fs.promises.open(`${path}-${i}.${extension}`, "wx");
-				test.close();
+			if (!fs.existsSync(`${path}-${i}.${extension}`)) {
 				return `${path}-${i}.${extension}`;
-			} catch (e) {
-				if (e.code !== "EEXIST") {
-					throw e;
-				}
 			}
 			i++;
 		}
