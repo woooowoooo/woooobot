@@ -136,7 +136,7 @@ exports.reload = function (path) {
 		return;
 	}
 	for (const key of Object.keys(require.cache)) {
-		if (!key.includes("node_modules") && key.includes("woooobot") && !key.includes("index.js")) {
+		if (!key.includes("node_modules") && !key.includes("index.js")) {
 			delete require.cache[key];
 		}
 	}
