@@ -180,8 +180,11 @@ exports.sendMessage = async function (destination, message, id = false, saveAtta
 				await fs.promises.writeFile(freePath, attachment);
 				exports.logMessage(`Saved attachment to ${freePath}`);
 			}
-			if (attachment?.data != null) {
-				attachment.data = `[${attachment.data.length} bytes not logged${saveAttachments && saveAttachment ? `, saved to ${freePath}` : ""}]`;
+			if (attachment instanceof Buffer) {
+				attachment.toJSON = () => ({
+					type: "Buffer",
+					data: `[${attachment.length} bytes not logged${saveAttachments && saveAttachment ? `, saved to ${freePath}` : ""}]`
+				});
 			}
 		}
 	}
