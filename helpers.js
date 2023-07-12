@@ -21,7 +21,6 @@ const colors = {
 	console: "\x1B[35m", // Magenta
 	message: "\x1B[36m" // Cyan
 };
-exports.colors = colors;
 const findColor = /(\x1B\[[\w;]+m)/g;
 let buffer = "\n" + "─".repeat(50) + "\n\n";
 let logStream = null;
@@ -33,16 +32,16 @@ if (logging) {
 async function makeLogFile(time) {
 	const path = loggingPath + time.toISOString().substring(0, 7);
 	await fs.promises.mkdir(path, {recursive: true});
-	const timeString = exports.toTimeString(time);
+	const timeString = toTimeString(time);
 	currentDay = timeString.substring(0, 10);
 	logStream = fs.createWriteStream(`${path}/${currentDay}.log`, {flags: "a"});
 }
-exports.logMessage = function (message, color, multicolor = false) {
+function logMessage(message, color, multicolor = false) {
 	if (Array.isArray(message)) {
 		message = message.join("\n\t");
 	}
 	const timeDate = new Date();
-	const time = exports.toTimeString(timeDate);
+	const time = toTimeString(timeDate);
 	// Log message to console
 	const colorMessage = `\x1B[38;5;246m${time} ${colors[color] ?? color ?? colors.reset}${message}`;
 	console.log(colorMessage + colors.console);
@@ -53,19 +52,20 @@ exports.logMessage = function (message, color, multicolor = false) {
 			makeLogFile(timeDate);
 		}
 		// Log message to file or to buffer if log file is not ready
-		let logMessage = (colorLogs ? colorMessage : `${time} ${message}`) + "\n";
+		let logEntry = (colorLogs ? colorMessage : `${time} ${message}`) + "\n";
 		if (!colorLogs && multicolor) {
-			logMessage = logMessage.replaceAll(findColor, "");
+			logEntry = logEntry.replaceAll(findColor, "");
 		}
 		if (logStream == null) {
-			buffer += logMessage;
+			buffer += logEntry;
 		} else {
-			logStream.write(logMessage);
+			logStream.write(logEntry);
 		}
 	}
 };
+Object.assign(exports, {colors, logMessage});
 // Files
-exports.findFreePath = async function (path, extension) {
+async function findFreePath(path, extension) {
 	if (!fs.existsSync(`${path}.${extension}`)) {
 		return `${path}.${extension}`;
 	} else {
@@ -78,7 +78,7 @@ exports.findFreePath = async function (path, extension) {
 		}
 	}
 };
-exports.getPaths = function (seasonPath) {
+function getPaths(seasonPath) {
 	const paths = {
 		respondingPath: "./responding.js",
 		votingPath: "./voting.js",
@@ -92,47 +92,48 @@ exports.getPaths = function (seasonPath) {
 	}
 	return paths;
 };
-exports.openFile = function (path) {
+function openFile(path) {
 	if (process.platform === "win32") {
-		exports.logMessage("Opening file in Windows is not supported yet.", "error");
+		logMessage("Opening file in Windows is not supported yet.", "error");
 	} else if (process.platform === "darwin") {
 		spawn("open", [path]);
 	} else if (process.platform === "linux") {
 		spawn("xdg-open", [path]);
 	} else {
-		exports.logMessage(`Opening file is not supported on platform ${process.platform}.`, "error");
+		logMessage(`Opening file is not supported on platform ${process.platform}.`, "error");
 	}
 };
-exports.save = async function (path, content, raw = false) {
+async function save(path, content, raw = false) {
 	if (!raw) {
 		content = JSON.stringify(content, null, "\t");
 	}
 	await fs.promises.writeFile(path, content);
 };
+Object.assign(exports, {findFreePath, getPaths, openFile, save});
 // Require
-exports.defaultRequire = function (path, defaultPath) {
+function defaultRequire(path, defaultPath) {
 	try {
 		const cool = require(path);
 		const uncool = require(defaultPath);
 		return Object.assign({}, uncool, cool);
 	} catch (e) {
-		// exports.logMessage(`[E] Could not require the file at "${path}"`, "error");
-		exports.logMessage(e, "error");
+		// logMessage(`[E] Could not require the file at "${path}"`, "error");
+		logMessage(e, "error");
 		return require(defaultPath);
 	}
 };
-exports.optRequire = function (path, backup = null) {
+function optRequire(path, backup = null) {
 	try {
 		return require(path);
 	} catch {
-		exports.logMessage(`[E] Could not require the file at "${path}"`, "error");
+		logMessage(`[E] Could not require the file at "${path}"`, "error");
 		return backup;
 	}
 };
-exports.reload = function (path) {
+function reload(path) {
 	if (path) {
 		delete require.cache[require.resolve(path)];
-		exports.logMessage(`"${path}" reloaded.`);
+		logMessage(`"${path}" reloaded.`);
 		return;
 	}
 	for (const key of Object.keys(require.cache)) {
@@ -140,10 +141,11 @@ exports.reload = function (path) {
 			delete require.cache[key];
 		}
 	}
-	exports.logMessage(`All files reloaded.`);
+	logMessage(`All files reloaded.`);
 };
+Object.assign(exports, {defaultRequire, optRequire, reload});
 // Discord.js
-exports.resolveChannel = async function (id) {
+async function resolveChannel(id) {
 	try {
 		return await client.channels.fetch(id);
 	} catch { // Error message (Cannot read properties of undefined (reading 'includes') is still logged
@@ -151,11 +153,11 @@ exports.resolveChannel = async function (id) {
 		return await user.createDM();
 	}
 };
-exports.sendMessage = async function (destination, message, id = false, saveAttachment = true, longMessageName) {
+async function sendMessage(destination, message, id = false, saveAttachment = true, longMessageName) {
 	if (sandbox) {
-		destination = await exports.resolveChannel(sandboxId);
+		destination = await resolveChannel(sandboxId);
 	} else if (id) {
-		destination = await exports.resolveChannel(destination);
+		destination = await resolveChannel(destination);
 	}
 	if ((message.content?.length ?? message.length ?? 0) > 2000) {
 		// Convert message contents to text file
@@ -172,13 +174,13 @@ exports.sendMessage = async function (destination, message, id = false, saveAtta
 	const sentMessage = await destination.send(message);
 	// Save and remove possible attachments
 	if (message.files != null) {
-		const path = loggingPath + exports.toTimeString().substring(0, 7);
+		const path = loggingPath + toTimeString().substring(0, 7);
 		for (const {name: fullName, attachment} of message.files) {
 			const [name, extension] = fullName.split(/\.(?=[^.]+$)/); // Split at last dot
-			const freePath = await exports.findFreePath(`${path}/${name}`, extension);
+			const freePath = await findFreePath(`${path}/${name}`, extension);
 			if (saveAttachments && saveAttachment) {
 				await fs.promises.writeFile(freePath, attachment);
-				exports.logMessage(`Saved attachment to ${freePath}`);
+				logMessage(`Saved attachment to ${freePath}`);
 			}
 			if (attachment instanceof Buffer) {
 				attachment.toJSON = () => ({
@@ -192,18 +194,18 @@ exports.sendMessage = async function (destination, message, id = false, saveAtta
 	if (typeof message === "object") {
 		message = JSON.stringify(message);
 	}
-	const afterHeader = `${message.files != null ? ` (${message.files.length} attachment${exports.suffixPlural(message.files)} not shown)` : ""}\n	${colors.message}${message}`;
+	const afterHeader = `${message.files != null ? ` (${message.files.length} attachment${suffixPlural(message.files)} not shown)` : ""}\n	${colors.message}${message}`;
 	if (destination.isDMBased()) { // Channel is either DM or group DM
-		exports.logMessage(`[S] ${destination.recipient?.tag ?? destination.recipients.map(user => user.tag).join(", ")}:${afterHeader}`, "output", true);
+		logMessage(`[S] ${destination.recipient?.tag ?? destination.recipients.map(user => user.tag).join(", ")}:${afterHeader}`, "output", true);
 	} else if (destination.isTextBased()) {
-		exports.logMessage(`[S] ${destination.guild.name}, ${destination.name}:${afterHeader}`, "output", true);
+		logMessage(`[S] ${destination.guild.name}, ${destination.name}:${afterHeader}`, "output", true);
 	} else { // Non-text channel
-		exports.logMessage(`[S] ??? ${destination.guild?.name !== undefined ? destination.guild.name + ", " : ""}${destination.name}:${afterHeader}`, "output", true);
-		exports.logMessage(`[E] Not a text-based channel`, "error");
+		logMessage(`[S] ??? ${destination.guild?.name !== undefined ? destination.guild.name + ", " : ""}${destination.name}:${afterHeader}`, "output", true);
+		logMessage(`[E] Not a text-based channel`, "error");
 	}
 	return sentMessage;
 };
-exports.addRole = async function (server, user, role) {
+async function addRole(server, user, role) {
 	if (typeof server === "string") {
 		server = await client.guilds.fetch(server);
 	}
@@ -211,10 +213,10 @@ exports.addRole = async function (server, user, role) {
 		const member = await server.members.fetch(user);
 		member.roles.add(role);
 	} catch {
-		exports.logMessage(`[E] Failed to add role ${role} to ${user} in ${server.name}`, "error");
+		logMessage(`[E] Failed to add role ${role} to ${user} in ${server.name}`, "error");
 	}
 };
-exports.removeRole = async function (server, user, role) {
+async function removeRole(server, user, role) {
 	if (typeof server === "string") {
 		server = await client.guilds.fetch(server);
 	}
@@ -222,9 +224,10 @@ exports.removeRole = async function (server, user, role) {
 		const member = await server.members.fetch(user);
 		member.roles.remove(role);
 	} catch {
-		exports.logMessage(`[E] Failed to remove role ${role} to ${user} in ${server.name}`, "error");
+		logMessage(`[E] Failed to remove role ${role} to ${user} in ${server.name}`, "error");
 	}
 };
+Object.assign(exports, {resolveChannel, sendMessage, addRole, removeRole});
 // Time
 function getTimeType(time) {
 	if (time == null) {
@@ -243,12 +246,12 @@ function getTimeType(time) {
 	return "Unix";
 }
 // TimeString means ISO8601 without T and timezone
-exports.toTimeString = function (time = new Date()) { // (Date | Snowflake | String | Unix | null) -> String
+function toTimeString(time = new Date()) { // (Date | Snowflake | String | Unix | null) -> String
 	switch (getTimeType(time)) {
 		case "String":
 			return time;
 		case "Snowflake":
-			time = exports.toUnixTime(time); // Fallthrough
+			time = toUnixTime(time); // Fallthrough
 		case "Unix":
 			time = new Date(time * 1000); // Fallthrough
 		case "Date":
@@ -257,20 +260,20 @@ exports.toTimeString = function (time = new Date()) { // (Date | Snowflake | Str
 			throw new Error("Invalid time");
 	}
 };
-exports.toSnowflake = function (time) { // (Snowflake | String | Unix | null) -> Snowflake
+function toSnowflake(time) { // (Snowflake | String | Unix | null) -> Snowflake
 	switch (getTimeType(time)) {
 		case "Snowflake":
 			return time;
 		case "String":
 		case null:
-			time = exports.toUnixTime(time); // Fallthrough
+			time = toUnixTime(time); // Fallthrough
 		case "Unix":
 			return (BigInt(time - 1420070400) * 1000n << 22n).toString();
 		default:
 			throw new Error("Invalid time");
 	}
 };
-exports.toUnixTime = function (time) { // (Snowflake | String | Unix | null) -> Unix
+function toUnixTime(time) { // (Snowflake | String | Unix | null) -> Unix
 	switch (getTimeType(time)) {
 		case "Snowflake":
 			return Number((BigInt(time) >> 22n) / 1000n + 1420070400n);
@@ -284,8 +287,9 @@ exports.toUnixTime = function (time) { // (Snowflake | String | Unix | null) -> 
 			throw new Error("Invalid time");
 	}
 };
+Object.assign(exports, {toTimeString, toSnowflake, toUnixTime});
 // Language
-exports.ordinal = function (number) {
+function ordinal(number) {
 	if (number >= 11 && number <= 13) {
 		return `${number}th`;
 	}
@@ -300,11 +304,12 @@ exports.ordinal = function (number) {
 			return `${number}th`;
 	}
 };
-exports.suffixPlural = function (collection) {
+function suffixPlural(collection) {
 	return (collection.length ?? collection.size) !== 1 ? "s" : "";
 };
+Object.assign(exports, {ordinal, suffixPlural});
 // Miscellanous
-exports.hasPerms = async function (user, server, roles, permLevel) {
+async function hasPerms(user, server, roles, permLevel) {
 	if (user.id === devId) {
 		return true;
 	}
@@ -322,7 +327,7 @@ exports.hasPerms = async function (user, server, roles, permLevel) {
 		return false;
 	}
 };
-exports.parseArgs = function (text, amount = Infinity) { // Split a string into arguments
+function parseArgs(text, amount = Infinity) { // Split a string into arguments
 	const regex = /(?<=\s|^)(?:"(?<quoted>[^"]+)"|(?<unquoted>\S+))(?=\s|$)/g; // Either double quotes or non-whitespace, separated by whitespace
 	const args = [];
 	if (text === "" || amount === 0) {
@@ -340,7 +345,7 @@ exports.parseArgs = function (text, amount = Infinity) { // Split a string into 
 	args.push(text.substring(regex.lastIndex).trim());
 	return args;
 };
-exports.scramble = function (array) {
+function scramble(array) {
 	const copy = [...array];
 	for (let i = 0; i < copy.length; i++) { // Randomize response array
 		const j = Math.floor(Math.random() * i);
@@ -348,3 +353,4 @@ exports.scramble = function (array) {
 	}
 	return copy;
 };
+Object.assign(exports, {hasPerms, parseArgs, scramble});
