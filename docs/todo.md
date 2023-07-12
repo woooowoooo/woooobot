@@ -2,19 +2,20 @@
 - Fix first round mess
 - Keep a way to do commands during results, stats are important
 - Fix `parseArgs` dying on escaped quotes
+- Reject book attachments of unsupported file types
 
 # Annoyances
 - Remove `pnpm.lock`, `node_modules`, and other symlinks from unison
 - Change "could not require" messages to be opt-in, i.e. show "required" messages instead
 - Change default new round name to increment any number found in the previous round's name
 - Add a way to use `send` with a username
-- Check book attachment extension before saving
 - [Add book message to first response message](behavior.md#first-response-message)
 - Remove notification roles if people remove the corresponding ping role
 - Figure out range of `stat list`
 - Allow `phase` to take no argument
 - Update to new username system
 - Add `open` functionality to Windows
+- Add sample custom commands
 
 # EndlessTWOW-specific Things
 - Add points to supervoters who did not respond
@@ -37,9 +38,9 @@
 - Dry run of a command
 - Slash commands (maybe)
 - Use a database (maybe)
+- Move to ES modules (maybe)
 
 ## New Commands
-- Custom commands
 - `execute` command that'd be kinda like Minecraft
 	- User-side `respond` and `vote` commands
 - Make `change` useful

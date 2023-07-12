@@ -3,7 +3,8 @@ Made to automate twoooowoooo. Currently used to automate EndlessTWOW.
 
 Here's the to-do list: [to-do](docs/todo.md)
 
-**DOCS LAST UPDATED ON 2023-06-29**
+**DOCS LAST UPDATED ON 2023-07-09**
+
 **SAMPLE TWOW LAST UPDATED A LONG TIME AGO**
 
 ## How to Use
@@ -73,7 +74,21 @@ They are generated in [`morshu.js`](morshu.js).
 If you run `node morshu.js`, it will generate ten morshu sentences.
 
 ### Stats
-TODO
+Basic syntax: `stat <statName> [range] | [args...] | [processor]`
+
+If there is no processor, the latter pipe can be omitted, and there are no arguments, the former pipe can be omitted as well.
+
+Examples:
+- `stat responses "Round 3"` would return the list of responses for Round 3.
+- `stat contestants "Round 12" || size` would return the number of contestants in Round 12.
+- (NOT WORKING YET) `stat vpr "Round 1"-"Round 8"` would return the VPR of all rounds from Round 1 to Round 8.
+- (NOT WORKING YET) `stat listWins "Sample Season" | 123456789123456789` would return the rounds of Sample Season that the user with snowflake 123456789123456789 won.
+- (NOT WORKING YET) `stat listWins "Sample Season" | 123456789123456789 | size` would return the *amount* of rounds of Sample Season that the user with snowflake 123456789123456789 won.
+
+### Custom Commands
+To add custom commands, create a file named `commands.js` in the season folder.
+This file should export by default an object similar to the one exported in [`commands.js`](commands.js),
+i.e. keys are command names, values are objects with an argument list, a description, a permission level, and a function named `execute`.
 
 ## TWOW Directory Structure
 TWOWs > Seasons > Rounds
@@ -94,7 +109,8 @@ TWOW folders consist of the following:
 - `nextSeason.json`
 
 `twowConfig.json` deals with the configuration of the Discord server the miniTWOW will be held in.
-ALL SEASONS MUST BE HELD IN THIS SERVER.
+*All seasons must be held in this server.*
+
 ### Seasons
 Season names and paths should be specified in the TWOW's `twowConfig.json`.
 To use custom responding (or voting, etc.) for a season, put a `responding.js` (or `voting.js`, etc.) in the season folder.
@@ -107,6 +123,7 @@ Season folders consist of the following:
 - (Optional) `responding.js`
 - (Optional) `voting.js`
 - (Optional) `results.js`
+- (Optional) `commands.js`
 - (Optional) `inits.js`
 - (Optional) `technicals.js`
 - (Optional) `twists.js`
@@ -134,7 +151,7 @@ If `autoDeadlines` in `seasonConfig.json` is set to true, these phases will be i
 ### Responding
 When the responding phase begins, the bot will post the prompt in the prompts channel.
 If the prompt has a specified author in `roundConfig.json`, the bot will post that field verbatim.
-Therefore, tf you want to ping the author, set `author` in `roundConfig.json` to `<@SNOWFLAKE>` where `SNOWFLAKE` is replaced with the author's Discord snowflake.
+Therefore, if you want to ping the author, set `author` in `roundConfig.json` to `<@SNOWFLAKE>` where `SNOWFLAKE` is replaced with the author's Discord snowflake.
 If there is an example response, it will be posted as well.
 If there are technicals and/or twists, their titles and descriptions will be posted as well.
 
@@ -158,9 +175,10 @@ If `megascreen` is enabled, a screen that contains every response in the round w
 A text version of the megascreen will be also be sent to facilitate use of https://voter.figgyc.uk/.
 
 ### Results
-When results begins, first the leaderboard will be created.
-Then, the results CLI will activate.
-After results are finished with `end`, the bot will post the full leaderboard (generated at the beginning) in the results channel, as well as in the leaderboard channel if a `leaderboards` channel id is defined in `twowConfig.json`.
+When results begins, first the title slide and leaderboard will be created.
+Start results by sending `start`.
+This will activate the results CLI and send a ping to the results channel.
+After results are finished by sending `end`, the bot will post the full leaderboard (generated at the beginning) in the results channel, as well as in the leaderboard channel if a `leaderboards` channel id is defined in `twowConfig.json`.
 
 It will then post a 50 message "spoiler wall" in the results channel, consisting of 49 ["morshu sentences"](#morshu) and a link to the beginning of results.
 The purpose of this is to prevent people from unintentionally seeing the results, as Discord loads the latest 50 messages in a channel when you open it and more than 50 messages are unread.
@@ -168,10 +186,14 @@ Without a spoiler wall, unsuspecting latecomers would be dropped into the middle
 
 #### CLI
 Examples:
+- `start` would start results (ping results, send title slide)
+- `12` would show the response in rank 12
 - `1 4 6` would show the responses in ranks 1, 4, and 6
+- `5-8 3` would show the responses in ranks 5 through 8 followed by the response in rank 3
+- `22; This response did well` would show the response in rank 22 with the comment "This response did well"
 - `5.1` would show the first unranked response after rank 5
 - `1-3f` would show the responses in ranks 1 through 3 without dummies and DRPs
-- `end` would end results
+- `end` would end results (send leaderboard(s), send spoiler wall)
 
 ### New Rounds
 New rounds are stored in `queue.json` in the TWOW folder.
