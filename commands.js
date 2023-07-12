@@ -133,6 +133,27 @@ ${list}\`\`\``;
 			}
 		}
 	},
+	execute: {
+		arguments: ["<messageArgs>", "<command>"],
+		description: "Executes <command> as if it were a message with properties <messageArgs>.",
+		permLevel: "developer",
+		execute: async function ({args: [messageArgs, command], message}) {
+			const [userId, messageId] = messageArgs.split(" ");
+			const simulatedMessage = Object.assign({}, message, {
+				id: toSnowflake(messageId),
+				content: command,
+				createdAt: toUnixTime(messageId),
+				author: {
+					id: userId,
+					toString: () => userId
+				},
+				toString: () => command
+			});
+			const output = await runCommand(command, simulatedMessage);
+			// sendMessage(userId, output, true);
+			return output;
+		}
+	},
 	log: {
 		arguments: ["[date]"],
 		description: "Returns the log file for <date> (today if unspecified).",

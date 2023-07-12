@@ -66,6 +66,7 @@ Example table entry:
 | `change <path> <keyString> <value>` | Changes the value of the property in file `<path>` at `<keyString>` to `<value>`. |
 | `editmsg <channelId> <messageId> <newMessage>` | Edits the message `<messageId>` (in `<channelId>`) to `<newMessage>`. |
 | `eval <code>` | Runs `<code>`. |
+| `execute <messageArgs> <command>` | Executes `<command>` as if it were a message with properties `<messageArgs>`. |
 | `log [date]` | Returns the log file for `<date>` (today if unspecified). |
 | `reload` | Deletes the `require` cache of all non-node-module files. |
 | `return <path> <keyString>` | Returns the value of the property in file `<path>` at `<keyString>`. |
@@ -88,6 +89,10 @@ Examples:
 	- `stat vpr "Round 1-Round 8"` is the workaround
 - (NOT WORKING YET) `stat listWins "Sample Season" | 123456789123456789` would return the rounds of Sample Season that the user with snowflake 123456789123456789 won.
 - (NOT WORKING YET) `stat listWins "Sample Season" | 123456789123456789 | size` would return the *amount* of rounds of Sample Season that the user with snowflake 123456789123456789 won.
+
+### Execute
+Currently `messageArgs` msut be of the form `"authorId messageId"`.
+This is due to the way `parseArgs` works.
 
 ### Custom Commands
 To add custom commands, create a file named `commands.js` in the season folder.
