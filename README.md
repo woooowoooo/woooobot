@@ -85,6 +85,7 @@ Examples:
 - `stat responses "Round 3"` would return the list of responses for Round 3.
 - `stat contestants "Round 12" || size` would return the number of contestants in Round 12.
 - (NOT WORKING YET) `stat vpr "Round 1"-"Round 8"` would return the VPR of all rounds from Round 1 to Round 8.
+	- `stat vpr "Round 1-Round 8"` is the workaround
 - (NOT WORKING YET) `stat listWins "Sample Season" | 123456789123456789` would return the rounds of Sample Season that the user with snowflake 123456789123456789 won.
 - (NOT WORKING YET) `stat listWins "Sample Season" | 123456789123456789 | size` would return the *amount* of rounds of Sample Season that the user with snowflake 123456789123456789 won.
 

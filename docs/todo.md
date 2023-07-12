@@ -2,6 +2,7 @@
 - Fix first round mess
 - Keep a way to do commands during results, stats are important
 - Fix `parseArgs` dying on escaped quotes
+	- Fix `parseArgs` in general
 - Reject book attachments of unsupported file types
 
 # Annoyances
@@ -28,7 +29,6 @@
 	- Implement editing responses with multi-response eligiblity [(see behavior.md)](behavior.md#editing-behavior)
 - Implement balance
 - Implement items
-- `results` command? stat?
 
 # New Things
 - Multiple TWOWs
@@ -54,12 +54,15 @@
 ## Results
 - Let people generate screens
 - Compact header (Round number on left, prompt on right) maybe
+- `results` command? stat?
 
 ### 1b1s
 - Generate input
 
 ## Statistics
 - Leaderboard change over votes in a round
+- Season ranges
+	- Break into all rounds for round-specific stats
 
 ### Individual
 - NR, SR

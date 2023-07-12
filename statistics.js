@@ -137,6 +137,21 @@ const stats = {
 const processors = {
 	size: result => result?.length ?? result?.size ?? undefined
 };
+function selectRounds(rounds, line) {
+	const selection = [];
+	const roundNames = Object.keys(rounds);
+	const tokens = parseArgs(line); // Quite buggy
+	for (const token of tokens) {
+		if (token.includes("-")) { // Token is a range
+			const start = roundNames.findIndex(roundName => roundName === token.split("-")[0]);
+			const end = roundNames.findIndex(roundName => roundName === token.split("-")[1]);
+			selection.push(...roundNames.slice(start, end + 1));
+		} else {
+			selection.push(token);
+		}
+	}
+	return selection;
+}
 async function calcStat(statName, text, message, roles) {
 	// Check if statistic exists
 	if (statName == null) {
@@ -150,23 +165,31 @@ async function calcStat(statName, text, message, roles) {
 	if (!(await hasPerms(message.author, message.guild, roles, stat.permLevel))) {
 		throw new Error("You aren't allowed to see this statistic!");
 	}
-	// Execute statistic command
+	// Get round range
 	const [rangeString, args, processor] = text.split("|").map(arg => arg.trim()); // Ignores further pipes, no need demonstrated
-	const range = rangeString ?? currentRound; // TODO: Allow ranges
-	let result = stat.execute(range, ...parseArgs(args));
-	// Process result
-	if (processor != null) {
-		if (!(processor in processors)) {
-			throw new Error("Invalid processor!");
+	const range = selectRounds(rounds, rangeString || `"${currentRound}"`); // || so empty string defaults to current round, quotes to get around `parseArgs`
+	// Execute statistic commands
+	let result = [];
+	for (const round of range) {
+		let output = stat.execute(round, ...parseArgs(args));
+		// Process result
+		if (processor != null) {
+			if (!(processor in processors)) {
+				throw new Error("Invalid processor!");
+			}
+			output = processors[processor](output);
 		}
-		result = processors[processor](result);
+		result.push(output);
 	}
 	// Stringify result
+	if (result.length === 1) {
+		result = result[0];
+	}
 	if (Array.isArray(result)) {
 		return result.join("\n");
 	}
 	if (typeof result === "object") {
-		return JSON.stringify(result, null, 4); // Discord doesn't support tabs
+		return `\`\`\`\n${JSON.stringify(result, null, "\t")}\`\`\``;
 	}
 	return result.toString();
 };
