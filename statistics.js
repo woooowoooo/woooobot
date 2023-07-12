@@ -42,6 +42,14 @@ const stats = {
 		}
 	},
 	// Season-specific
+	rounds: {
+		description: "Return all rounds in a season",
+		permLevel: "normal",
+		range: "season",
+		execute: function () {
+			return Object.keys(rounds);
+		}
+	},
 	seasonContestants: {
 		description: "Return all season contestants",
 		permLevel: "normal",
