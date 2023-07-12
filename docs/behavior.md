@@ -1,21 +1,26 @@
-# Editing behavior
+# Responding
+## Dummies
+- How to designate dummies?
+
+(EndlessTWOW)
+- Should they be rank numbered or not?
+- Should they be designated or drps?
+
+## Editing behavior
 | | Doesn't submit number | Submits number |
 | --- | --- | --- |
 | Submits 1 response, ineligible for multiple | :) | Treat number as part of response? Remove number? |
 | Submits 1 response, eligible for multiple | ??? | ??? |
 | Submits multiple responses | Error | :) |
 
-# Recording message
+## First response message
+(EndlessTWOW) As this is your first response, you have automatically been added three ping roles. You may remove them at <#813619463446331443>.
+
+## Recording message
 Your response, `apsdijf` has been recorded.
 It is your **2nd** and this round's **13th** submitted response.
 You may send **0** more responses.
 Send `wb edit 2 [edited response]` to edit this response.
-
-# First response message
-(EndlessTWOW) As this is your first response, you have automatically been added three ping roles. You may remove them at <#813619463446331443>.
-
-# TUI
-![Concept](concept-tui.png)
 
 # Stats
 - Store stats someplace?
@@ -36,3 +41,6 @@ Send `wb edit 2 [edited response]` to edit this response.
 	- Maybe no need to specify non-user contestants at all?
 
 Example: `wb stat listContestants "Round 156"-"Round 160"`
+
+# TUI
+![Concept](concept-tui.png)
