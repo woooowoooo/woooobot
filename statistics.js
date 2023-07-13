@@ -1,6 +1,6 @@
 const {colors, optRequire, hasPerms, parseArgs} = require("./helpers.js");
 const {twowPath} = require("./config.json");
-const {currentRound, seasonPath} = require(twowPath + "status.json");
+const {currentSeason, currentRound, seasonPath} = require(twowPath + "status.json");
 const {seasons} = require(twowPath + "twowConfig.json");
 const {rounds} = require(seasonPath + "seasonConfig.json");
 const stats = {
@@ -46,7 +46,8 @@ const stats = {
 		description: "Return all rounds in a season",
 		permLevel: "normal",
 		range: "season",
-		execute: function () {
+		execute: function ({seasonPath}) {
+			const {rounds} = require(seasonPath + "seasonConfig.json");
 			return Object.keys(rounds);
 		}
 	},
@@ -54,7 +55,7 @@ const stats = {
 		description: "Return all season contestants",
 		permLevel: "normal",
 		range: "season",
-		execute: function () {
+		execute: function ({seasonPath}) {
 			const {contestants, names} = require(seasonPath + "seasonContestants.json");
 			if (contestants != null) { // EndlessTWOW-specific?
 				return contestants.map(id => names[id]);
@@ -67,8 +68,8 @@ const stats = {
 		description: "Return round prompt",
 		permLevel: "normal",
 		range: "round",
-		execute: function (round) {
-			const {prompt} = require(seasonPath + rounds[round] + "roundConfig.json");
+		execute: function ({roundPath}) {
+			const {prompt} = require(roundPath + "roundConfig.json");
 			return prompt;
 		}
 	},
@@ -76,9 +77,9 @@ const stats = {
 		description: "Return all contestants in a round",
 		permLevel: "normal",
 		range: "round",
-		execute: function (round) {
+		execute: function ({roundPath}) {
 			const {names} = require(seasonPath + "seasonContestants.json");
-			const {responseCount} = require(seasonPath + rounds[round] + "contestants.json");
+			const {responseCount} = require(roundPath + "contestants.json");
 			return Object.keys(responseCount).map(id => names[id]);
 		}
 	},
@@ -86,8 +87,8 @@ const stats = {
 		description: "Return all responses in a round (admin only)",
 		permLevel: "admin",
 		range: "round",
-		execute: function (round) {
-			const responses = require(seasonPath + rounds[round] + "responses.json");
+		execute: function ({roundPath}) {
+			const responses = require(roundPath + "responses.json");
 			return responses.map(response => response.text);
 		}
 	},
@@ -95,9 +96,9 @@ const stats = {
 		description: "Return all voters in a round",
 		permLevel: "normal",
 		range: "round",
-		execute: function (round) {
+		execute: function ({seasonPath, roundPath}) {
 			const {names} = require(seasonPath + "seasonContestants.json");
-			const votes = require(seasonPath + rounds[round] + "votes.json");
+			const votes = require(roundPath + "votes.json");
 			return Object.keys(votes).map(id => names[id]);
 		}
 	},
@@ -105,9 +106,9 @@ const stats = {
 		description: "Return all supervoters in a round",
 		permLevel: "normal",
 		range: "round",
-		execute: function (round) {
+		execute: function ({seasonPath, roundPath}) {
 			const {names} = require(seasonPath + "seasonContestants.json");
-			const votes = require(seasonPath + rounds[round] + "votes.json");
+			const votes = require(roundPath + "votes.json");
 			return Object.keys(votes).filter(id => votes[id].supervote).map(id => names[id]);
 		}
 	},
@@ -115,8 +116,8 @@ const stats = {
 		description: "Calculate the average number of votes per response in a round",
 		permLevel: "normal",
 		range: "round",
-		execute: function (round) {
-			const responses = require(seasonPath + rounds[round] + "responses.json");
+		execute: function ({roundPath}) {
+			const responses = require(roundPath + "responses.json");
 			let responseVotes = 0;
 			for (const response of responses) {
 				responseVotes += Object.keys(response.ratings ?? {}).length;
@@ -130,7 +131,8 @@ const stats = {
 		description: "Return all wins in a season",
 		permLevel: "normal",
 		range: "season",
-		execute: function (_, contestant) {
+		execute: function ({seasonPath}, contestant) {
+			const {rounds} = require(seasonPath + "seasonConfig.json");
 			const roundsWon = [];
 			for (const [round, roundPath] of Object.entries(rounds)) {
 				const results = optRequire(seasonPath + roundPath + "results.json");
@@ -145,15 +147,15 @@ const stats = {
 const processors = {
 	size: result => result?.length ?? result?.size ?? undefined
 };
-function selectRounds(rounds, line) {
+function selectEntries(entries, line) {
 	const selection = [];
-	const roundNames = Object.keys(rounds);
+	const entryNames = Object.keys(entries);
 	const tokens = parseArgs(line); // Quite buggy
 	for (const token of tokens) {
 		if (token.includes("-")) { // Token is a range
-			const start = roundNames.findIndex(roundName => roundName === token.split("-")[0]);
-			const end = roundNames.findIndex(roundName => roundName === token.split("-")[1]);
-			selection.push(...roundNames.slice(start, end + 1));
+			const start = entryNames.findIndex(entryName => entryName === token.split("-")[0]);
+			const end = entryNames.findIndex(entryName => entryName === token.split("-")[1]);
+			selection.push(...entryNames.slice(start, end + 1));
 		} else {
 			selection.push(token);
 		}
@@ -175,11 +177,25 @@ async function calcStat(statName, text, message, roles) {
 	}
 	// Get round range
 	const [rangeString, args, processor] = text.split("|").map(arg => arg.trim()); // Ignores further pipes, no need demonstrated
-	const range = selectRounds(rounds, rangeString || `"${currentRound}"`); // || so empty string defaults to current round, quotes to get around `parseArgs`
+	const range = stat.range === "round" // "||" so empty string defaults to current round, quotes to get around `parseArgs`
+		? selectEntries(rounds, rangeString || `"${currentRound}"`)
+		: selectEntries(seasons, rangeString || `"${currentSeason}"`);
 	// Execute statistic commands
 	let result = [];
-	for (const round of range) {
-		let output = stat.execute(round, ...parseArgs(args));
+	for (const entry of range) {
+		// Get paths
+		if (!(entry in (stat.range === "round" ? rounds : seasons))) {
+			throw new Error(`Invalid ${stat.range} name!`);
+		}
+		const paths = {};
+		if (stat.range === "round") {
+			paths.seasonPath = seasonPath;
+			paths.roundPath = seasonPath + rounds[entry];
+		} else {
+			paths.seasonPath = twowPath + seasons[entry];
+		}
+		// Execute command
+		let output = stat.execute(paths, ...parseArgs(args));
 		// Process result
 		if (processor != null) {
 			if (!(processor in processors)) {

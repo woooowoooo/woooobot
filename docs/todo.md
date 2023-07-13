@@ -55,16 +55,18 @@
 - Let people generate screens
 - Compact header (Round number on left, prompt on right) maybe
 - `results` command? stat?
-
-### 1b1s
-- Generate input
+- Generate 1b1s
 
 ## Statistics
+- Document stats
+- Custom stats
 - Leaderboard change over votes in a round
-- Season ranges
-	- Break into all rounds for round-specific stats
+- Break seasons into all rounds for round-specific stats
+- Image output
+- Return round names in ranges maybe
 
 ### Individual
+- Default contestant argument
 - NR, SR
 - Score and points earned per round
 - Placements in each round
