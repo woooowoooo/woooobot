@@ -64,6 +64,26 @@ const stats = {
 		}
 	},
 	// Round-specific
+	return: {
+		description: "Return property of round",
+		permLevel: "developer",
+		range: "round",
+		execute: function ({roundPath}, path, keyString = "") { // Largely similar to the command `return`, but more convenient for statistics
+			// Get file from path
+			if (/\.\.\//.test(path)) {
+				throw new Error("You can't view values above round level!");
+			}
+			const file = require(roundPath + path);
+			// Traverse through keys
+			const keys = keyString.split(".").filter(key => key !== "");
+			return keys.reduce((object, key) => {
+				if (!(key in object)) {
+					throw new Error(`Key \`${key}\` not found!`);
+				}
+				return object[key];
+			}, file);
+		}
+	},
 	prompt: {
 		description: "Return round prompt",
 		permLevel: "normal",
@@ -213,7 +233,7 @@ async function calcStat(statName, text, message, roles) {
 		return result.join("\n");
 	}
 	if (typeof result === "object") {
-		return `\`\`\`\n${JSON.stringify(result, null, "\t")}\`\`\``;
+		return `\`\`\`json\n${JSON.stringify(result, null, "\t")}\`\`\``;
 	}
 	return result.toString();
 };

@@ -181,18 +181,15 @@ ${list}\`\`\``;
 			if (/\.\.\//.test(path)) {
 				throw new Error("You can't view values above woooobot level!");
 			}
-			path = `./${path}`;
+			const file = require(`./${path}`);
 			// Traverse through keys
-			let keys = keyString.split(".");
-			if (keyString === "") {
-				keys = [];
-			}
+			const keys = keyString.split(".").filter(key => key !== "");
 			const value = keys.reduce((object, key) => {
 				if (!(key in object)) {
 					throw new Error(`Key \`${key}\` not found!`);
 				}
 				return object[key];
-			}, require(path));
+			}, file);
 			// Stringify and return value
 			const valueString = typeof value === "object" ? JSON.stringify(value, null, "\t") : value;
 			logMessage(`Returned the value of the property at ${path}:${keyString}`);
