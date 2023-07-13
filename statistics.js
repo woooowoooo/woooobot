@@ -28,6 +28,14 @@ const stats = {
 		}
 	},
 	// TWOW-specific
+	seasons: {
+		description: "Return all seasons",
+		permLevel: "normal",
+		range: "twow",
+		execute: function () {
+			return Object.keys(seasons);
+		}
+	},
 	twowContestants: {
 		description: "Return all unique contestants who have participated in this TWOW",
 		permLevel: "normal",
