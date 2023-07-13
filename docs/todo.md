@@ -1,8 +1,7 @@
 # Bugs
 - Fix first round mess
 - Keep a way to do commands during results, stats are important
-- Fix `parseArgs` dying on escaped quotes
-	- Fix `parseArgs` in general
+- Fix `parseArgs` in general
 - Reject book attachments of unsupported file types
 
 # Annoyances
@@ -35,12 +34,13 @@
 - Autoremind
 	- Pawn off to a separate bot or library
 - Settings on Discord itself
-- Dry run of a command
-- Slash commands (maybe)
 - Use a database (maybe)
 - Move to ES modules (maybe)
 
-## New Commands
+## Commands
+- Dry run of a command
+- Slash commands (maybe)
+- Commands with options (maybe)
 - `execute` command that'd be kinda like Minecraft
 	- User-side `respond` and `vote` commands
 - Make `change` useful

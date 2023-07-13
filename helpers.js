@@ -328,7 +328,7 @@ async function hasPerms(user, server, roles, permLevel) {
 	}
 };
 function parseArgs(text, amount = Infinity) { // Split a string into arguments
-	const regex = /(?<=\s|^)(?:"(?<quoted>[^"]+)"|(?<unquoted>\S+))(?=\s|$)/g; // Either double quotes or non-whitespace, separated by whitespace
+	const regex = /(?<=\s|^)(?:"(?<quoted>(?:[^\\"]|\\.)*)"|(?<unquoted>\S+))(?=\s|$)/g; // Either double quotes or non-whitespace, separated by whitespace
 	const args = [];
 	if (text === "" || amount === 0) {
 		return args;
