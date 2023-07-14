@@ -173,7 +173,7 @@ const stats = {
 	}
 };
 const processors = {
-	size: result => result?.length ?? result?.size ?? undefined
+	amount: result => result?.length ?? result?.size ?? undefined
 };
 function selectEntries(entries, line) {
 	const selection = [];

@@ -80,14 +80,18 @@ If you run `node morshu.js`, it will generate ten morshu sentences.
 ### Stats
 Basic syntax: `stat <statName> [range] | [args...] | [processor]`
 
+The only processor currently is `amount`, which returns the amount of items in the output of stats that return lists.
 If there is no processor, the latter pipe can be omitted, and there are no arguments, the former pipe can be omitted as well.
+
+Do `stat list` to get a list of all stats.
 
 Examples:
 - `stat responses "Round 3"` would return the list of responses for Round 3.
-- `stat contestants "Round 12" || size` would return the number of contestants in Round 12.
+- `stat contestants "Round 12" || amount` would return the number of contestants in Round 12.
+- `stat responses "Round 7" "Round 30" || amount` would return the number of responses in Round 7 and the number of responses in Round 30.
 - `stat vpr "Round 1"-"Round 8"` would return the VPR of all rounds from Round 1 to Round 8.
 - `stat wins "Sample Season" | 123456789123456789` would return the rounds of Sample Season that the user with snowflake 123456789123456789 won.
-- `stat wins "Sample Season" | 123456789123456789 | size` would return the *amount* of rounds of Sample Season that the user with snowflake 123456789123456789 won.
+- `stat wins "Sample Season" | 123456789123456789 | amount` would return the *amount* of rounds of Sample Season that the user with snowflake 123456789123456789 won.
 
 ### Execute
 Currently `messageArgs` msut be of the form `"authorId messageId"`.
