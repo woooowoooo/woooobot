@@ -196,7 +196,8 @@ async function sendMessage(destination, message, id = false, saveAttachment = tr
 	}
 	const afterHeader = `${message.files != null ? ` (${message.files.length} attachment${suffixPlural(message.files)} not shown)` : ""}\n	${colors.message}${message}`;
 	if (destination.isDMBased()) { // Channel is either DM or group DM
-		logMessage(`[S] ${destination.recipient?.tag ?? destination.recipients.map(user => user.tag).join(", ")}:${afterHeader}`, "output", true);
+		const getRecipient = user => user?.discriminator === "0" ? user.username : `${colors.error}${user?.tag}${colors.dm}`;
+		logMessage(`[S] ${getRecipient(destination.recipient) ?? destination.recipients.map(getRecipient).join(", ")}:${afterHeader}`, "output", true);
 	} else if (destination.isTextBased()) {
 		logMessage(`[S] ${destination.guild.name}, ${destination.name}:${afterHeader}`, "output", true);
 	} else { // Non-text channel

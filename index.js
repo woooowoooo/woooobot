@@ -68,7 +68,7 @@ const queue = [];
 let me;
 // Process messages
 function readMessage(message, readTime = false, queued = listeners.processing) {
-	let header = `(${message.id}) ${message.author.tag} (${message.author.id})`;
+	let header = `(${message.id}) ${message.author.discriminator === "0" ? message.author.username : `${colors.error}${message.author.tag}${colors.dm}`} (${message.author.id})`;
 	if (message.guild != null) {
 		header += ` in ${message.guild.name}, #${message.channel.name}`;
 	}
@@ -191,11 +191,12 @@ client.once("ready", async function () {
 	// Queue and process unread DMs
 	listeners.processing = true;
 	for (const [_, member] of members) {
-		const dms = await member.createDM().catch(() => logMessage(`[E] Failed to create DM to ${member.user.tag}`, "error"));
+		const transitional = member.user.discriminator === "0" ? member.user.username : `${colors.error}${member.user.tag}${colors.dm}`;
+		const dms = await member.createDM().catch(() => logMessage(`[E] Failed to create DM to ${transitional}`, "error"));
 		if (dms == null) {
 			continue;
 		}
-		logMessage(`DM to ${member.user.tag} created.`, "dm");
+		logMessage(`DM to ${transitional} created.`, "dm", true);
 		const messages = await dms.messages.fetch({after: lastUnread});
 		for (const [_, message] of messages.filter(m => m.author.id !== botId)) {
 			readMessage(message, true);

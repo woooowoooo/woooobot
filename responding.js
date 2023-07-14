@@ -141,9 +141,9 @@ async function logResponse(message) {
 		reply += " **It is a dummy response, which means that its placement in results does not matter.**";
 	}
 	// Initialize first-time responders
-	if (!alive && joins) {
+	if (!(message.author.id in seasonContestants.names)) {
 		seasonContestants.contestants.push(message.author.id);
-		seasonContestants.names[message.author.id] = message.author.username;
+		seasonContestants.names[message.author.id] = message.author.displayName ?? message.author.username;
 		contestants.alive.push(message.author.id);
 		addRole(serverId, message.author.id, aliveId);
 		addRole(serverId, message.author.id, respondingPing);

@@ -13,7 +13,6 @@
 - Remove notification roles if people remove the corresponding ping role
 - Figure out range of `stat list`
 - Allow `phase` to take no argument
-- Update to new username system
 - Add `open` functionality to Windows
 - Add sample custom commands
 
@@ -30,6 +29,7 @@
 - Implement items
 
 # New Things
+- Save incoming attachments
 - Multiple TWOWs
 - Autoremind
 	- Pawn off to a separate bot or library
