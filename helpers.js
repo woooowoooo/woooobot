@@ -340,6 +340,7 @@ function parseArgs(text, amount = Infinity) { // Split a string into arguments
 			return args;
 		}
 		match = match.replaceAll(/"((?:[^\\"]|\\.)*)"/g, "$1"); // Remove quotes
+		match = match.replaceAll(/\\"/g, "\""); // Unescape escaped quotes
 		args.push(match);
 	}
 	// Push rest of the string as final argument
