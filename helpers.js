@@ -328,21 +328,22 @@ async function hasPerms(user, server, roles, permLevel) {
 	}
 };
 function parseArgs(text, amount = Infinity) { // Split a string into arguments
-	const regex = /(?<=\s|^)(?:"(?<quoted>(?:[^\\"]|\\.)*)"|(?<unquoted>\S+))(?=\s|$)/g; // Either double quotes or non-whitespace, separated by whitespace
+	const splitter = /(?:"(?:[^\\"]|\\.)*"|\S)+/g; // Non-whitespace except for in double quotes
 	const args = [];
 	if (text === "" || amount === 0) {
 		return args;
 	}
 	// Add arguments (not using `matchAll` so quotes don't get removed at the end)
 	while (args.length < amount - 1) {
-		const groups = regex.exec(text)?.groups;
-		if (groups == null) { //  Nothing left
+		let match = splitter.exec(text)?.[0];
+		if (match == null) { //  Nothing left
 			return args;
 		}
-		args.push(groups.unquoted ?? groups.quoted); // Matches are guaranteed to be one of the two
+		match = match.replaceAll(/"((?:[^\\"]|\\.)*)"/g, "$1"); // Remove quotes
+		args.push(match);
 	}
 	// Push rest of the string as final argument
-	args.push(text.substring(regex.lastIndex).trim());
+	args.push(text.substring(splitter.lastIndex).trim());
 	return args;
 };
 function scramble(array) {
