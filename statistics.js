@@ -178,7 +178,7 @@ const processors = {
 function selectEntries(entries, line) {
 	const selection = [];
 	const entryNames = Object.keys(entries);
-	const tokens = parseArgs(line); // Quite buggy
+	const tokens = parseArgs(line);
 	for (const token of tokens) {
 		if (token.includes("-")) { // Token is a range
 			const start = entryNames.findIndex(entryName => entryName === token.split("-")[0]);
@@ -208,13 +208,18 @@ async function calcStat(statName, text, message, roles) {
 	const range = stat.range === "round" // "||" so empty string defaults to current round, quotes to get around `parseArgs`
 		? selectEntries(rounds, rangeString || `"${currentRound}"`)
 		: selectEntries(seasons, rangeString || `"${currentSeason}"`);
+	// Check if processor exists
+	if (processor != null && !(processor in processors)) {
+		throw new Error("Invalid processor!");
+	}
+	// Check if all entries are valid
+	if (!range.every(entry => entry in (stat.range === "round" ? rounds : seasons))) {
+		throw new Error(`Invalid ${stat.range} name!`);
+	}
 	// Execute statistic commands
 	let result = [];
 	for (const entry of range) {
 		// Get paths
-		if (!(entry in (stat.range === "round" ? rounds : seasons))) {
-			throw new Error(`Invalid ${stat.range} name!`);
-		}
 		const paths = {};
 		if (stat.range === "round") {
 			paths.seasonPath = seasonPath;
@@ -226,9 +231,6 @@ async function calcStat(statName, text, message, roles) {
 		let output = stat.execute(paths, ...parseArgs(args));
 		// Process result
 		if (processor != null) {
-			if (!(processor in processors)) {
-				throw new Error("Invalid processor!");
-			}
 			output = processors[processor](output);
 		}
 		result.push(output);
