@@ -229,48 +229,6 @@ ${list}\`\`\``;
 			reload(twowPath + "status.json");
 		}
 	},
-	respond: {
-		arguments: ["<userId>", "<messageId>", "<response>"],
-		description: "Records <response> as <userId>'s response, sent as message <messageId>.",
-		permLevel: "admin",
-		execute: async function ({args: [userId, messageId, response]}) {
-			const {respondingPath} = getPaths(seasonPath);
-			const message = {
-				id: toSnowflake(messageId),
-				content: response,
-				createdAt: toUnixTime(messageId),
-				author: {
-					id: userId,
-					toString: () => userId
-				},
-				toString: () => response
-			};
-			const output = await require(respondingPath).logResponse(message);
-			sendMessage(userId, output, true);
-			return output;
-		}
-	},
-	vote: {
-		arguments: ["<userId>", "<messageId>", "<vote>"],
-		description: "Records <vote> as <userId>'s vote, sent as message <messageId>.",
-		permLevel: "admin",
-		execute: async function ({args: [userId, messageId, vote]}) {
-			const {votingPath} = getPaths(seasonPath);
-			const message = {
-				id: toSnowflake(messageId),
-				content: vote,
-				createdAt: toUnixTime(messageId),
-				author: {
-					id: userId,
-					toString: () => userId
-				},
-				toString: () => vote
-			};
-			const output = await require(votingPath).logVote(message);
-			sendMessage(userId, output, true);
-			return output;
-		}
-	},
 	// Normal level
 	book: {
 		arguments: ["(attach exactly one file)"],
@@ -358,6 +316,18 @@ ${list}\`\`\``;
 			return `<@${id}> :)`;
 		}
 	},
+	respond: {
+		arguments: ["<response>"],
+		description: "Records <response>.",
+		permLevel: "normal",
+		execute: async function ({args: [response], message}) {
+			const {respondingPath} = getPaths(seasonPath);
+			Object.assign(message, {
+				content: response
+			});
+			return await require(respondingPath).logResponse(message);
+		}
+	},
 	stat: {
 		arguments: ["<statName>", "[statArgs]"],
 		description: "UNFINISHED",
@@ -365,6 +335,18 @@ ${list}\`\`\``;
 		execute: async function ({args: [statName, statArgs], message, roles}) {
 			const {calcStat} = require("./statistics.js");
 			return await calcStat(statName, statArgs, message, roles);
+		}
+	},
+	vote: {
+		arguments: ["<vote>"],
+		description: "Records <vote>.",
+		permLevel: "normal",
+		execute: async function ({args: [vote], message}) {
+			const {votingPath} = getPaths(seasonPath);
+			Object.assign(message, {
+				content: vote
+			});
+			return await require(votingPath).logVote(message);
 		}
 	}
 };
