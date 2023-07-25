@@ -92,6 +92,23 @@ async function sendSlide(path, fileName, rankings, comment) {
 	}
 	await sendMessage(resultsId, slideMessage, true, false);
 }
+async function sendLeaderboard(path, messageUrl) {
+	await sendMessage(resultsId, {
+		files: [{
+			attachment: path,
+			name: "leaderboard.png"
+		}]
+	}, true, false);
+	if (leaderboards != null) {
+		await sendMessage(leaderboards, {
+			content: `${currentRound}: ${messageUrl}`,
+			files: [{
+				attachment: path,
+				name: "leaderboard.png"
+			}]
+		}, true, false);
+	}
+}
 function findEntry(rankings, token) {
 	let index = rankings.findIndex(row => row.rank === parseInt(token));
 	if (token.includes(".")) { // Token is unranked
@@ -121,7 +138,9 @@ function selectEntries(rankings, line) {
 }
 async function results() {
 	logMessage("Results started.");
+	// Calculate results
 	const rankings = calculateResults();
+	// Draw header, leaderboard
 	const leaderboardPath = `${roundPath}results/leaderboard.png`;
 	const headerPath = `${roundPath}results/header.png`;
 	await drawHeader(headerPath, currentRound, prompt);
@@ -130,31 +149,48 @@ async function results() {
 	if (openLeaderboards) {
 		openFile(leaderboardPath);
 	}
-	// Send start message
+	// Listen for start or resume
 	stdin.removeListener("data", listeners.consoleListener);
 	listeners.processing = true;
-	await new Promise(resolve => stdin.on("data", function listener(input) {
-		if (input.toString().trim() === "start") {
+	let [slide, previousResults] = await new Promise(resolve => stdin.on("data", function listener(input) {
+		const line = input.toString().trim();
+		if (line === "start") {
 			stdin.removeListener("data", listener);
 			resolve();
 		}
+		if (line.startsWith("resume ")) {
+			stdin.removeListener("data", listener);
+			const [slide, previousResults] = line.slice(7).split(" ");
+			resolve([parseInt(slide), previousResults]);
+		}
 	}));
-	const resultsMessage = await sendMessage(resultsId, {
-		content: `@everyone ${currentRound} Results`,
-		files: [{
-			attachment: headerPath,
-			name: "header.png"
-		}]
-	}, true);
+	if (Number.isNaN(slide)) {
+		slide = 1;
+	}
+	// Send or don't send start message
+	let resultsMessage = {url: `https://discord.com/channels/${serverId}/${resultsId}/${previousResults}`};
+	if (previousResults == null) {
+		resultsMessage = await sendMessage(resultsId, {
+			content: `@everyone ${currentRound} Results`,
+			files: [{
+				attachment: headerPath,
+				name: "header.png"
+			}]
+		}, true, false);
+	}
+	// Set activity
 	client.user.setActivity(`Results for ${currentRound}`, {type: ActivityType.Streaming, url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"});
 	// Reveal results
-	let slide = 1;
-	let moreSlides = true;
-	while (moreSlides) {
-		moreSlides = await new Promise(resolve => stdin.once("data", async input => {
+	let input = "";
+	while (input !== "end" && input !== "sw") {
+		input = await new Promise(resolve => stdin.once("data", async input => {
 			const line = input.toString().trim();
-			if (line === "end") {
-				resolve(false);
+			resolve(line);
+			if (line === "sw") {
+				return;
+			}
+			if (line === "lb" || line === "end") {
+				await sendLeaderboard(leaderboardPath, resultsMessage.url);
 				return;
 			}
 			try { // Only send slide and increment if input is valid
@@ -165,25 +201,7 @@ async function results() {
 			} catch (e) {
 				logMessage(`[E] ${e}`, "error");
 			}
-			resolve(true);
 		}));
-	}
-	stdin.addListener("data", listeners.consoleListener);
-	// Full leaderboard
-	await sendMessage(resultsId, {
-		files: [{
-			attachment: leaderboardPath,
-			name: "leaderboard.png"
-		}]
-	}, true, false);
-	if (leaderboards != null) {
-		await sendMessage(leaderboards, {
-			content: `${currentRound}: ${resultsMessage.url}`,
-			files: [{
-				attachment: leaderboardPath,
-				name: "leaderboard.png"
-			}]
-		}, true, false);
 	}
 	// Spoiler wall
 	for (let _ = 0; _ < 49; _++) {
@@ -191,8 +209,11 @@ async function results() {
 	}
 	// Link to beginning of results
 	await sendMessage(resultsId, resultsMessage.url, true);
+	// Reset activity
 	client.user.setActivity();
+	// Process missed messages
 	listeners.processing = false;
+	stdin.addListener("data", listeners.consoleListener);
 	listeners.processQueue();
 	// Reset contestants.json
 	contestants.prize = [];
@@ -218,4 +239,4 @@ async function results() {
 	save(roundPath + "contestants.json", contestants);
 	reload();
 };
-Object.assign(exports, {sendSlide, selectEntries, results});
+Object.assign(exports, {sendSlide, sendLeaderboard, selectEntries, results});
