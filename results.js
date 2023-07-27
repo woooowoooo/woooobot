@@ -156,7 +156,7 @@ async function results() {
 		const line = input.toString().trim();
 		if (line === "start") {
 			stdin.removeListener("data", listener);
-			resolve();
+			resolve([1, null]);
 		}
 		if (line.startsWith("resume ")) {
 			stdin.removeListener("data", listener);
