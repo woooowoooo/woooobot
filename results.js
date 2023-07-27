@@ -186,10 +186,10 @@ async function results() {
 		input = await new Promise(resolve => stdin.once("data", async input => {
 			const line = input.toString().trim();
 			resolve(line);
-			if (line === "sw") {
+			if (line === "end" || line === "sw") {
 				return;
 			}
-			if (line === "lb" || line === "end") {
+			if (line === "lb") {
 				await sendLeaderboard(leaderboardPath, resultsMessage.url);
 				return;
 			}
@@ -202,6 +202,10 @@ async function results() {
 				logMessage(`[E] ${e}`, "error");
 			}
 		}));
+	}
+	// Leaderboards (would be put with lb handling but the spoiler wall ends up before the leaderboard)
+	if (input === "end") {
+		await sendLeaderboard(leaderboardPath, resultsMessage.url);
 	}
 	// Spoiler wall
 	for (let _ = 0; _ < 49; _++) {
