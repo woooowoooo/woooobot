@@ -3,6 +3,7 @@
 - Keep a way to do commands during results, stats are important
 - Fix `parseArgs` in general
 - Reject book attachments of unsupported file types
+- Record title slides in the right folder
 
 # Annoyances
 - Remove `pnpm.lock`, `node_modules`, and other symlinks from unison
@@ -41,13 +42,13 @@
 - Dry run of a command
 - Slash commands (maybe)
 - Commands with options (maybe)
-- `execute` command that'd be kinda like Minecraft
-	- User-side `respond` and `vote` commands
+	- Parameters
 - Make `change` useful
 - Argument of `log` to open it in a text viewer
 
 ## Voting
 - VoteLink™
+	- URL is too long to fit in a button
 - Automatic asking for vote justification
 - Online vote checker tool
 
@@ -64,6 +65,8 @@
 - Break seasons into all rounds for round-specific stats
 - Image output
 - Return round names in ranges maybe
+- `first`, `latest`, `current` round selectors
+- Current round stat
 
 ### Individual
 - Default contestant argument

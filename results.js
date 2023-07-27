@@ -16,7 +16,7 @@ const {
 // Season-specific
 const {cutoffs} = require(seasonPath + "seasonConfig.json");
 const {names, bookPaths} = require(seasonPath + "seasonContestants.json");
-const {drawHeader, drawResults} = require(seasonPath + "graphics.js");
+const {drawTitleSlide, drawResults} = require(seasonPath + "graphics.js");
 // Round-specific
 const {prompt} = require(roundPath + "roundConfig.json");
 const contestants = require(roundPath + "contestants.json");
@@ -140,10 +140,10 @@ async function results() {
 	logMessage("Results started.");
 	// Calculate results
 	const rankings = calculateResults();
-	// Draw header, leaderboard
+	// Draw title slide, leaderboard
 	const leaderboardPath = `${roundPath}results/leaderboard.png`;
-	const headerPath = `${roundPath}results/header.png`;
-	await drawHeader(headerPath, currentRound, prompt);
+	const titlePath = `${roundPath}results/titleSlide.png`;
+	await drawTitleSlide(titlePath, currentRound, prompt);
 	await drawResults(leaderboardPath, currentRound, prompt, rankings, true);
 	// Open leaderboard image in image viewer
 	if (openLeaderboards) {
@@ -173,8 +173,8 @@ async function results() {
 		resultsMessage = await sendMessage(resultsId, {
 			content: `@everyone ${currentRound} Results`,
 			files: [{
-				attachment: headerPath,
-				name: "header.png"
+				attachment: titlePath,
+				name: "titleSlide.png"
 			}]
 		}, true, false);
 	}
