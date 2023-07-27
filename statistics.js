@@ -72,6 +72,15 @@ const stats = {
 		}
 	},
 	// Round-specific
+	roundName: {
+		description: "Return round name",
+		permLevel: "normal",
+		range: "round",
+		execute: function ({roundPath}) {
+			const {round} = require(roundPath + "roundConfig.json");
+			return round;
+		}
+	},
 	return: {
 		description: "Return property of round",
 		permLevel: "developer",
