@@ -180,12 +180,26 @@ function selectEntries(entries, line) {
 	const entryNames = Object.keys(entries);
 	const tokens = parseArgs(line);
 	for (const token of tokens) {
-		if (token.includes("-")) { // Token is a range
-			const start = entryNames.findIndex(entryName => entryName === token.split("-")[0]);
-			const end = entryNames.findIndex(entryName => entryName === token.split("-")[1]);
-			selection.push(...entryNames.slice(start, end + 1));
-		} else {
-			selection.push(token);
+		switch (token) {
+			case "first":
+				selection.push(entryNames[0]);
+				break;
+			case "previous":
+				if (entryNames.length < 2) {
+					throw new Error("There is no previous entry!");
+				}
+				selection.push(entryNames[entryNames.length - 2]);
+				break;
+			case "current":
+				selection.push(entryNames[entryNames.length - 1]);
+				break;
+			case token.includes("-"): // Token is a range
+				const start = entryNames.findIndex(entryName => entryName === token.split("-")[0]);
+				const end = entryNames.findIndex(entryName => entryName === token.split("-")[1]);
+				selection.push(...entryNames.slice(start, end + 1));
+				break;
+			default:
+				selection.push(token);
 		}
 	}
 	return selection;

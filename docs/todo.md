@@ -64,8 +64,6 @@
 - Leaderboard change over votes in a round
 - Break seasons into all rounds for round-specific stats
 - Image output
-- Return round names in ranges maybe
-- `first`, `latest`, `current` round selectors
 - Current round stat
 
 ### Individual
