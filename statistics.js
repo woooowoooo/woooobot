@@ -217,17 +217,16 @@ async function calcStat(statName, text, message, roles) {
 	if (!(await hasPerms(message.author, message.guild, roles, stat.permLevel))) {
 		throw new Error("You aren't allowed to see this statistic!");
 	}
-	// Get round range
+	// Get entry range
 	const [rangeString, args, processor] = text.split("|").map(arg => arg.trim()); // Ignores further pipes, no need demonstrated
-	const range = stat.range === "round" // "||" so empty string defaults to current round, quotes to get around `parseArgs`
-		? selectEntries(rounds, rangeString || `"${currentRound}"`)
-		: selectEntries(seasons, rangeString || `"${currentSeason}"`);
+	const entries = stat.range === "round" ? rounds : seasons;
+	const range = selectEntries(entries, rangeString || "current"); // "||" so empty string defaults to current round
 	// Check if processor exists
 	if (processor != null && !(processor in processors)) {
 		throw new Error("Invalid processor!");
 	}
 	// Check if all entries are valid
-	if (!range.every(entry => entry in (stat.range === "round" ? rounds : seasons))) {
+	if (!range.every(entry => entry in entries)) {
 		throw new Error(`Invalid ${stat.range} name!`);
 	}
 	// Execute statistic commands
