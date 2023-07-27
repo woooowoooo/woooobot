@@ -4,12 +4,14 @@
 - Fix `parseArgs` in general
 - Reject book attachments of unsupported file types
 - Record title slides in the right folder
+- Fix messages being recorded twice if sent while going through DMs
 
 # Annoyances
 - Remove `pnpm.lock`, `node_modules`, and other symlinks from unison
 - Change "could not require" messages to be opt-in, i.e. show "required" messages instead
 - Change default new round name to increment any number found in the previous round's name
 - Add a way to use `send` with a username
+- Add a way to use `send` with a channel name
 - [Add book message to first response message](behavior.md#first-response-message)
 - Remove notification roles if people remove the corresponding ping role
 - Figure out range of `stat list`
@@ -57,6 +59,7 @@
 - Compact header (Round number on left, prompt on right) maybe
 - `results` command? stat?
 - Generate 1b1s
+- Open-ended ranges
 
 ## Statistics
 - Document stats
@@ -64,7 +67,7 @@
 - Leaderboard change over votes in a round
 - Break seasons into all rounds for round-specific stats
 - Image output
-- Current round stat
+- Open-ended ranges
 
 ### Individual
 - Default contestant argument

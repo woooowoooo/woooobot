@@ -1,7 +1,7 @@
 # woooobot
 Made to automate twoooowoooo. Currently used to automate EndlessTWOW.
 
-Documentation last updated on **2023-07-11**
+Documentation last updated on **2023-07-26**
 
 Sample TWOW last updated **A LONG TIME AGO**
 
@@ -51,7 +51,7 @@ Example table entry:
 | `morshu [sentenceCount]` | Generates `<sentenceCount>` (one if unspecified) amount of [morshu sentences](#morshu). |
 | `name <newName>` | Changes the name displayed during results for the current season to `<newName>`. |
 | `ping` | Pings yourself. |
-| `stat <statName> [possible arguments]` | [It's complicated (docs don't exist yet)](#stats) |
+| `stat <statName> [possible arguments]` | [It's complicated](#stats) |
 
 ### Admin-only
 | Command | Description |
@@ -80,21 +80,32 @@ If you run `node morshu.js`, it will generate ten morshu sentences.
 ### Stats
 Basic syntax: `stat <statName> [range] | [args...] | [processor]`
 
+All statistics take for input (as `[range]`) a list of either TWOWs, seasons, or rounds.
+There are three special keywords, `first`, `previous`, and `current`, which refer to the first, previous, and current entry of the stat's input entry type respectively.
+For example, `current` would be the current round if the stat was `roundName`.
+If no entry is specified, the stat will be calculated as if the input was `current`.
+
+If multiple input entries are specified, the specified stat will be calculated for each specified entry.
+Entry ranges can be specified with a hyphen, e.g. `"Round 1"-"Round 5"`.
+
 The only processor currently is `amount`, which returns the amount of items in the output of stats that return lists.
 If there is no processor, the latter pipe can be omitted, and there are no arguments, the former pipe can be omitted as well.
 
 Do `stat list` to get a list of all stats.
 
-Examples:
-- `stat responses "Round 3"` would return the list of responses for Round 3.
+#### Examples
+The below examples assume that the current round is Round 20, and that the current season is Sample Season.
+- `stat roundName` would return "Round 20", the name of the current round.
+- `stat roundName previous` would return the name of the previous round, likely "Round 19".
+- `stat contestants "Round 3"` would return the list of contestants in Round 3.
 - `stat contestants "Round 12" || amount` would return the number of contestants in Round 12.
-- `stat responses "Round 7" "Round 30" || amount` would return the number of responses in Round 7 and the number of responses in Round 30.
+- `stat responses "Round 7" current || amount` would return two numbers, the number of responses in Round 7 and the number in Round 20.
 - `stat vpr "Round 1"-"Round 8"` would return the VPR of all rounds from Round 1 to Round 8.
 - `stat wins "Sample Season" | 123456789123456789` would return the rounds of Sample Season that the user with snowflake 123456789123456789 won.
 - `stat wins "Sample Season" | 123456789123456789 | amount` would return the *amount* of rounds of Sample Season that the user with snowflake 123456789123456789 won.
 
 ### Execute
-Currently `messageArgs` msut be of the form `"authorId messageId"`.
+Currently `messageArgs` must be of the form `"authorId messageId"`.
 This is due to the way `parseArgs` works.
 
 ### Custom Commands
