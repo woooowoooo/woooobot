@@ -172,6 +172,24 @@ ${list}\`\`\``;
 		permLevel: "developer",
 		execute: function () {}
 	},
+	replace: {
+		arguments: ["<channelId>", "<messageId>", "<oldText>", "<newText>"],
+		description: "Replaces all <oldText> with <newText> in the message <messageId> (in <channelId>).",
+		permLevel: "developer",
+		execute: async function ({args: [channelId, messageId, oldText, newText], message}) {
+			const channel = await message.guild.channels.fetch(channelId).catch(e => {
+				throw new Error("Could not fetch channel in specified server! " + e);
+			});
+			const msg = await channel.messages.fetch(messageId).catch(e => {
+				throw new Error("Could not fetch message from specified channel! " + e);
+			});
+			const newContent = msg.content.replace(oldText, newText);
+			await msg.edit(newContent).catch(e => {
+				throw new Error("Message not editable! " + e);
+			});
+			return "Message edited!";
+		}
+	},
 	return: {
 		arguments: ["<path>", "<keyString>"],
 		description: "Returns the value of the property in file <path> at <keyString>.",
