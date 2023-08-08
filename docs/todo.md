@@ -3,7 +3,6 @@
 - Keep a way to do commands during results, stats are important
 - Fix `parseArgs` in general
 - Reject book attachments of unsupported file types
-- Record title slides in the right folder
 - Fix messages being recorded twice if sent while going through DMs
 
 # Annoyances
@@ -39,6 +38,7 @@
 - Settings on Discord itself
 - Use a database (maybe)
 - Move to ES modules (maybe)
+- Single-use properties in queue
 
 ## Commands
 - Dry run of a command
@@ -65,7 +65,8 @@
 - Document stats
 - Custom stats
 - Leaderboard change over votes in a round
-- Break seasons into all rounds for round-specific stats
+- Allow non-current-season rounds to be specified
+- Break seasons into all rounds for round-specific stats (requires non-current-season rounds)
 - Image output
 - Open-ended ranges
 
@@ -89,3 +90,5 @@
 	- Functional Ctrl+C
 - Quotes in CLI (will have to cook the arguments)
 - Imagine like a proper shell with options
+- Command history (up/down arrows)
+- Command autocomplete maybe

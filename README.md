@@ -1,7 +1,7 @@
 # woooobot
 Made to automate twoooowoooo. Currently used to automate EndlessTWOW.
 
-Documentation last updated on **2023-07-26**
+Documentation last updated on **2023-08-07**
 
 Sample TWOW last updated **A LONG TIME AGO**
 
@@ -51,14 +51,14 @@ Example table entry:
 | `morshu [sentenceCount]` | Generates `<sentenceCount>` (one if unspecified) amount of [morshu sentences](#morshu). |
 | `name <newName>` | Changes the name displayed during results for the current season to `<newName>`. |
 | `ping` | Pings yourself. |
+| `respond <userId> <messageId> <response>` | Records `<response>`. |
 | `stat <statName> [possible arguments]` | [It's complicated](#stats) |
+| `vote <userId> <messageId> <vote>` | Records `<vote>`. |
 
 ### Admin-only
 | Command | Description |
 | --- | --- |
 | `phase <phase>` | Changes round status to `<phase>`. |
-| `respond <userId> <messageId> <response>` | Records `<response>` as `<userId>`'s response, sent as message `<messageId>`. `<messageId>` may be in the form of a ISO 8601 time string. |
-| `vote <userId> <messageId> <vote>` | Records `<vote>` as `<userId>`'s vote, sent as message `<messageId>`. `<messageId>` may be in the form of a ISO 8601 time string. |
 
 ### Developer-only
 | Command | Description |
@@ -69,8 +69,14 @@ Example table entry:
 | `execute <messageArgs> <command>` | Executes `<command>` as if it were a message with properties `<messageArgs>`. |
 | `log [date]` | Returns the log file for `<date>` (today if unspecified). |
 | `reload` | Deletes the `require` cache of all non-node-module files. |
+| `replace <channelId> <messageId> <oldText> <newText>` | Replaces all `<oldText>` with `<newText>` in the message `<messageId>` (in `<channelId>`). |
 | `return <path> <keyString>` | Returns the value of the property in file `<path>` at `<keyString>`. |
 | `send <channelId> <message>` | Sends `<message>` to `<channelId>`. |
+
+### Execute
+`<messageArgs>` must be of the format `"userId messageId"` where `userId` and `messageId` are replaced with the respective snowflakes.
+`messageId` may be in the form of a ISO 8601 time string.
+`<command>` is any command and it may contain arguments etc.
 
 ### Morshu
 Morshu sentences are grammatical (mostly) English sentences that only contain words spoken by Morshu in the CD-i game "Link: The Faces of Evil".
