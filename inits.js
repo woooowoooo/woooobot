@@ -1,14 +1,14 @@
 // Modules
 const fs = require("fs/promises");
 const {execSync} = require("child_process");
-const {logMessage, toTimeString, toUnixTime, save} = require("./helpers.js");
+const {logMessage, save, optRequire, toTimeString, toUnixTime} = require("./helpers.js");
 // Data
 const {twowPath} = require("./config.json"); // TODO: Add support for multiple TWOWs
 const status = require(twowPath + "status.json");
 let {currentSeason, currentRound, seasonPath, roundPath} = status;
 const {seasons} = require(twowPath + "twowConfig.json");
-const nextSeason = require(twowPath + "newSeason.json");
-const roundQueue = require(twowPath + "queue.json");
+const nextSeason = optRequire(twowPath + "nextSeason.json");
+const roundQueue = optRequire(twowPath + "queue.json");
 // Season-specific
 const seasonConfig = require(seasonPath + "seasonConfig.json");
 const {rounds} = seasonConfig;

@@ -13,8 +13,8 @@ TWOW folders consist of the following:
 - Seasons
 - `twowConfig.json`
 - `status.json`
-- `queue.json`
-- `nextSeason.json`
+- (Optional) `queue.json`
+- (Optional) `nextSeason.json`
 
 `twowConfig.json` deals with the configuration of the Discord server the miniTWOW will be held in.
 *All seasons must be held in this server.*
