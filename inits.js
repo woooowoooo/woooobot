@@ -39,10 +39,11 @@ exports.initRound = async function (newRoundName) {
 	status.roundPath = roundPath;
 	await save(twowPath + "status.json", status);
 	logMessage("New round started: " + currentRound);
-	// Create new files
+	// Create new directories
 	await fs.mkdir(roundPath);
 	await fs.mkdir(roundPath + "results/");
 	await fs.mkdir(roundPath + "screens/");
+	// Handle roundConfig
 	Object.assign(roundConfig, {
 		round: currentRound,
 		prompt: "",
@@ -59,6 +60,21 @@ exports.initRound = async function (newRoundName) {
 		}
 		delete roundConfig.remove;
 	}
+	if (nextRound.single != null) {
+		Object.assign(roundConfig, nextRound.single);
+		// Add remove to next round in queue
+		if (roundQueue != null) {
+			if (roundQueue[0] == null) {
+				roundQueue[0] = {};
+			}
+			roundQueue[0].remove ??= [];
+			if (typeof roundQueue[0].remove === "string") {
+				roundQueue[0].remove = [roundQueue[0].remove];
+			}
+			roundQueue[0].remove.concat(...Object.keys(nextRound.single));
+		}
+	}
+	// Create other files
 	await save(roundPath + "roundConfig.json", roundConfig);
 	contestants.responseCount = {};
 	contestants.dead = [];

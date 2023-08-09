@@ -42,7 +42,6 @@
 - Settings on Discord itself
 - Use a database (maybe)
 - Move to ES modules (maybe)
-- Single-use properties in queue
 
 ## Commands
 - Dry run of a command
