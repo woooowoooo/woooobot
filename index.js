@@ -64,7 +64,7 @@ let {initVoting, logVote} = require(votingPath);
 let {results} = require(resultsPath);
 let {initRound} = require(initsPath);
 // Other variables
-const queue = [];
+let queue = [];
 let me;
 // Process messages
 function readMessage(message, readTime = false, queued = listeners.processing) {
@@ -150,7 +150,7 @@ async function processMessageAsync(message) {
 	}));
 }
 async function processQueue() {
-	// Act on unread messages
+	// Enter message processing mode
 	listeners.processing = true;
 	if (!automatic) {
 		stdin.removeListener("data", consoleListener);
@@ -158,14 +158,17 @@ async function processQueue() {
 		stdin.setRawMode(true);
 		readline.emitKeypressEvents(process.stdin);
 	}
+	// Act on queued messages
 	while (queue.length > 0) {
 		const message = queue.shift();
+		// Read and process message
 		readMessage(message, true, false);
 		automatic ? processMessage(message) : await processMessageAsync(message);
 		// Update last checked time
 		config.lastUnread = toSnowflake(message.id);
 		await save("./config.json", config);
 	}
+	// Exit message processing mode
 	if (!automatic) {
 		stdin.setRawMode(false);
 		stdin.on("data", consoleListener);
@@ -204,6 +207,7 @@ client.once("ready", async function () {
 		}
 	};
 	queue.sort((a, b) => a.createdAt - b.createdAt); // Sort queue by time
+	queue = queue.filter((message, index) => queue.findIndex(m => m.id === message.id) === index); // Filter out duplicates (from messageCreate handler)
 	await processQueue();
 	// Start new phase
 	if (autoDeadlines) {
@@ -226,11 +230,14 @@ client.once("ready", async function () {
 	}
 });
 client.on("messageCreate", async function (message) {
-	if (message.author.id === botId || message.guild != null && !bots.includes(message.channel.id)) { // Ignore irrelevant messages
+	// Ignore irrelevant messages
+	if (message.author.id === botId || message.guild != null && !bots.includes(message.channel.id)) {
 		return;
 	}
+	// Read and queue message
 	readMessage(message);
 	queue.push(message);
+	// Process queue if not already processing
 	if (!listeners.processing) {
 		await processQueue();
 	}

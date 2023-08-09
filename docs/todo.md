@@ -3,7 +3,6 @@
 - Keep a way to do commands during results, stats are important
 - Fix `parseArgs` in general
 - Reject book attachments of unsupported file types
-- Fix messages being recorded twice if sent while going through DMs
 
 # Annoyances
 - Remove `pnpm.lock`, `node_modules`, and other symlinks from unison
