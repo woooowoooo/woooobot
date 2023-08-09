@@ -30,6 +30,11 @@
 - Implement balance
 - Implement items
 
+# ACN Season 20 Part 5
+- Serverless TWOW??
+- Send to clipboard?
+- Confirm TWOW works with combined twow and season file
+
 # New Things
 - Save incoming attachments
 - Multiple TWOWs
