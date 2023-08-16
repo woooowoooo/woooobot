@@ -64,15 +64,14 @@ exports.initRound = async function (newRoundName) {
 		Object.assign(roundConfig, nextRound.single);
 		// Add remove to next round in queue
 		if (roundQueue != null) {
-			if (roundQueue[0] == null) {
-				roundQueue[0] = {};
-			}
+			roundQueue[0] ??= {};
 			roundQueue[0].remove ??= [];
-			if (typeof roundQueue[0].remove === "string") {
+			if (typeof roundQueue[0].remove !== "object") {
 				roundQueue[0].remove = [roundQueue[0].remove];
 			}
-			roundQueue[0].remove.concat(...Object.keys(nextRound.single));
+			roundQueue[0].remove.push(...Object.keys(nextRound.single));
 		}
+		delete roundConfig.single;
 	}
 	// Create other files
 	await save(roundPath + "roundConfig.json", roundConfig);
