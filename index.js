@@ -53,7 +53,7 @@ let {runCommand} = require("./commands.js");
 // Configs
 const config = require("./config.json");
 const {automatic, prefix, token, devId, botId, twowPath, lastUnread} = config; // TODO: Allow for multiple TWOWs
-const {id: serverId, roles, channels: {bots}} = require(twowPath + "twowConfig.json");
+const {serverless, id: serverId, roles, channels: {bots} = {}} = require(twowPath + "twowConfig.json");
 let {seasonPath, roundPath, phase} = require(twowPath + "status.json");
 const {autoDeadlines} = require(seasonPath + "seasonConfig.json");
 let {rDeadline, vDeadline} = require(roundPath + "roundConfig.json");
@@ -177,21 +177,12 @@ async function processQueue() {
 	listeners.processing = false;
 }
 listeners.processQueue = processQueue;
-// Event handling
-process.on("uncaughtException", e => logMessage(`[E] ${e}\nStack trace is below:\n${e.stack}`, "error"));
-client.once("ready", async function () {
-	// Send startup messages to console
-	const initLog = `Logged in as ${client.user.tag}.\n\n`;
-	logMessage("=".repeat(initLog.length - 2));
-	logMessage(initLog + morshu.generate(5) + "\n");
-	// Initialize me
-	me = await client.users.fetch(devId);
-	me.createDM(); // To allow for console input to work
+async function queueDMs() {
 	// Get non-bot non-dev members
 	const server = await client.guilds.fetch(serverId);
 	const botRole = await server.roles.fetch(roles.bot);
 	const members = (await server.members.fetch()).filter(m => m.id !== devId && !m.roles.cache.has(botRole.id));
-	// Queue and process unread DMs
+	// Add unread DMs to queue
 	listeners.processing = true;
 	for (const [_, member] of members) {
 		const transitional = member.user.discriminator === "0" ? member.user.username : `${colors.error}${member.user.tag}${colors.dm}`;
@@ -206,9 +197,26 @@ client.once("ready", async function () {
 			queue.push(message);
 		}
 	};
-	queue.sort((a, b) => a.createdAt - b.createdAt); // Sort queue by time
-	queue = queue.filter((message, index) => queue.findIndex(m => m.id === message.id) === index); // Filter out duplicates (from messageCreate handler)
-	await processQueue();
+	// Sort queue by time
+	queue.sort((a, b) => a.createdAt - b.createdAt);
+	// Filter out duplicates (from messageCreate handler)
+	queue = queue.filter((message, index) => queue.findIndex(m => m.id === message.id) === index);
+}
+// Event handling
+process.on("uncaughtException", e => logMessage(`[E] ${e}\nStack trace is below:\n${e.stack}`, "error"));
+client.once("ready", async function () {
+	// Send startup messages to console
+	const initLog = `Logged in as ${client.user.tag}.\n\n`;
+	logMessage("=".repeat(initLog.length - 2));
+	logMessage(initLog + morshu.generate(5) + "\n");
+	// Initialize me
+	me = await client.users.fetch(devId);
+	me.createDM(); // To allow for console input to work
+	// Read DMs
+	if (!serverless) {
+		await queueDMs();
+		await processQueue();
+	}
 	// Start new phase
 	if (autoDeadlines) {
 		if ((phase === "voting" || phase === "both") && toTimeString() > vDeadline) {

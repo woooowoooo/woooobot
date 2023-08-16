@@ -1,9 +1,11 @@
 logs/
+docs/concept-tui.xcf
+config.json
+
+# TWOWs
 twoooowoooo
 EndlessTWOW
 ACN S20 P5
-config.json
-docs/concept-tui.xcf
 
 # For node.js
 node_modules/
