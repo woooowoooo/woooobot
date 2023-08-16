@@ -72,6 +72,10 @@
 - Break seasons into all rounds for round-specific stats (requires non-current-season rounds)
 - Image output
 - Open-ended ranges
+- `all` keyword
+- Special contestant parameter
+- `config` stat
+- Season versions of utility round stats
 
 ### Individual
 - Default contestant argument

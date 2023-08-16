@@ -164,6 +164,23 @@ const stats = {
 	},
 	// Contestant-specific
 	// Season-specific
+	myResponses: {
+		description: "Returns the responses you wrote in a season",
+		permLevel: "normal",
+		range: "season",
+		execute: function ({seasonPath}, contestant) {
+			const {rounds} = require(seasonPath + "seasonConfig.json");
+			const myResponses = [];
+			for (const roundPath of Object.values(rounds)) {
+				const {responseCount} = require(seasonPath + roundPath + "contestants.json");
+				if (responseCount[contestant] != null) {
+					const responses = require(seasonPath + roundPath + "responses.json");
+					myResponses.push(...responses.filter(response => response.author === contestant).map(response => response.text));
+				}
+			}
+			return myResponses;
+		}
+	},
 	wins: {
 		description: "Return all wins in a season",
 		permLevel: "normal",
@@ -236,7 +253,7 @@ async function calcStat(statName, text, message, roles) {
 	}
 	// Check if all entries are valid
 	if (!range.every(entry => entry in entries)) {
-		throw new Error(`Invalid ${stat.range} name!`);
+		throw new Error(`Invalid ${stat.range} name found!`);
 	}
 	// Execute statistic commands
 	let result = [];
