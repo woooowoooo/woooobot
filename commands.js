@@ -279,6 +279,15 @@ ${list}\`\`\``;
 			return deleteResponse(message.author.id);
 		}
 	},
+	deleteVote: {
+		arguments: [],
+		description: "Deletes your vote.",
+		permLevel: "normal",
+		execute: function ({message}) {
+			const {deleteVote} = require("./voting.js");
+			return deleteVote(message.author.id);
+		}
+	},
 	echo: {
 		arguments: ["<message>"],
 		description: "Repeats <message>.",

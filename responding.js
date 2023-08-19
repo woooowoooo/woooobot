@@ -194,6 +194,8 @@ function editResponse(message) {
 	return `Your response, formerly \`${formerResponse.text}\`, has been edited to be \`${message.content}\``;
 }
 function deleteResponse(author) {
+	logMessage(`Deleting response by ${author}`);
+	// Check if author has responded
 	const authorResponseIndex = responses.findIndex(response => response.author === author);
 	if (authorResponseIndex === -1) {
 		return "You have not responded to this prompt!";
@@ -203,6 +205,7 @@ function deleteResponse(author) {
 	responses.splice(authorResponseIndex, 1);
 	// Update response count
 	contestants.responseCount[author]--;
+	// Add back to reminders if necessary
 	addRole(serverId, author, respondingRemindPing);
 	// Save files
 	save(`${roundPath}/responses.json`, responses);

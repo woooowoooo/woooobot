@@ -237,4 +237,26 @@ function logVote(message) {
 	}
 	return reply;
 };
-Object.assign(exports, {partitionResponses, createScreen, createSection, initVoting, logVote});
+function deleteVote(author) {
+	logMessage(`Deleting vote by ${author}`);
+	// Check if vote exists
+	if (!(author in votes)) {
+		return "You have not voted!";
+	}
+	// Delete vote
+	const oldVote = votes[author];
+	delete votes[author];
+	for (const response of responses) {
+		delete response.ratings[author];
+	}
+	// Remove supervoter role
+	if (oldVote.supervote) {
+		removeRole(serverId, author, supervoter);
+		addRole(serverId, author, votingRemindPing);
+	}
+	// Save files
+	save(roundPath + "votes.json", votes);
+	save(roundPath + "responses.json", responses);
+	return `Your vote${suffixPlural(oldVote.messages)}, formerly \`\`\`${oldVote.messages.map(message => message.text).join("\n")}\`\`\`, has been successfully deleted.`;
+}
+Object.assign(exports, {partitionResponses, createScreen, createSection, initVoting, logVote, deleteVote});
