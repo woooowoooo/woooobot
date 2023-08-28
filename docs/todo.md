@@ -52,8 +52,7 @@
 - Argument of `log` to open it in a text viewer
 
 ## Voting
-- VoteLink™
-	- URL is too long to fit in a button
+- Vote screen format option overhaul
 - Automatic asking for vote justification
 - Online vote checker tool
 

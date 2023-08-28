@@ -54,6 +54,7 @@ Example: [`Sample TWOW/Sample Season/seasonConfig.json`](../Sample%20TWOW/Sample
 | **\***`sections` | Integer | Number of sections in voting, not including a megascreen |
 | **\***`megascreen` | Boolean | Create a megascreen, a screen with every response, during voting |
 | **\***`autoKeywords` | Boolean | Generate keywords for screens automatically |
+| **\***`voteLink` | Boolean | Create a vote link in addition to a text screen for megascreens |
 | **\***`cutoffs` | {String: Float} | Results cutoff types and percentiles |
 | **\***`rounds` | {String: String} | Round names and paths |
 

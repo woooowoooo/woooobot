@@ -73,6 +73,9 @@ Example table entry:
 | `return <path> <keyString>` | Returns the value of the property in file `<path>` at `<keyString>`. |
 | `send <channelId> <message>` | Sends `<message>` to `<channelId>`. |
 
+### Editmsg and Replace
+These two must be used in the correct server, which means that they will not work in the CLI.
+
 ### Execute
 `<messageArgs>` must be of the format `"userId messageId"` where `userId` and `messageId` are replaced with the respective snowflakes.
 `messageId` may be in the form of a ISO 8601 time string.

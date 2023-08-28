@@ -18,7 +18,7 @@ const {
 	channels: {bots, voting, reminders: remindersId}
 } = require(twowPath + "twowConfig.json");
 // Season-specific
-const {reminders, autoKeywords} = require(seasonPath + "seasonConfig.json");
+const {reminders, autoKeywords, voteLink} = require(seasonPath + "seasonConfig.json");
 const {drawScreen} = require(seasonPath + "graphics.js");
 // Round-specific
 const {prompt, vDeadline, keywords} = require(roundPath + "roundConfig.json");
@@ -53,11 +53,14 @@ function partitionResponses(responseAmount) {
 	screenSizes.fill(Math.ceil(betterSize), 0, responseAmount % betterAmount);
 	return screenSizes;
 }
+function createVoteLink(keyword, prompt, screen) { // https://voter.figgyc.uk/help
+	return `https://voter.figgyc.uk/#votelink3=${encodeURIComponent(keyword)}%09${encodeURIComponent(prompt)}%09${encodeURIComponent(screen)}\n`;
+}
 async function createScreen(path, responses, keyword, section, textScreen = false) {
 	const rows = new Map();
 	const ids = new Map();
 	// Create text screen
-	let screen = `\`\`\`\n${keyword}\n`;
+	let screen = "";
 	// TODO: Extend characters
 	const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 	let charIndex = 0;
@@ -68,19 +71,36 @@ async function createScreen(path, responses, keyword, section, textScreen = fals
 		ids.set(char, response.id);
 		charIndex++;
 	}
-	screen += "```";
 	logMessage(screen);
 	screenSections[keyword] = section;
 	screenResponses[keyword] = Object.fromEntries(ids.entries());
 	// Draw and send screen
 	await drawScreen(path, keyword, prompt, Array.from(rows.entries()));
-	await sendMessage(voting, {
-		content: textScreen ? screen : null, // For easy voter.js input
+	const message = {
 		files: [{
 			attachment: path,
 			name: keyword + ".png"
 		}]
-	}, true, false, keyword + ".txt");
+	};
+	if (textScreen && voteLink) { // For easy voter.js input
+		const wrappedScreen = `\`\`\`\n${keyword}\n${screen}\`\`\``;
+		const maskedLink = `[VoteLink™](${createVoteLink(keyword, prompt, screen)})`;
+		message.content = maskedLink + wrappedScreen;
+		if (message.content.length > 2000) { // Duplicated sendMessage code so link isn't lumped in with the text screen file
+			// Send text screen as file instead
+			message.files.unshift({
+				attachment: Buffer.from(`${keyword}\n${screen}`),
+				name: keyword + ".txt"
+			});
+			message.content = maskedLink;
+		}
+	} else if (textScreen) {
+		message.content = `\`\`\`\n${keyword}\n${screen}\`\`\``;
+		if (message.content.length > 2000) { // This looks really unintuitive but preps message for becoming file by removing code block
+			message.content = `${keyword}\n${screen}`;
+		}
+	}
+	await sendMessage(voting, message, true, false, keyword + ".txt");
 }
 async function createSection(path, responses, sizes, sectWord) {
 	for (let i = 0; i < sizes.length; i++) {
