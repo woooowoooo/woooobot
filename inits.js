@@ -14,7 +14,7 @@ const seasonConfig = require(seasonPath + "seasonConfig.json");
 const {rounds} = seasonConfig;
 const seasonContestants = require(seasonPath + "seasonContestants.json");
 // Round-specific
-const roundConfig = require(roundPath + "roundConfig.json");
+const {vDeadline} = require(roundPath + "roundConfig.json");
 const contestants = require(roundPath + "contestants.json");
 exports.initRound = async function (newRoundName) {
 	const nextRound = roundQueue?.shift();
@@ -43,38 +43,13 @@ exports.initRound = async function (newRoundName) {
 	await fs.mkdir(roundPath);
 	await fs.mkdir(roundPath + "results/");
 	await fs.mkdir(roundPath + "screens/");
-	// Handle roundConfig
-	Object.assign(roundConfig, {
+	// Create files
+	await save(roundPath + "roundConfig.json", Object.assign({
 		round: currentRound,
 		prompt: "",
-		rDeadline: toTimeString(toUnixTime(roundConfig.vDeadline) + seasonConfig.deadlines[0] * 86400),
-		vDeadline: toTimeString(toUnixTime(roundConfig.vDeadline) + (seasonConfig.deadlines[0] + seasonConfig.deadlines[1]) * 86400)
-	}, nextRound);
-	if (nextRound.remove != null) {
-		if (typeof nextRound.remove === "string") {
-			delete roundConfig[nextRound.remove];
-		} else {
-			for (const key of nextRound.remove) {
-				delete roundConfig[key];
-			}
-		}
-		delete roundConfig.remove;
-	}
-	if (nextRound.single != null) {
-		Object.assign(roundConfig, nextRound.single);
-		// Add remove to next round in queue
-		if (roundQueue != null) {
-			roundQueue[0] ??= {};
-			roundQueue[0].remove ??= [];
-			if (typeof roundQueue[0].remove !== "object") {
-				roundQueue[0].remove = [roundQueue[0].remove];
-			}
-			roundQueue[0].remove.push(...Object.keys(nextRound.single));
-		}
-		delete roundConfig.single;
-	}
-	// Create other files
-	await save(roundPath + "roundConfig.json", roundConfig);
+		rDeadline: toTimeString(toUnixTime(vDeadline) + seasonConfig.deadlines[0] * 86400),
+		vDeadline: toTimeString(toUnixTime(vDeadline) + (seasonConfig.deadlines[0] + seasonConfig.deadlines[1]) * 86400)
+	}, nextRound));
 	contestants.responseCount = {};
 	contestants.dead = [];
 	contestants.dnp = [];

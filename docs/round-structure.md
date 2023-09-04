@@ -82,11 +82,8 @@ Without a spoiler wall, unsuspecting latecomers would be dropped into the middle
 
 ## New rounds
 New rounds are stored in `queue.json` in the TWOW folder.
-When a new round is created, woooobot will copy over the `contestants.json` and `roundConfig.json` from the previous round with some modifications.
-It will then take the first round in `queue.json` and copy over its properties to the new `roundConfig.json`.
+When a new round is created, woooobot will copy over the `contestants.json` from the previous round.
+It will then take the first round in `queue.json` and copy its properties onto a new, template `roundConfig.json`.
 Thus, to override properties in `roundConfig.json`, add them to the first element of `queue.json` in the TWOW folder.
-
-In each round of `queue.json`, there is also a special `remove` property, which is either a single key or a list of keys.
-All keys in `remove` as well as `remove` itself will be removed from the new `roundConfig.json`.
 
 After doing `phase newRound`, it is recommended to end woooobot (`Ctrl+C`) and restart it to ensure that the new round is loaded properly.
