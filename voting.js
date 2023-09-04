@@ -84,7 +84,7 @@ async function createScreen(path, responses, keyword, section, textScreen = fals
 	};
 	if (textScreen && voteLink) { // For easy voter.js input
 		const wrappedScreen = `\`\`\`\n${keyword}\n${screen}\`\`\``;
-		const maskedLink = `[VoteLink™](${createVoteLink(keyword, prompt, screen)})`;
+		const maskedLink = `[**VoteLink™**](${createVoteLink(keyword, prompt, screen)})`;
 		message.content = maskedLink + wrappedScreen;
 		if (message.content.length > 2000) { // Duplicated sendMessage code so link isn't lumped in with the text screen file
 			// Send text screen as file instead
@@ -279,4 +279,4 @@ function deleteVote(author) {
 	save(roundPath + "responses.json", responses);
 	return `Your vote${suffixPlural(oldVote.messages)}, formerly \`\`\`${oldVote.messages.map(message => message.text).join("\n")}\`\`\`, has been successfully deleted.`;
 }
-Object.assign(exports, {partitionResponses, createScreen, createSection, initVoting, logVote, deleteVote});
+Object.assign(exports, {partitionResponses, createVoteLink, createScreen, createSection, initVoting, logVote, deleteVote});
