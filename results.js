@@ -152,16 +152,16 @@ async function results() {
 	// Listen for start or resume
 	stdin.removeListener("data", listeners.consoleListener);
 	listeners.processing = true;
-	let [slide, previousResults] = await new Promise(resolve => stdin.on("data", function listener(input) {
+	let [resume, slide, previousResults] = await new Promise(resolve => stdin.on("data", function listener(input) {
 		const line = input.toString().trim();
 		if (line === "start") {
 			stdin.removeListener("data", listener);
-			resolve([1, null]);
+			resolve([false, 1, null]);
 		}
 		if (line.startsWith("resume ")) {
 			stdin.removeListener("data", listener);
 			const [slide, previousResults] = line.slice(7).split(" ");
-			resolve([parseInt(slide), previousResults]);
+			resolve([true, parseInt(slide), previousResults]);
 		}
 	}));
 	if (Number.isNaN(slide)) {
@@ -169,7 +169,7 @@ async function results() {
 	}
 	// Send or don't send start message
 	let resultsMessage = {url: `https://discord.com/channels/${serverId}/${resultsId}/${previousResults}`};
-	if (previousResults == null) {
+	if (!resume) {
 		resultsMessage = await sendMessage(resultsId, {
 			content: `@everyone ${currentRound} Results`,
 			files: [{
