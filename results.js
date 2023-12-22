@@ -181,12 +181,13 @@ async function results() {
 	// Set activity
 	client.user.setActivity(`Results for ${currentRound}`, {type: ActivityType.Streaming, url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"});
 	// Reveal results
+	const endWords = new Set(["end", "sw", "silent"]);
 	let input = "";
-	while (input !== "end" && input !== "sw") {
+	while (!endWords.has(input)) {
 		input = await new Promise(resolve => stdin.once("data", async input => {
 			const line = input.toString().trim();
 			resolve(line);
-			if (line === "end" || line === "sw") {
+			if (endWords.has(line)) {
 				return;
 			}
 			if (line === "lb") {
@@ -208,11 +209,13 @@ async function results() {
 		await sendLeaderboard(leaderboardPath, resultsMessage.url);
 	}
 	// Spoiler wall
-	for (let _ = 0; _ < 49; _++) {
-		await sendMessage(resultsId, morshu(1), true);
+	if (input === "end" || input === "sw") {
+		for (let _ = 0; _ < 49; _++) {
+			await sendMessage(resultsId, morshu(1), true);
+		}
+		// Link to beginning of results
+		await sendMessage(resultsId, resultsMessage.url, true);
 	}
-	// Link to beginning of results
-	await sendMessage(resultsId, resultsMessage.url, true);
 	// Reset activity
 	client.user.setActivity();
 	// Process missed messages

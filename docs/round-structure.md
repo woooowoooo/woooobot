@@ -45,7 +45,7 @@ This will activate the main results CLI.
 If `start` was sent, woooobot will then send a ping and the title slide to the results channel.
 
 ### Results CLI
-Input should either be a keyword (`lb`, `sw`, `end`) or a list of response ranks, separated by spaces.
+Input should either be a keyword (`lb`, `sw`, `end`, `silent`) or a list of response ranks, separated by spaces.
 
 If a list of response ranks is sent, woooobot will send a slide containing those responses.
 Specify unranked responses (dummies, DRPs) as the rank of the nearest ranked response above it followed by how many (unranked) responses are between them.
@@ -58,9 +58,9 @@ To add a comment to the slide, separate the comment from the response rank with 
 #### Keywords
 If `lb` is sent, the bot will post the full leaderboard (generated at the beginning) in the results channel, as well as in the leaderboard channel if a `leaderboards` channel id is defined in `twowConfig.json`.
 
-Finish results by sending either `sw` or `end` to woooobot.
+Finish results by sending either `end`, `sw`, or `silent` to woooobot.
 
-`end` is functionally equivalent to sending `lb` and then `sw`.
+`end` is functionally equivalent to sending `lb` and then `sw`. `silent` ends results without doing either of those.
 
 ### Ending results
 When ending results, woooobot will post a 50 message "spoiler wall" in the results channel, consisting of 49 ["morshu sentences"](../README.md#morshu) and a link to the beginning of results.
@@ -69,6 +69,7 @@ Without a spoiler wall, unsuspecting latecomers would be dropped into the middle
 
 ### CLI examples
 - `start` would start results (ping results, send title slide)
+- `resume` would resume results with slide numbering starting at 1 by default, but the results link at the end of results would be broken. I would only do this if there is no plan to use a spoiler wall.
 - `resume 16 1133182838473244742` would resume results with slide numbering starting at 16 with the link at the end of results linking to the message with the Discord snowflake of 1133182838473244742
 - `12` would show the response in rank 12
 - `1 4 6` would show the responses in ranks 1, 4, and 6
@@ -78,6 +79,7 @@ Without a spoiler wall, unsuspecting latecomers would be dropped into the middle
 - `1-3f` would show the responses in ranks 1 through 3 without dummies and DRPs
 - `lb` would send the leaderboard(s)
 - `sw` would end results and send the spoiler wall
+- `silent` would end results without doing either `lb` or `sw`
 - `end` would do both `lb` and `sw`
 
 ## New rounds
