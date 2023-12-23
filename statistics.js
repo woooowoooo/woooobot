@@ -181,6 +181,22 @@ const stats = {
 			return myResponses;
 		}
 	},
+	myRounds: {
+		description: "Returns the rounds in a season that you participated in",
+		permLevel: "normal",
+		range: "season",
+		execute: function ({seasonPath}, contestant) {
+			const {rounds} = require(seasonPath + "seasonConfig.json");
+			const myRounds = [];
+			for (const [roundName, roundPath] of Object.entries(rounds)) {
+				const {responseCount} = require(seasonPath + roundPath + "contestants.json");
+				if (responseCount[contestant] != null) {
+					myRounds.push(roundName);
+				}
+			}
+			return myRounds;
+		}
+	},
 	wins: {
 		description: "Return all wins in a season",
 		permLevel: "normal",
