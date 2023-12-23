@@ -150,7 +150,7 @@ ${list}\`\`\``;
 				toString: () => command
 			});
 			const output = await runCommand(command, simulatedMessage);
-			// sendMessage(userId, output, true);
+			sendMessage(userId, output, true);
 			return output;
 		}
 	},
@@ -350,7 +350,8 @@ ${list}\`\`\``;
 		execute: async function ({args: [response], message}) {
 			const {respondingPath} = getPaths(seasonPath);
 			Object.assign(message, {
-				content: response
+				content: response,
+				toString: () => response
 			});
 			return await require(respondingPath).logResponse(message);
 		}
@@ -371,7 +372,8 @@ ${list}\`\`\``;
 		execute: async function ({args: [vote], message}) {
 			const {votingPath} = getPaths(seasonPath);
 			Object.assign(message, {
-				content: vote
+				content: vote,
+				toString: () => vote
 			});
 			return await require(votingPath).logVote(message);
 		}
