@@ -220,9 +220,6 @@ ${list}\`\`\``;
 		permLevel: "developer",
 		execute: async function ({args: [channelId, message]}) {
 			channelId = channelId.match(/^<(#|@|@!)(?<id>\d+)>$/)?.groups.id ?? channelId;
-			if (!/\d+/.test(channelId)) {
-				throw new Error("Invalid channel ID!");
-			}
 			sendMessage(channelId, message, true);
 		}
 	},

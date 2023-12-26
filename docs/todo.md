@@ -8,8 +8,6 @@
 - Remove `pnpm.lock`, `node_modules`, and other symlinks from unison
 - Change "could not require" messages to be opt-in, i.e. show "required" messages instead
 - Change default new round name to increment any number found in the previous round's name
-- Add a way to use `send` with a username
-- Add a way to use `send` with a channel name
 - [Add book message to first response message](behavior.md#first-response-message)
 - Remove notification roles if people remove the corresponding ping role
 - Figure out range of `stat list`

@@ -146,11 +146,28 @@ function reload(path) {
 Object.assign(exports, {defaultRequire, optRequire, reload});
 // Discord.js
 async function resolveChannel(id) {
-	try {
-		return await client.channels.fetch(id);
-	} catch { // Error message (Cannot read properties of undefined (reading 'includes') is still logged
-		const user = await client.users.fetch(id);
-		return await user.createDM();
+	if (id.match(/^(?<![#@])[A-Za-z]/)) {
+		throw new Error("Prefix name with `#` or `@` to specify channel or user!"); // Channels and users can have the same name
+	}
+	if (id[0] === "#") { // Channel name
+		const channel = client.channels.cache.find(channel => channel.name === id.substring(1));
+		if (channel == null) {
+			throw new Error("Channel not found");
+		}
+		return channel;
+	} else if (id[0] === "@") { // User name
+		const user = client.users.cache.find(user => user.username === id.substring(1));
+		if (user == null) {
+			throw new Error("User not found");
+		}
+		return user.createDM();
+	} else { // Snowflake
+		let channel = await client.channels.fetch(id).catch(() => null);
+		channel ??= await client.users.fetch(id).catch(() => null);
+		if (channel == null) {
+			throw new Error("Channel or user not found");
+		}
+		return channel;
 	}
 };
 async function sendMessage(destination, message, id = false, saveAttachment = true, longMessageName) {
