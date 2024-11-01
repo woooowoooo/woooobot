@@ -162,8 +162,8 @@ async function resolveChannel(id) {
 		}
 		return user.createDM();
 	} else { // Snowflake
-		let channel = await client.channels.fetch(id).catch(() => null);
-		channel ??= await client.users.fetch(id).catch(() => null);
+		let channel = await client.channels.fetch(id).catch(async () => null);
+		channel ??= (await client.users.fetch(id).catch(async () => null))?.dmChannel;
 		if (channel == null) {
 			throw new Error("Channel or user not found");
 		}
