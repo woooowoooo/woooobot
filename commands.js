@@ -297,12 +297,12 @@ ${list}\`\`\``;
 		}
 	},
 	edit: {
-		arguments: ["<newResponse>"],
-		description: "Edits your response to <newResponse>.",
+		arguments: ["[responseNumber]", "<newResponse>"],
+		description: "Edits your response to <newResponse>. You must specify a <responseNumber> if you have submitted multiple responses.",
 		permLevel: "normal",
-		execute: function ({args: [newResponse], message}) {
+		execute: function ({args: [responseNumber, newResponse], message}) {
 			const {editResponse} = require("./responding.js");
-			message.content = newResponse;
+			message.content = responseNumber + " " + newResponse; // Handle optional responseNumber inside editResponse instead
 			return editResponse(message);
 		}
 	},

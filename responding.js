@@ -163,12 +163,25 @@ async function logResponse(message) {
 };
 function editResponse(message) {
 	logMessage(`Recording response edit by ${message.author}:\n\t${message}`);
-	// Find old response
-	const authorResponseIndex = responses.findIndex(response => response.author === message.author.id);
-	if (authorResponseIndex === -1) {
+	// Find old response(s)
+	const authorResponses = responses.map((response, index) => ({index, response})).filter(({response}) => response.author === message.author.id);
+	if (authorResponses.length === 0) {
 		return "You have not responded to this prompt!";
 	}
-	const formerResponse = responses[authorResponseIndex];
+	// If multiple responses, find the one to edit
+	let responseNumber = 1; // Edit first response by default
+	if (authorResponses.length > 1) {
+		responseNumber = message.content.split(" ", 1)[0];
+		message.content = message.content.substring(commandName.length + 1);
+		if (isNaN(parseInt(responseNumber))) {
+			return `You did not specify which of your ${authorResponses.length} responses to edit. Your edit has not been recorded.`;
+		}
+		if (responseNumber < 1 || responseNumber > authorResponses.length) {
+			return `You have not submitted a response #${responseNumber}!`;
+		}
+	}
+	const authorResponseIndex = authorResponses[responseNumber - 1].index;
+	const formerResponse = authorResponses[responseNumber - 1].response;
 	// Check technicals
 	const failedTechnical = checkTechnicals(message.content);
 	if (failedTechnical !== null) {
@@ -178,10 +191,10 @@ function editResponse(message) {
 	const messageData = {
 		id: message.id,
 		author: message.author.id,
-		time: toTimeString(message.createdAt),
+		time: formerResponse.time,
 		text: message.content,
-		dummy: formerResponse.isDummy || undefined,
-		edited: true
+		dummy: formerResponse.dummy || undefined,
+		edited: toTimeString(message.createdAt)
 	};
 	if (roundTwists != null) {
 		messageData.twist = roundTwists.reduce((message, name) => {
