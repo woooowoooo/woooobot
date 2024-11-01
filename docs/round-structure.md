@@ -23,13 +23,14 @@ A "technical" is a rule that must be followed when responding to a prompt.
 Responses that do not follow the technical are not recorded.
 By default, a ten word limit technical is imposed on responses.
 To cancel this behavior, add `noTenWord` to the list of technicals to be used in `roundConfig.json`.
-All technicals that are not the ten word limit inherent in the definition of TWOW must be defined in `technicals.js` in the season folder.
+All technicals that are not the ten word limit inherent in the definition of TWOW must be defined in `technicals.js` in the season folder, the structure of which is documented [here](./config-files.md#`technicals.js`).
+If a technical does not have a `check` function, it will not be automatically checked and will pass every response.
 An example `technicals.js` can be found [in the sample season](../Sample%20TWOW/Sample%20Season/technicals.js).
 
 ### Twists
 A "twist" in the context of woooobot is defined as a function that modifies a response when it is recorded.
 Note that woooobot uses a narrow definition of twist.
-All twists must be defined in `twists.js` in the season folder.
+All twists must be defined in `twists.js` in the season folder, the structure of which is documented [here](./config-files.md#`twists.js`)
 An example `twists.js` can be found [in the sample season](../Sample%20TWOW/Sample%20Season/twists.js).
 
 ## Voting

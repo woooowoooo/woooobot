@@ -3,6 +3,7 @@
 - Keep a way to do commands during results, stats are important
 - Fix `parseArgs` in general
 - Reject book attachments of unsupported file types
+- Escape newlines for voter.js
 
 # Annoyances
 - Remove `pnpm.lock`, `node_modules`, and other symlinks from unison
@@ -14,6 +15,8 @@
 - Allow `phase` to take no argument
 - Add `open` functionality to Windows
 - Add sample custom commands
+- Work if more than 50 unprocessed messages are in a channel
+- Add custom message to `remind` and `remindPing`
 
 # EndlessTWOW-specific Things
 - Add points to supervoters who did not respond
@@ -26,14 +29,13 @@
 	- Implement editing responses with multi-response eligiblity [(see behavior.md)](behavior.md#editing-behavior)
 - Implement balance
 - Implement items
-
-# ACN Season 20 Part 5
-- Serverless TWOW??
-- Send to clipboard?
-- Confirm TWOW works with combined twow and season file
+- Technical Tuesday
+	- Twist Thursday? Come up with twists
+- Implement `transfers.json`
 
 # New Things
 - Save incoming attachments
+- Technical mutual exclusion
 - Multiple TWOWs
 - Autoremind
 	- Pawn off to a separate bot or library
@@ -48,11 +50,14 @@
 	- Parameters
 - Make `change` useful
 - Argument of `log` to open it in a text viewer
+- Fix `delete` similarly to edit
 
 ## Voting
 - Vote screen format option overhaul
+	- See [this message](https://discord.com/channels/813499612080898070/822498108969713675/1145685387646349312) onwards
 - Automatic asking for vote justification
 - Online vote checker tool
+- Send multiple images in one message
 
 ## Results
 - Let people generate screens

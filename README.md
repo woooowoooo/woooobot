@@ -33,6 +33,13 @@ I never really intended for this to be used by anyone else, but if you want to u
 ### Running
 Run `node index.js` in the repository folder.
 
+Upon startup, the bot will run through all DMs to read unread messages.
+If `automatic` in `config.json` is set to false, it will then allow you to start processing the DMs.
+To record a message as a command, response, or vote, press Ctrl + R.
+To skip a message, press Ctrl + S.
+After all messages have been processed, you can then run commands in the CLI.
+The prefix is optional in the CLI.
+
 ## Commands
 Example table entry:
 | Command | Description |

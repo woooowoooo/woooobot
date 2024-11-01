@@ -75,3 +75,28 @@ Example: [`Sample TWOW/Sample Season/Round 1/roundConfig.json`](../Sample%20TWOW
 | `twists` | \[String\] | List of twists (defined in `twists.js` in the season folder) that will be applied to responses |
 | `sections` | Integer | Overrides the value specified in `seasonConfig.json` |
 | `megascreen` | Boolean | Overrides the value specified in `seasonConfig.json` |
+
+## `technicals.js`
+Example: [`Sample TWOW/Sample Season/technicals.js`](../Sample%20TWOW/Sample%20Season/technicals.js)
+
+This consists of an object mapping technical names to technical objects.
+Technical objects consist of the following:
+
+| Key | Value Type | Description |
+| --- | --- | --- |
+| **\***`name` | String | Technical displayed name |
+| **\***`description` | String | Technical description |
+| `exclude` | \[String\] | List of mutually exclusive technicals (CURRENTLY DOES NOTHING) |
+| `check` | Function | Function that returns true if a response passes the technical |
+
+## `twists.js`
+Example: [`Sample TWOW/Sample Season/twists.js`](../Sample%20TWOW/Sample%20Season/twists.js)
+
+This consists of an object mapping twist names to twist objects.
+Twist objects consist of the following:
+
+| Key | Value Type | Description |
+| --- | --- | --- |
+| **\***`name` | String | Twist displayed name |
+| **\***`description` | String | Twist description |
+| **\***`execute` | Function | Function that returns a modified response |
