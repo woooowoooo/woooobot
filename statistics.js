@@ -41,12 +41,14 @@ const stats = {
 		permLevel: "normal",
 		range: "twow",
 		execute: function () {
-			const contestants = new Set();
+			const contestants = new Map();
 			for (const seasonPath of Object.values(seasons)) {
 				const {names} = require(twowPath + seasonPath + "seasonContestants.json");
-				Object.values(names).forEach(name => contestants.add(name));
+				for (const [id, name] of Object.entries(names)) {
+					contestants.set(id, name);
+				}
 			}
-			return [...contestants];
+			return [...contestants.values()];
 		}
 	},
 	// Season-specific
