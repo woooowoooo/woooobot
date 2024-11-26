@@ -15,10 +15,10 @@ const commands = {
 		permLevel: "normal",
 		execute: function () {
 			return `Welcome to woooobot.
-woooobot was made to automate twoooowoooo.
+woooobot was made to automate twoooowoooo and currently automates EndlessTWOW.
 I don't want to have this bot running 24/7, so **it will be offline most of the time.**
-However, the bot will be guaranteed online during results.
-Use \`${prefix} list\` to list all available commands.`;
+However, the bot is guaranteed to be online during results.
+Use \`${prefix}list\` to list all available commands.`;
 		}
 	},
 	list: {
